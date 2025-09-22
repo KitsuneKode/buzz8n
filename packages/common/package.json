@@ -6,7 +6,8 @@
   "exports": {
     "./types": "./src/types/index.ts",
     ".": "./src/index.ts",
-    "./config": "./src/utils/config-loader.ts"
+    "./config": "./src/utils/config-loader.ts",
+    "./logger": "./src/utils/logger.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"
@@ -16,6 +17,8 @@
   },
   "dependencies": {
     "@buzz8n/typescript-config": "*",
+    "date-fns": "^4.1.0",
+    "winston": "^3.17.0",
     "zod": "^4.1.11"
   }
 }
