@@ -1,6 +1,6 @@
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { PrismaClientKnownRequestError } from '@buzz8n/store'
-import { JWT_SECRET } from '@/utils/config'
+import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { password as Password } from 'bun'
 import { prisma } from '@buzz8n/store'
 import { Router } from 'express'
@@ -81,10 +81,15 @@ router.post('/sign-in', async (req, res, next) => {
 
     const token = jwt.sign({ email }, JWT_SECRET!)
 
-    res.status(200).json({
-      token,
-      message: 'Signed up sucessfully',
-    })
+    res
+      .status(200)
+      .cookie('buzz8n_auth', token, {
+        secure: NODE_ENV !== 'development',
+        maxAge: 1000 * 60 * 60 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      })
+      .send('Signed up sucessfully')
   } catch (error) {
     next(error)
   }

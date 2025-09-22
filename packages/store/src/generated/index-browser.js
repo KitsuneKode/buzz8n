@@ -127,9 +127,35 @@ exports.Prisma.UserScalarFieldEnum = {
   password_hash: 'password_hash'
 };
 
+exports.Prisma.WorkflowScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  enabled: 'enabled',
+  nodes: 'nodes',
+  connections: 'connections'
+};
+
+exports.Prisma.WebhookScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  method: 'method',
+  path: 'path'
+};
+
+exports.Prisma.CredentialScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  platform: 'platform',
+  data: 'data'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
+};
+
+exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
 };
 
 exports.Prisma.QueryMode = {
@@ -137,9 +163,27 @@ exports.Prisma.QueryMode = {
   insensitive: 'insensitive'
 };
 
+exports.Prisma.JsonNullValueFilter = {
+  DbNull: Prisma.DbNull,
+  JsonNull: Prisma.JsonNull,
+  AnyNull: Prisma.AnyNull
+};
+exports.Methods = exports.$Enums.Methods = {
+  POST: 'POST',
+  GET: 'GET',
+  PUT: 'PUT'
+};
+
+exports.SupportedPlatforms = exports.$Enums.SupportedPlatforms = {
+  Telegram: 'Telegram',
+  Gmail: 'Gmail'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Workflow: 'Workflow',
+  Webhook: 'Webhook',
+  Credential: 'Credential'
 };
 
 /**

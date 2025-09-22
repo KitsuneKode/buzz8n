@@ -2,8 +2,10 @@ import express from 'express'
 
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
+import { credentialRouter } from '@/routers/credential'
 import { config, PORT } from '@/utils/config'
 import { authRouter } from '@/routers/auth'
+import cookieParser from 'cookie-parser'
 import { logger } from '@/utils/logger'
 
 config.validate(['environment', 'port', 'jwtSecret'])
@@ -11,13 +13,14 @@ config.validate(['environment', 'port', 'jwtSecret'])
 const app = express()
 
 app.use(express.json())
+app.use(cookieParser())
 app.use(timingMiddleware)
 
 app.get('/healthcheck', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter]
+const routers = [authRouter, credentialRouter]
 
 routers.forEach((router) => app.use('/api/v1', router))
 

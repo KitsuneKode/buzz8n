@@ -22,7 +22,9 @@
   "dependencies": {
     "@buzz8n/common": "*",
     "@buzz8n/store": "*",
+    "@types/cookie-parser": "^1.4.9",
     "@types/jsonwebtoken": "^9.0.10",
+    "cookie-parser": "^1.4.7",
     "express": "^5.1.-1",
     "jsonwebtoken": "^9.0.2",
     "zod": "^4.1.11"

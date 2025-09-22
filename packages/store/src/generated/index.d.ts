@@ -18,6 +18,51 @@ export type PrismaPromise<T> = $Public.PrismaPromise<T>
  * 
  */
 export type User = $Result.DefaultSelection<Prisma.$UserPayload>
+/**
+ * Model Workflow
+ * 
+ */
+export type Workflow = $Result.DefaultSelection<Prisma.$WorkflowPayload>
+/**
+ * Model Webhook
+ * 
+ */
+export type Webhook = $Result.DefaultSelection<Prisma.$WebhookPayload>
+/**
+ * Model Credential
+ * 
+ */
+export type Credential = $Result.DefaultSelection<Prisma.$CredentialPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+  export const Methods: {
+  POST: 'POST',
+  GET: 'GET',
+  PUT: 'PUT'
+};
+
+export type Methods = (typeof Methods)[keyof typeof Methods]
+
+
+export const SupportedPlatforms: {
+  Telegram: 'Telegram',
+  Gmail: 'Gmail'
+};
+
+export type SupportedPlatforms = (typeof SupportedPlatforms)[keyof typeof SupportedPlatforms]
+
+}
+
+export type Methods = $Enums.Methods
+
+export const Methods: typeof $Enums.Methods
+
+export type SupportedPlatforms = $Enums.SupportedPlatforms
+
+export const SupportedPlatforms: typeof $Enums.SupportedPlatforms
 
 /**
  * ##  Prisma Client ʲˢ
@@ -146,6 +191,36 @@ export class PrismaClient<
     * ```
     */
   get user(): Prisma.UserDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.workflow`: Exposes CRUD operations for the **Workflow** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Workflows
+    * const workflows = await prisma.workflow.findMany()
+    * ```
+    */
+  get workflow(): Prisma.WorkflowDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.webhook`: Exposes CRUD operations for the **Webhook** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Webhooks
+    * const webhooks = await prisma.webhook.findMany()
+    * ```
+    */
+  get webhook(): Prisma.WebhookDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.credential`: Exposes CRUD operations for the **Credential** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Credentials
+    * const credentials = await prisma.credential.findMany()
+    * ```
+    */
+  get credential(): Prisma.CredentialDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -586,7 +661,10 @@ export namespace Prisma {
 
 
   export const ModelName: {
-    User: 'User'
+    User: 'User',
+    Workflow: 'Workflow',
+    Webhook: 'Webhook',
+    Credential: 'Credential'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -605,7 +683,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user"
+      modelProps: "user" | "workflow" | "webhook" | "credential"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -680,6 +758,228 @@ export namespace Prisma {
           count: {
             args: Prisma.UserCountArgs<ExtArgs>
             result: $Utils.Optional<UserCountAggregateOutputType> | number
+          }
+        }
+      }
+      Workflow: {
+        payload: Prisma.$WorkflowPayload<ExtArgs>
+        fields: Prisma.WorkflowFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WorkflowFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WorkflowFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          findFirst: {
+            args: Prisma.WorkflowFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WorkflowFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          findMany: {
+            args: Prisma.WorkflowFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>[]
+          }
+          create: {
+            args: Prisma.WorkflowCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          createMany: {
+            args: Prisma.WorkflowCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WorkflowCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>[]
+          }
+          delete: {
+            args: Prisma.WorkflowDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          update: {
+            args: Prisma.WorkflowUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          deleteMany: {
+            args: Prisma.WorkflowDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WorkflowUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WorkflowUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>[]
+          }
+          upsert: {
+            args: Prisma.WorkflowUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WorkflowPayload>
+          }
+          aggregate: {
+            args: Prisma.WorkflowAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWorkflow>
+          }
+          groupBy: {
+            args: Prisma.WorkflowGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WorkflowGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WorkflowCountArgs<ExtArgs>
+            result: $Utils.Optional<WorkflowCountAggregateOutputType> | number
+          }
+        }
+      }
+      Webhook: {
+        payload: Prisma.$WebhookPayload<ExtArgs>
+        fields: Prisma.WebhookFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.WebhookFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.WebhookFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          findFirst: {
+            args: Prisma.WebhookFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.WebhookFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          findMany: {
+            args: Prisma.WebhookFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>[]
+          }
+          create: {
+            args: Prisma.WebhookCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          createMany: {
+            args: Prisma.WebhookCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.WebhookCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>[]
+          }
+          delete: {
+            args: Prisma.WebhookDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          update: {
+            args: Prisma.WebhookUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          deleteMany: {
+            args: Prisma.WebhookDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.WebhookUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.WebhookUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>[]
+          }
+          upsert: {
+            args: Prisma.WebhookUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$WebhookPayload>
+          }
+          aggregate: {
+            args: Prisma.WebhookAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateWebhook>
+          }
+          groupBy: {
+            args: Prisma.WebhookGroupByArgs<ExtArgs>
+            result: $Utils.Optional<WebhookGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.WebhookCountArgs<ExtArgs>
+            result: $Utils.Optional<WebhookCountAggregateOutputType> | number
+          }
+        }
+      }
+      Credential: {
+        payload: Prisma.$CredentialPayload<ExtArgs>
+        fields: Prisma.CredentialFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.CredentialFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.CredentialFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          findFirst: {
+            args: Prisma.CredentialFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.CredentialFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          findMany: {
+            args: Prisma.CredentialFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+          }
+          create: {
+            args: Prisma.CredentialCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          createMany: {
+            args: Prisma.CredentialCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.CredentialCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+          }
+          delete: {
+            args: Prisma.CredentialDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          update: {
+            args: Prisma.CredentialUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          deleteMany: {
+            args: Prisma.CredentialDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.CredentialUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.CredentialUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>[]
+          }
+          upsert: {
+            args: Prisma.CredentialUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$CredentialPayload>
+          }
+          aggregate: {
+            args: Prisma.CredentialAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateCredential>
+          }
+          groupBy: {
+            args: Prisma.CredentialGroupByArgs<ExtArgs>
+            result: $Utils.Optional<CredentialGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.CredentialCountArgs<ExtArgs>
+            result: $Utils.Optional<CredentialCountAggregateOutputType> | number
           }
         }
       }
@@ -780,6 +1080,9 @@ export namespace Prisma {
   }
   export type GlobalOmitConfig = {
     user?: UserOmit
+    workflow?: WorkflowOmit
+    webhook?: WebhookOmit
+    credential?: CredentialOmit
   }
 
   /* Types for Logging */
@@ -1843,6 +2146,2953 @@ export namespace Prisma {
 
 
   /**
+   * Model Workflow
+   */
+
+  export type AggregateWorkflow = {
+    _count: WorkflowCountAggregateOutputType | null
+    _min: WorkflowMinAggregateOutputType | null
+    _max: WorkflowMaxAggregateOutputType | null
+  }
+
+  export type WorkflowMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    enabled: boolean | null
+  }
+
+  export type WorkflowMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    enabled: boolean | null
+  }
+
+  export type WorkflowCountAggregateOutputType = {
+    id: number
+    title: number
+    enabled: number
+    nodes: number
+    connections: number
+    _all: number
+  }
+
+
+  export type WorkflowMinAggregateInputType = {
+    id?: true
+    title?: true
+    enabled?: true
+  }
+
+  export type WorkflowMaxAggregateInputType = {
+    id?: true
+    title?: true
+    enabled?: true
+  }
+
+  export type WorkflowCountAggregateInputType = {
+    id?: true
+    title?: true
+    enabled?: true
+    nodes?: true
+    connections?: true
+    _all?: true
+  }
+
+  export type WorkflowAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Workflow to aggregate.
+     */
+    where?: WorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Workflows to fetch.
+     */
+    orderBy?: WorkflowOrderByWithRelationInput | WorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Workflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Workflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Workflows
+    **/
+    _count?: true | WorkflowCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WorkflowMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WorkflowMaxAggregateInputType
+  }
+
+  export type GetWorkflowAggregateType<T extends WorkflowAggregateArgs> = {
+        [P in keyof T & keyof AggregateWorkflow]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWorkflow[P]>
+      : GetScalarType<T[P], AggregateWorkflow[P]>
+  }
+
+
+
+
+  export type WorkflowGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WorkflowWhereInput
+    orderBy?: WorkflowOrderByWithAggregationInput | WorkflowOrderByWithAggregationInput[]
+    by: WorkflowScalarFieldEnum[] | WorkflowScalarFieldEnum
+    having?: WorkflowScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WorkflowCountAggregateInputType | true
+    _min?: WorkflowMinAggregateInputType
+    _max?: WorkflowMaxAggregateInputType
+  }
+
+  export type WorkflowGroupByOutputType = {
+    id: string
+    title: string
+    enabled: boolean
+    nodes: JsonValue[]
+    connections: JsonValue[]
+    _count: WorkflowCountAggregateOutputType | null
+    _min: WorkflowMinAggregateOutputType | null
+    _max: WorkflowMaxAggregateOutputType | null
+  }
+
+  type GetWorkflowGroupByPayload<T extends WorkflowGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WorkflowGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WorkflowGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WorkflowGroupByOutputType[P]>
+            : GetScalarType<T[P], WorkflowGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WorkflowSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    enabled?: boolean
+    nodes?: boolean
+    connections?: boolean
+  }, ExtArgs["result"]["workflow"]>
+
+  export type WorkflowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    enabled?: boolean
+    nodes?: boolean
+    connections?: boolean
+  }, ExtArgs["result"]["workflow"]>
+
+  export type WorkflowSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    enabled?: boolean
+    nodes?: boolean
+    connections?: boolean
+  }, ExtArgs["result"]["workflow"]>
+
+  export type WorkflowSelectScalar = {
+    id?: boolean
+    title?: boolean
+    enabled?: boolean
+    nodes?: boolean
+    connections?: boolean
+  }
+
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections", ExtArgs["result"]["workflow"]>
+
+  export type $WorkflowPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Workflow"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      enabled: boolean
+      nodes: Prisma.JsonValue[]
+      connections: Prisma.JsonValue[]
+    }, ExtArgs["result"]["workflow"]>
+    composites: {}
+  }
+
+  type WorkflowGetPayload<S extends boolean | null | undefined | WorkflowDefaultArgs> = $Result.GetResult<Prisma.$WorkflowPayload, S>
+
+  type WorkflowCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WorkflowFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WorkflowCountAggregateInputType | true
+    }
+
+  export interface WorkflowDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Workflow'], meta: { name: 'Workflow' } }
+    /**
+     * Find zero or one Workflow that matches the filter.
+     * @param {WorkflowFindUniqueArgs} args - Arguments to find a Workflow
+     * @example
+     * // Get one Workflow
+     * const workflow = await prisma.workflow.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WorkflowFindUniqueArgs>(args: SelectSubset<T, WorkflowFindUniqueArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Workflow that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WorkflowFindUniqueOrThrowArgs} args - Arguments to find a Workflow
+     * @example
+     * // Get one Workflow
+     * const workflow = await prisma.workflow.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WorkflowFindUniqueOrThrowArgs>(args: SelectSubset<T, WorkflowFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Workflow that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowFindFirstArgs} args - Arguments to find a Workflow
+     * @example
+     * // Get one Workflow
+     * const workflow = await prisma.workflow.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WorkflowFindFirstArgs>(args?: SelectSubset<T, WorkflowFindFirstArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Workflow that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowFindFirstOrThrowArgs} args - Arguments to find a Workflow
+     * @example
+     * // Get one Workflow
+     * const workflow = await prisma.workflow.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WorkflowFindFirstOrThrowArgs>(args?: SelectSubset<T, WorkflowFindFirstOrThrowArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Workflows that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Workflows
+     * const workflows = await prisma.workflow.findMany()
+     * 
+     * // Get first 10 Workflows
+     * const workflows = await prisma.workflow.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const workflowWithIdOnly = await prisma.workflow.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WorkflowFindManyArgs>(args?: SelectSubset<T, WorkflowFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Workflow.
+     * @param {WorkflowCreateArgs} args - Arguments to create a Workflow.
+     * @example
+     * // Create one Workflow
+     * const Workflow = await prisma.workflow.create({
+     *   data: {
+     *     // ... data to create a Workflow
+     *   }
+     * })
+     * 
+     */
+    create<T extends WorkflowCreateArgs>(args: SelectSubset<T, WorkflowCreateArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Workflows.
+     * @param {WorkflowCreateManyArgs} args - Arguments to create many Workflows.
+     * @example
+     * // Create many Workflows
+     * const workflow = await prisma.workflow.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WorkflowCreateManyArgs>(args?: SelectSubset<T, WorkflowCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Workflows and returns the data saved in the database.
+     * @param {WorkflowCreateManyAndReturnArgs} args - Arguments to create many Workflows.
+     * @example
+     * // Create many Workflows
+     * const workflow = await prisma.workflow.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Workflows and only return the `id`
+     * const workflowWithIdOnly = await prisma.workflow.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WorkflowCreateManyAndReturnArgs>(args?: SelectSubset<T, WorkflowCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Workflow.
+     * @param {WorkflowDeleteArgs} args - Arguments to delete one Workflow.
+     * @example
+     * // Delete one Workflow
+     * const Workflow = await prisma.workflow.delete({
+     *   where: {
+     *     // ... filter to delete one Workflow
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WorkflowDeleteArgs>(args: SelectSubset<T, WorkflowDeleteArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Workflow.
+     * @param {WorkflowUpdateArgs} args - Arguments to update one Workflow.
+     * @example
+     * // Update one Workflow
+     * const workflow = await prisma.workflow.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WorkflowUpdateArgs>(args: SelectSubset<T, WorkflowUpdateArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Workflows.
+     * @param {WorkflowDeleteManyArgs} args - Arguments to filter Workflows to delete.
+     * @example
+     * // Delete a few Workflows
+     * const { count } = await prisma.workflow.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WorkflowDeleteManyArgs>(args?: SelectSubset<T, WorkflowDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Workflows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Workflows
+     * const workflow = await prisma.workflow.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WorkflowUpdateManyArgs>(args: SelectSubset<T, WorkflowUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Workflows and returns the data updated in the database.
+     * @param {WorkflowUpdateManyAndReturnArgs} args - Arguments to update many Workflows.
+     * @example
+     * // Update many Workflows
+     * const workflow = await prisma.workflow.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Workflows and only return the `id`
+     * const workflowWithIdOnly = await prisma.workflow.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WorkflowUpdateManyAndReturnArgs>(args: SelectSubset<T, WorkflowUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Workflow.
+     * @param {WorkflowUpsertArgs} args - Arguments to update or create a Workflow.
+     * @example
+     * // Update or create a Workflow
+     * const workflow = await prisma.workflow.upsert({
+     *   create: {
+     *     // ... data to create a Workflow
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Workflow we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WorkflowUpsertArgs>(args: SelectSubset<T, WorkflowUpsertArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Workflows.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowCountArgs} args - Arguments to filter Workflows to count.
+     * @example
+     * // Count the number of Workflows
+     * const count = await prisma.workflow.count({
+     *   where: {
+     *     // ... the filter for the Workflows we want to count
+     *   }
+     * })
+    **/
+    count<T extends WorkflowCountArgs>(
+      args?: Subset<T, WorkflowCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WorkflowCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Workflow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WorkflowAggregateArgs>(args: Subset<T, WorkflowAggregateArgs>): Prisma.PrismaPromise<GetWorkflowAggregateType<T>>
+
+    /**
+     * Group by Workflow.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WorkflowGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WorkflowGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WorkflowGroupByArgs['orderBy'] }
+        : { orderBy?: WorkflowGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WorkflowGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWorkflowGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Workflow model
+   */
+  readonly fields: WorkflowFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Workflow.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WorkflowClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Workflow model
+   */
+  interface WorkflowFieldRefs {
+    readonly id: FieldRef<"Workflow", 'String'>
+    readonly title: FieldRef<"Workflow", 'String'>
+    readonly enabled: FieldRef<"Workflow", 'Boolean'>
+    readonly nodes: FieldRef<"Workflow", 'Json[]'>
+    readonly connections: FieldRef<"Workflow", 'Json[]'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Workflow findUnique
+   */
+  export type WorkflowFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter, which Workflow to fetch.
+     */
+    where: WorkflowWhereUniqueInput
+  }
+
+  /**
+   * Workflow findUniqueOrThrow
+   */
+  export type WorkflowFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter, which Workflow to fetch.
+     */
+    where: WorkflowWhereUniqueInput
+  }
+
+  /**
+   * Workflow findFirst
+   */
+  export type WorkflowFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter, which Workflow to fetch.
+     */
+    where?: WorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Workflows to fetch.
+     */
+    orderBy?: WorkflowOrderByWithRelationInput | WorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Workflows.
+     */
+    cursor?: WorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Workflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Workflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Workflows.
+     */
+    distinct?: WorkflowScalarFieldEnum | WorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * Workflow findFirstOrThrow
+   */
+  export type WorkflowFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter, which Workflow to fetch.
+     */
+    where?: WorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Workflows to fetch.
+     */
+    orderBy?: WorkflowOrderByWithRelationInput | WorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Workflows.
+     */
+    cursor?: WorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Workflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Workflows.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Workflows.
+     */
+    distinct?: WorkflowScalarFieldEnum | WorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * Workflow findMany
+   */
+  export type WorkflowFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter, which Workflows to fetch.
+     */
+    where?: WorkflowWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Workflows to fetch.
+     */
+    orderBy?: WorkflowOrderByWithRelationInput | WorkflowOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Workflows.
+     */
+    cursor?: WorkflowWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Workflows from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Workflows.
+     */
+    skip?: number
+    distinct?: WorkflowScalarFieldEnum | WorkflowScalarFieldEnum[]
+  }
+
+  /**
+   * Workflow create
+   */
+  export type WorkflowCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Workflow.
+     */
+    data: XOR<WorkflowCreateInput, WorkflowUncheckedCreateInput>
+  }
+
+  /**
+   * Workflow createMany
+   */
+  export type WorkflowCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Workflows.
+     */
+    data: WorkflowCreateManyInput | WorkflowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Workflow createManyAndReturn
+   */
+  export type WorkflowCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * The data used to create many Workflows.
+     */
+    data: WorkflowCreateManyInput | WorkflowCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Workflow update
+   */
+  export type WorkflowUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Workflow.
+     */
+    data: XOR<WorkflowUpdateInput, WorkflowUncheckedUpdateInput>
+    /**
+     * Choose, which Workflow to update.
+     */
+    where: WorkflowWhereUniqueInput
+  }
+
+  /**
+   * Workflow updateMany
+   */
+  export type WorkflowUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Workflows.
+     */
+    data: XOR<WorkflowUpdateManyMutationInput, WorkflowUncheckedUpdateManyInput>
+    /**
+     * Filter which Workflows to update
+     */
+    where?: WorkflowWhereInput
+    /**
+     * Limit how many Workflows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Workflow updateManyAndReturn
+   */
+  export type WorkflowUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * The data used to update Workflows.
+     */
+    data: XOR<WorkflowUpdateManyMutationInput, WorkflowUncheckedUpdateManyInput>
+    /**
+     * Filter which Workflows to update
+     */
+    where?: WorkflowWhereInput
+    /**
+     * Limit how many Workflows to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Workflow upsert
+   */
+  export type WorkflowUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Workflow to update in case it exists.
+     */
+    where: WorkflowWhereUniqueInput
+    /**
+     * In case the Workflow found by the `where` argument doesn't exist, create a new Workflow with this data.
+     */
+    create: XOR<WorkflowCreateInput, WorkflowUncheckedCreateInput>
+    /**
+     * In case the Workflow was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WorkflowUpdateInput, WorkflowUncheckedUpdateInput>
+  }
+
+  /**
+   * Workflow delete
+   */
+  export type WorkflowDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+    /**
+     * Filter which Workflow to delete.
+     */
+    where: WorkflowWhereUniqueInput
+  }
+
+  /**
+   * Workflow deleteMany
+   */
+  export type WorkflowDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Workflows to delete
+     */
+    where?: WorkflowWhereInput
+    /**
+     * Limit how many Workflows to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Workflow without action
+   */
+  export type WorkflowDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Workflow
+     */
+    select?: WorkflowSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Workflow
+     */
+    omit?: WorkflowOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Webhook
+   */
+
+  export type AggregateWebhook = {
+    _count: WebhookCountAggregateOutputType | null
+    _min: WebhookMinAggregateOutputType | null
+    _max: WebhookMaxAggregateOutputType | null
+  }
+
+  export type WebhookMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    method: $Enums.Methods | null
+    path: string | null
+  }
+
+  export type WebhookMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    method: $Enums.Methods | null
+    path: string | null
+  }
+
+  export type WebhookCountAggregateOutputType = {
+    id: number
+    title: number
+    method: number
+    path: number
+    _all: number
+  }
+
+
+  export type WebhookMinAggregateInputType = {
+    id?: true
+    title?: true
+    method?: true
+    path?: true
+  }
+
+  export type WebhookMaxAggregateInputType = {
+    id?: true
+    title?: true
+    method?: true
+    path?: true
+  }
+
+  export type WebhookCountAggregateInputType = {
+    id?: true
+    title?: true
+    method?: true
+    path?: true
+    _all?: true
+  }
+
+  export type WebhookAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Webhook to aggregate.
+     */
+    where?: WebhookWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Webhooks to fetch.
+     */
+    orderBy?: WebhookOrderByWithRelationInput | WebhookOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: WebhookWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Webhooks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Webhooks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Webhooks
+    **/
+    _count?: true | WebhookCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: WebhookMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: WebhookMaxAggregateInputType
+  }
+
+  export type GetWebhookAggregateType<T extends WebhookAggregateArgs> = {
+        [P in keyof T & keyof AggregateWebhook]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateWebhook[P]>
+      : GetScalarType<T[P], AggregateWebhook[P]>
+  }
+
+
+
+
+  export type WebhookGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: WebhookWhereInput
+    orderBy?: WebhookOrderByWithAggregationInput | WebhookOrderByWithAggregationInput[]
+    by: WebhookScalarFieldEnum[] | WebhookScalarFieldEnum
+    having?: WebhookScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: WebhookCountAggregateInputType | true
+    _min?: WebhookMinAggregateInputType
+    _max?: WebhookMaxAggregateInputType
+  }
+
+  export type WebhookGroupByOutputType = {
+    id: string
+    title: string
+    method: $Enums.Methods
+    path: string
+    _count: WebhookCountAggregateOutputType | null
+    _min: WebhookMinAggregateOutputType | null
+    _max: WebhookMaxAggregateOutputType | null
+  }
+
+  type GetWebhookGroupByPayload<T extends WebhookGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<WebhookGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof WebhookGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], WebhookGroupByOutputType[P]>
+            : GetScalarType<T[P], WebhookGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type WebhookSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    method?: boolean
+    path?: boolean
+  }, ExtArgs["result"]["webhook"]>
+
+  export type WebhookSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    method?: boolean
+    path?: boolean
+  }, ExtArgs["result"]["webhook"]>
+
+  export type WebhookSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    method?: boolean
+    path?: boolean
+  }, ExtArgs["result"]["webhook"]>
+
+  export type WebhookSelectScalar = {
+    id?: boolean
+    title?: boolean
+    method?: boolean
+    path?: boolean
+  }
+
+  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "method" | "path", ExtArgs["result"]["webhook"]>
+
+  export type $WebhookPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Webhook"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      method: $Enums.Methods
+      path: string
+    }, ExtArgs["result"]["webhook"]>
+    composites: {}
+  }
+
+  type WebhookGetPayload<S extends boolean | null | undefined | WebhookDefaultArgs> = $Result.GetResult<Prisma.$WebhookPayload, S>
+
+  type WebhookCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<WebhookFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: WebhookCountAggregateInputType | true
+    }
+
+  export interface WebhookDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Webhook'], meta: { name: 'Webhook' } }
+    /**
+     * Find zero or one Webhook that matches the filter.
+     * @param {WebhookFindUniqueArgs} args - Arguments to find a Webhook
+     * @example
+     * // Get one Webhook
+     * const webhook = await prisma.webhook.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends WebhookFindUniqueArgs>(args: SelectSubset<T, WebhookFindUniqueArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Webhook that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {WebhookFindUniqueOrThrowArgs} args - Arguments to find a Webhook
+     * @example
+     * // Get one Webhook
+     * const webhook = await prisma.webhook.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends WebhookFindUniqueOrThrowArgs>(args: SelectSubset<T, WebhookFindUniqueOrThrowArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Webhook that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookFindFirstArgs} args - Arguments to find a Webhook
+     * @example
+     * // Get one Webhook
+     * const webhook = await prisma.webhook.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends WebhookFindFirstArgs>(args?: SelectSubset<T, WebhookFindFirstArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Webhook that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookFindFirstOrThrowArgs} args - Arguments to find a Webhook
+     * @example
+     * // Get one Webhook
+     * const webhook = await prisma.webhook.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends WebhookFindFirstOrThrowArgs>(args?: SelectSubset<T, WebhookFindFirstOrThrowArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Webhooks that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Webhooks
+     * const webhooks = await prisma.webhook.findMany()
+     * 
+     * // Get first 10 Webhooks
+     * const webhooks = await prisma.webhook.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const webhookWithIdOnly = await prisma.webhook.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends WebhookFindManyArgs>(args?: SelectSubset<T, WebhookFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Webhook.
+     * @param {WebhookCreateArgs} args - Arguments to create a Webhook.
+     * @example
+     * // Create one Webhook
+     * const Webhook = await prisma.webhook.create({
+     *   data: {
+     *     // ... data to create a Webhook
+     *   }
+     * })
+     * 
+     */
+    create<T extends WebhookCreateArgs>(args: SelectSubset<T, WebhookCreateArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Webhooks.
+     * @param {WebhookCreateManyArgs} args - Arguments to create many Webhooks.
+     * @example
+     * // Create many Webhooks
+     * const webhook = await prisma.webhook.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends WebhookCreateManyArgs>(args?: SelectSubset<T, WebhookCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Webhooks and returns the data saved in the database.
+     * @param {WebhookCreateManyAndReturnArgs} args - Arguments to create many Webhooks.
+     * @example
+     * // Create many Webhooks
+     * const webhook = await prisma.webhook.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Webhooks and only return the `id`
+     * const webhookWithIdOnly = await prisma.webhook.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends WebhookCreateManyAndReturnArgs>(args?: SelectSubset<T, WebhookCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Webhook.
+     * @param {WebhookDeleteArgs} args - Arguments to delete one Webhook.
+     * @example
+     * // Delete one Webhook
+     * const Webhook = await prisma.webhook.delete({
+     *   where: {
+     *     // ... filter to delete one Webhook
+     *   }
+     * })
+     * 
+     */
+    delete<T extends WebhookDeleteArgs>(args: SelectSubset<T, WebhookDeleteArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Webhook.
+     * @param {WebhookUpdateArgs} args - Arguments to update one Webhook.
+     * @example
+     * // Update one Webhook
+     * const webhook = await prisma.webhook.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends WebhookUpdateArgs>(args: SelectSubset<T, WebhookUpdateArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Webhooks.
+     * @param {WebhookDeleteManyArgs} args - Arguments to filter Webhooks to delete.
+     * @example
+     * // Delete a few Webhooks
+     * const { count } = await prisma.webhook.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends WebhookDeleteManyArgs>(args?: SelectSubset<T, WebhookDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Webhooks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Webhooks
+     * const webhook = await prisma.webhook.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends WebhookUpdateManyArgs>(args: SelectSubset<T, WebhookUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Webhooks and returns the data updated in the database.
+     * @param {WebhookUpdateManyAndReturnArgs} args - Arguments to update many Webhooks.
+     * @example
+     * // Update many Webhooks
+     * const webhook = await prisma.webhook.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Webhooks and only return the `id`
+     * const webhookWithIdOnly = await prisma.webhook.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends WebhookUpdateManyAndReturnArgs>(args: SelectSubset<T, WebhookUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Webhook.
+     * @param {WebhookUpsertArgs} args - Arguments to update or create a Webhook.
+     * @example
+     * // Update or create a Webhook
+     * const webhook = await prisma.webhook.upsert({
+     *   create: {
+     *     // ... data to create a Webhook
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Webhook we want to update
+     *   }
+     * })
+     */
+    upsert<T extends WebhookUpsertArgs>(args: SelectSubset<T, WebhookUpsertArgs<ExtArgs>>): Prisma__WebhookClient<$Result.GetResult<Prisma.$WebhookPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Webhooks.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookCountArgs} args - Arguments to filter Webhooks to count.
+     * @example
+     * // Count the number of Webhooks
+     * const count = await prisma.webhook.count({
+     *   where: {
+     *     // ... the filter for the Webhooks we want to count
+     *   }
+     * })
+    **/
+    count<T extends WebhookCountArgs>(
+      args?: Subset<T, WebhookCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], WebhookCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Webhook.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends WebhookAggregateArgs>(args: Subset<T, WebhookAggregateArgs>): Prisma.PrismaPromise<GetWebhookAggregateType<T>>
+
+    /**
+     * Group by Webhook.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {WebhookGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends WebhookGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: WebhookGroupByArgs['orderBy'] }
+        : { orderBy?: WebhookGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, WebhookGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetWebhookGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Webhook model
+   */
+  readonly fields: WebhookFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Webhook.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__WebhookClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Webhook model
+   */
+  interface WebhookFieldRefs {
+    readonly id: FieldRef<"Webhook", 'String'>
+    readonly title: FieldRef<"Webhook", 'String'>
+    readonly method: FieldRef<"Webhook", 'Methods'>
+    readonly path: FieldRef<"Webhook", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Webhook findUnique
+   */
+  export type WebhookFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter, which Webhook to fetch.
+     */
+    where: WebhookWhereUniqueInput
+  }
+
+  /**
+   * Webhook findUniqueOrThrow
+   */
+  export type WebhookFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter, which Webhook to fetch.
+     */
+    where: WebhookWhereUniqueInput
+  }
+
+  /**
+   * Webhook findFirst
+   */
+  export type WebhookFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter, which Webhook to fetch.
+     */
+    where?: WebhookWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Webhooks to fetch.
+     */
+    orderBy?: WebhookOrderByWithRelationInput | WebhookOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Webhooks.
+     */
+    cursor?: WebhookWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Webhooks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Webhooks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Webhooks.
+     */
+    distinct?: WebhookScalarFieldEnum | WebhookScalarFieldEnum[]
+  }
+
+  /**
+   * Webhook findFirstOrThrow
+   */
+  export type WebhookFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter, which Webhook to fetch.
+     */
+    where?: WebhookWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Webhooks to fetch.
+     */
+    orderBy?: WebhookOrderByWithRelationInput | WebhookOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Webhooks.
+     */
+    cursor?: WebhookWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Webhooks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Webhooks.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Webhooks.
+     */
+    distinct?: WebhookScalarFieldEnum | WebhookScalarFieldEnum[]
+  }
+
+  /**
+   * Webhook findMany
+   */
+  export type WebhookFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter, which Webhooks to fetch.
+     */
+    where?: WebhookWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Webhooks to fetch.
+     */
+    orderBy?: WebhookOrderByWithRelationInput | WebhookOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Webhooks.
+     */
+    cursor?: WebhookWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Webhooks from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Webhooks.
+     */
+    skip?: number
+    distinct?: WebhookScalarFieldEnum | WebhookScalarFieldEnum[]
+  }
+
+  /**
+   * Webhook create
+   */
+  export type WebhookCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Webhook.
+     */
+    data: XOR<WebhookCreateInput, WebhookUncheckedCreateInput>
+  }
+
+  /**
+   * Webhook createMany
+   */
+  export type WebhookCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Webhooks.
+     */
+    data: WebhookCreateManyInput | WebhookCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Webhook createManyAndReturn
+   */
+  export type WebhookCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * The data used to create many Webhooks.
+     */
+    data: WebhookCreateManyInput | WebhookCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Webhook update
+   */
+  export type WebhookUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Webhook.
+     */
+    data: XOR<WebhookUpdateInput, WebhookUncheckedUpdateInput>
+    /**
+     * Choose, which Webhook to update.
+     */
+    where: WebhookWhereUniqueInput
+  }
+
+  /**
+   * Webhook updateMany
+   */
+  export type WebhookUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Webhooks.
+     */
+    data: XOR<WebhookUpdateManyMutationInput, WebhookUncheckedUpdateManyInput>
+    /**
+     * Filter which Webhooks to update
+     */
+    where?: WebhookWhereInput
+    /**
+     * Limit how many Webhooks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Webhook updateManyAndReturn
+   */
+  export type WebhookUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * The data used to update Webhooks.
+     */
+    data: XOR<WebhookUpdateManyMutationInput, WebhookUncheckedUpdateManyInput>
+    /**
+     * Filter which Webhooks to update
+     */
+    where?: WebhookWhereInput
+    /**
+     * Limit how many Webhooks to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Webhook upsert
+   */
+  export type WebhookUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Webhook to update in case it exists.
+     */
+    where: WebhookWhereUniqueInput
+    /**
+     * In case the Webhook found by the `where` argument doesn't exist, create a new Webhook with this data.
+     */
+    create: XOR<WebhookCreateInput, WebhookUncheckedCreateInput>
+    /**
+     * In case the Webhook was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<WebhookUpdateInput, WebhookUncheckedUpdateInput>
+  }
+
+  /**
+   * Webhook delete
+   */
+  export type WebhookDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+    /**
+     * Filter which Webhook to delete.
+     */
+    where: WebhookWhereUniqueInput
+  }
+
+  /**
+   * Webhook deleteMany
+   */
+  export type WebhookDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Webhooks to delete
+     */
+    where?: WebhookWhereInput
+    /**
+     * Limit how many Webhooks to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Webhook without action
+   */
+  export type WebhookDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Webhook
+     */
+    select?: WebhookSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Webhook
+     */
+    omit?: WebhookOmit<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Credential
+   */
+
+  export type AggregateCredential = {
+    _count: CredentialCountAggregateOutputType | null
+    _min: CredentialMinAggregateOutputType | null
+    _max: CredentialMaxAggregateOutputType | null
+  }
+
+  export type CredentialMinAggregateOutputType = {
+    id: string | null
+    title: string | null
+    platform: $Enums.SupportedPlatforms | null
+  }
+
+  export type CredentialMaxAggregateOutputType = {
+    id: string | null
+    title: string | null
+    platform: $Enums.SupportedPlatforms | null
+  }
+
+  export type CredentialCountAggregateOutputType = {
+    id: number
+    title: number
+    platform: number
+    data: number
+    _all: number
+  }
+
+
+  export type CredentialMinAggregateInputType = {
+    id?: true
+    title?: true
+    platform?: true
+  }
+
+  export type CredentialMaxAggregateInputType = {
+    id?: true
+    title?: true
+    platform?: true
+  }
+
+  export type CredentialCountAggregateInputType = {
+    id?: true
+    title?: true
+    platform?: true
+    data?: true
+    _all?: true
+  }
+
+  export type CredentialAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Credential to aggregate.
+     */
+    where?: CredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Credentials to fetch.
+     */
+    orderBy?: CredentialOrderByWithRelationInput | CredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: CredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Credentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Credentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Credentials
+    **/
+    _count?: true | CredentialCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: CredentialMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: CredentialMaxAggregateInputType
+  }
+
+  export type GetCredentialAggregateType<T extends CredentialAggregateArgs> = {
+        [P in keyof T & keyof AggregateCredential]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateCredential[P]>
+      : GetScalarType<T[P], AggregateCredential[P]>
+  }
+
+
+
+
+  export type CredentialGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: CredentialWhereInput
+    orderBy?: CredentialOrderByWithAggregationInput | CredentialOrderByWithAggregationInput[]
+    by: CredentialScalarFieldEnum[] | CredentialScalarFieldEnum
+    having?: CredentialScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: CredentialCountAggregateInputType | true
+    _min?: CredentialMinAggregateInputType
+    _max?: CredentialMaxAggregateInputType
+  }
+
+  export type CredentialGroupByOutputType = {
+    id: string
+    title: string
+    platform: $Enums.SupportedPlatforms
+    data: JsonValue
+    _count: CredentialCountAggregateOutputType | null
+    _min: CredentialMinAggregateOutputType | null
+    _max: CredentialMaxAggregateOutputType | null
+  }
+
+  type GetCredentialGroupByPayload<T extends CredentialGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<CredentialGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof CredentialGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], CredentialGroupByOutputType[P]>
+            : GetScalarType<T[P], CredentialGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type CredentialSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    platform?: boolean
+    data?: boolean
+  }, ExtArgs["result"]["credential"]>
+
+  export type CredentialSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    platform?: boolean
+    data?: boolean
+  }, ExtArgs["result"]["credential"]>
+
+  export type CredentialSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    title?: boolean
+    platform?: boolean
+    data?: boolean
+  }, ExtArgs["result"]["credential"]>
+
+  export type CredentialSelectScalar = {
+    id?: boolean
+    title?: boolean
+    platform?: boolean
+    data?: boolean
+  }
+
+  export type CredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "platform" | "data", ExtArgs["result"]["credential"]>
+
+  export type $CredentialPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Credential"
+    objects: {}
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      title: string
+      platform: $Enums.SupportedPlatforms
+      data: Prisma.JsonValue
+    }, ExtArgs["result"]["credential"]>
+    composites: {}
+  }
+
+  type CredentialGetPayload<S extends boolean | null | undefined | CredentialDefaultArgs> = $Result.GetResult<Prisma.$CredentialPayload, S>
+
+  type CredentialCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<CredentialFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: CredentialCountAggregateInputType | true
+    }
+
+  export interface CredentialDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Credential'], meta: { name: 'Credential' } }
+    /**
+     * Find zero or one Credential that matches the filter.
+     * @param {CredentialFindUniqueArgs} args - Arguments to find a Credential
+     * @example
+     * // Get one Credential
+     * const credential = await prisma.credential.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends CredentialFindUniqueArgs>(args: SelectSubset<T, CredentialFindUniqueArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Credential that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {CredentialFindUniqueOrThrowArgs} args - Arguments to find a Credential
+     * @example
+     * // Get one Credential
+     * const credential = await prisma.credential.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends CredentialFindUniqueOrThrowArgs>(args: SelectSubset<T, CredentialFindUniqueOrThrowArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Credential that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialFindFirstArgs} args - Arguments to find a Credential
+     * @example
+     * // Get one Credential
+     * const credential = await prisma.credential.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends CredentialFindFirstArgs>(args?: SelectSubset<T, CredentialFindFirstArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Credential that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialFindFirstOrThrowArgs} args - Arguments to find a Credential
+     * @example
+     * // Get one Credential
+     * const credential = await prisma.credential.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends CredentialFindFirstOrThrowArgs>(args?: SelectSubset<T, CredentialFindFirstOrThrowArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Credentials that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Credentials
+     * const credentials = await prisma.credential.findMany()
+     * 
+     * // Get first 10 Credentials
+     * const credentials = await prisma.credential.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const credentialWithIdOnly = await prisma.credential.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends CredentialFindManyArgs>(args?: SelectSubset<T, CredentialFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Credential.
+     * @param {CredentialCreateArgs} args - Arguments to create a Credential.
+     * @example
+     * // Create one Credential
+     * const Credential = await prisma.credential.create({
+     *   data: {
+     *     // ... data to create a Credential
+     *   }
+     * })
+     * 
+     */
+    create<T extends CredentialCreateArgs>(args: SelectSubset<T, CredentialCreateArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Credentials.
+     * @param {CredentialCreateManyArgs} args - Arguments to create many Credentials.
+     * @example
+     * // Create many Credentials
+     * const credential = await prisma.credential.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends CredentialCreateManyArgs>(args?: SelectSubset<T, CredentialCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Credentials and returns the data saved in the database.
+     * @param {CredentialCreateManyAndReturnArgs} args - Arguments to create many Credentials.
+     * @example
+     * // Create many Credentials
+     * const credential = await prisma.credential.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Credentials and only return the `id`
+     * const credentialWithIdOnly = await prisma.credential.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends CredentialCreateManyAndReturnArgs>(args?: SelectSubset<T, CredentialCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Credential.
+     * @param {CredentialDeleteArgs} args - Arguments to delete one Credential.
+     * @example
+     * // Delete one Credential
+     * const Credential = await prisma.credential.delete({
+     *   where: {
+     *     // ... filter to delete one Credential
+     *   }
+     * })
+     * 
+     */
+    delete<T extends CredentialDeleteArgs>(args: SelectSubset<T, CredentialDeleteArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Credential.
+     * @param {CredentialUpdateArgs} args - Arguments to update one Credential.
+     * @example
+     * // Update one Credential
+     * const credential = await prisma.credential.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends CredentialUpdateArgs>(args: SelectSubset<T, CredentialUpdateArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Credentials.
+     * @param {CredentialDeleteManyArgs} args - Arguments to filter Credentials to delete.
+     * @example
+     * // Delete a few Credentials
+     * const { count } = await prisma.credential.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends CredentialDeleteManyArgs>(args?: SelectSubset<T, CredentialDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Credentials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Credentials
+     * const credential = await prisma.credential.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends CredentialUpdateManyArgs>(args: SelectSubset<T, CredentialUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Credentials and returns the data updated in the database.
+     * @param {CredentialUpdateManyAndReturnArgs} args - Arguments to update many Credentials.
+     * @example
+     * // Update many Credentials
+     * const credential = await prisma.credential.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Credentials and only return the `id`
+     * const credentialWithIdOnly = await prisma.credential.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends CredentialUpdateManyAndReturnArgs>(args: SelectSubset<T, CredentialUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Credential.
+     * @param {CredentialUpsertArgs} args - Arguments to update or create a Credential.
+     * @example
+     * // Update or create a Credential
+     * const credential = await prisma.credential.upsert({
+     *   create: {
+     *     // ... data to create a Credential
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Credential we want to update
+     *   }
+     * })
+     */
+    upsert<T extends CredentialUpsertArgs>(args: SelectSubset<T, CredentialUpsertArgs<ExtArgs>>): Prisma__CredentialClient<$Result.GetResult<Prisma.$CredentialPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Credentials.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialCountArgs} args - Arguments to filter Credentials to count.
+     * @example
+     * // Count the number of Credentials
+     * const count = await prisma.credential.count({
+     *   where: {
+     *     // ... the filter for the Credentials we want to count
+     *   }
+     * })
+    **/
+    count<T extends CredentialCountArgs>(
+      args?: Subset<T, CredentialCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], CredentialCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Credential.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends CredentialAggregateArgs>(args: Subset<T, CredentialAggregateArgs>): Prisma.PrismaPromise<GetCredentialAggregateType<T>>
+
+    /**
+     * Group by Credential.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {CredentialGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends CredentialGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: CredentialGroupByArgs['orderBy'] }
+        : { orderBy?: CredentialGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, CredentialGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetCredentialGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Credential model
+   */
+  readonly fields: CredentialFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Credential.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__CredentialClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Credential model
+   */
+  interface CredentialFieldRefs {
+    readonly id: FieldRef<"Credential", 'String'>
+    readonly title: FieldRef<"Credential", 'String'>
+    readonly platform: FieldRef<"Credential", 'SupportedPlatforms'>
+    readonly data: FieldRef<"Credential", 'Json'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Credential findUnique
+   */
+  export type CredentialFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter, which Credential to fetch.
+     */
+    where: CredentialWhereUniqueInput
+  }
+
+  /**
+   * Credential findUniqueOrThrow
+   */
+  export type CredentialFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter, which Credential to fetch.
+     */
+    where: CredentialWhereUniqueInput
+  }
+
+  /**
+   * Credential findFirst
+   */
+  export type CredentialFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter, which Credential to fetch.
+     */
+    where?: CredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Credentials to fetch.
+     */
+    orderBy?: CredentialOrderByWithRelationInput | CredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Credentials.
+     */
+    cursor?: CredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Credentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Credentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Credentials.
+     */
+    distinct?: CredentialScalarFieldEnum | CredentialScalarFieldEnum[]
+  }
+
+  /**
+   * Credential findFirstOrThrow
+   */
+  export type CredentialFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter, which Credential to fetch.
+     */
+    where?: CredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Credentials to fetch.
+     */
+    orderBy?: CredentialOrderByWithRelationInput | CredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Credentials.
+     */
+    cursor?: CredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Credentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Credentials.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Credentials.
+     */
+    distinct?: CredentialScalarFieldEnum | CredentialScalarFieldEnum[]
+  }
+
+  /**
+   * Credential findMany
+   */
+  export type CredentialFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter, which Credentials to fetch.
+     */
+    where?: CredentialWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Credentials to fetch.
+     */
+    orderBy?: CredentialOrderByWithRelationInput | CredentialOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Credentials.
+     */
+    cursor?: CredentialWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Credentials from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Credentials.
+     */
+    skip?: number
+    distinct?: CredentialScalarFieldEnum | CredentialScalarFieldEnum[]
+  }
+
+  /**
+   * Credential create
+   */
+  export type CredentialCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * The data needed to create a Credential.
+     */
+    data: XOR<CredentialCreateInput, CredentialUncheckedCreateInput>
+  }
+
+  /**
+   * Credential createMany
+   */
+  export type CredentialCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Credentials.
+     */
+    data: CredentialCreateManyInput | CredentialCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Credential createManyAndReturn
+   */
+  export type CredentialCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * The data used to create many Credentials.
+     */
+    data: CredentialCreateManyInput | CredentialCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Credential update
+   */
+  export type CredentialUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * The data needed to update a Credential.
+     */
+    data: XOR<CredentialUpdateInput, CredentialUncheckedUpdateInput>
+    /**
+     * Choose, which Credential to update.
+     */
+    where: CredentialWhereUniqueInput
+  }
+
+  /**
+   * Credential updateMany
+   */
+  export type CredentialUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Credentials.
+     */
+    data: XOR<CredentialUpdateManyMutationInput, CredentialUncheckedUpdateManyInput>
+    /**
+     * Filter which Credentials to update
+     */
+    where?: CredentialWhereInput
+    /**
+     * Limit how many Credentials to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Credential updateManyAndReturn
+   */
+  export type CredentialUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * The data used to update Credentials.
+     */
+    data: XOR<CredentialUpdateManyMutationInput, CredentialUncheckedUpdateManyInput>
+    /**
+     * Filter which Credentials to update
+     */
+    where?: CredentialWhereInput
+    /**
+     * Limit how many Credentials to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Credential upsert
+   */
+  export type CredentialUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * The filter to search for the Credential to update in case it exists.
+     */
+    where: CredentialWhereUniqueInput
+    /**
+     * In case the Credential found by the `where` argument doesn't exist, create a new Credential with this data.
+     */
+    create: XOR<CredentialCreateInput, CredentialUncheckedCreateInput>
+    /**
+     * In case the Credential was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<CredentialUpdateInput, CredentialUncheckedUpdateInput>
+  }
+
+  /**
+   * Credential delete
+   */
+  export type CredentialDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+    /**
+     * Filter which Credential to delete.
+     */
+    where: CredentialWhereUniqueInput
+  }
+
+  /**
+   * Credential deleteMany
+   */
+  export type CredentialDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Credentials to delete
+     */
+    where?: CredentialWhereInput
+    /**
+     * Limit how many Credentials to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Credential without action
+   */
+  export type CredentialDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Credential
+     */
+    select?: CredentialSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Credential
+     */
+    omit?: CredentialOmit<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -1866,6 +5116,37 @@ export namespace Prisma {
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+  export const WorkflowScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    enabled: 'enabled',
+    nodes: 'nodes',
+    connections: 'connections'
+  };
+
+  export type WorkflowScalarFieldEnum = (typeof WorkflowScalarFieldEnum)[keyof typeof WorkflowScalarFieldEnum]
+
+
+  export const WebhookScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    method: 'method',
+    path: 'path'
+  };
+
+  export type WebhookScalarFieldEnum = (typeof WebhookScalarFieldEnum)[keyof typeof WebhookScalarFieldEnum]
+
+
+  export const CredentialScalarFieldEnum: {
+    id: 'id',
+    title: 'title',
+    platform: 'platform',
+    data: 'data'
+  };
+
+  export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -1874,12 +5155,28 @@ export namespace Prisma {
   export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+  export const JsonNullValueInput: {
+    JsonNull: typeof JsonNull
+  };
+
+  export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
   export const QueryMode: {
     default: 'default',
     insensitive: 'insensitive'
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const JsonNullValueFilter: {
+    DbNull: typeof DbNull,
+    JsonNull: typeof JsonNull,
+    AnyNull: typeof AnyNull
+  };
+
+  export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
   /**
@@ -1898,6 +5195,62 @@ export namespace Prisma {
    * Reference to a field of type 'String[]'
    */
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json[]'
+   */
+  export type ListJsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Json'
+   */
+  export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+  /**
+   * Reference to a field of type 'Methods'
+   */
+  export type EnumMethodsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Methods'>
+    
+
+
+  /**
+   * Reference to a field of type 'Methods[]'
+   */
+  export type ListEnumMethodsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Methods[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'SupportedPlatforms'
+   */
+  export type EnumSupportedPlatformsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportedPlatforms'>
+    
+
+
+  /**
+   * Reference to a field of type 'SupportedPlatforms[]'
+   */
+  export type ListEnumSupportedPlatformsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SupportedPlatforms[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'QueryMode'
+   */
+  export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1965,6 +5318,153 @@ export namespace Prisma {
     password_hash?: StringWithAggregatesFilter<"User"> | string
   }
 
+  export type WorkflowWhereInput = {
+    AND?: WorkflowWhereInput | WorkflowWhereInput[]
+    OR?: WorkflowWhereInput[]
+    NOT?: WorkflowWhereInput | WorkflowWhereInput[]
+    id?: StringFilter<"Workflow"> | string
+    title?: StringFilter<"Workflow"> | string
+    enabled?: BoolFilter<"Workflow"> | boolean
+    nodes?: JsonNullableListFilter<"Workflow">
+    connections?: JsonNullableListFilter<"Workflow">
+  }
+
+  export type WorkflowOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    enabled?: SortOrder
+    nodes?: SortOrder
+    connections?: SortOrder
+  }
+
+  export type WorkflowWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: WorkflowWhereInput | WorkflowWhereInput[]
+    OR?: WorkflowWhereInput[]
+    NOT?: WorkflowWhereInput | WorkflowWhereInput[]
+    title?: StringFilter<"Workflow"> | string
+    enabled?: BoolFilter<"Workflow"> | boolean
+    nodes?: JsonNullableListFilter<"Workflow">
+    connections?: JsonNullableListFilter<"Workflow">
+  }, "id">
+
+  export type WorkflowOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    enabled?: SortOrder
+    nodes?: SortOrder
+    connections?: SortOrder
+    _count?: WorkflowCountOrderByAggregateInput
+    _max?: WorkflowMaxOrderByAggregateInput
+    _min?: WorkflowMinOrderByAggregateInput
+  }
+
+  export type WorkflowScalarWhereWithAggregatesInput = {
+    AND?: WorkflowScalarWhereWithAggregatesInput | WorkflowScalarWhereWithAggregatesInput[]
+    OR?: WorkflowScalarWhereWithAggregatesInput[]
+    NOT?: WorkflowScalarWhereWithAggregatesInput | WorkflowScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Workflow"> | string
+    title?: StringWithAggregatesFilter<"Workflow"> | string
+    enabled?: BoolWithAggregatesFilter<"Workflow"> | boolean
+    nodes?: JsonNullableListFilter<"Workflow">
+    connections?: JsonNullableListFilter<"Workflow">
+  }
+
+  export type WebhookWhereInput = {
+    AND?: WebhookWhereInput | WebhookWhereInput[]
+    OR?: WebhookWhereInput[]
+    NOT?: WebhookWhereInput | WebhookWhereInput[]
+    id?: StringFilter<"Webhook"> | string
+    title?: StringFilter<"Webhook"> | string
+    method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
+    path?: StringFilter<"Webhook"> | string
+  }
+
+  export type WebhookOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+  }
+
+  export type WebhookWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    method_path?: WebhookMethodPathCompoundUniqueInput
+    AND?: WebhookWhereInput | WebhookWhereInput[]
+    OR?: WebhookWhereInput[]
+    NOT?: WebhookWhereInput | WebhookWhereInput[]
+    title?: StringFilter<"Webhook"> | string
+    method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
+    path?: StringFilter<"Webhook"> | string
+  }, "id" | "method_path">
+
+  export type WebhookOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+    _count?: WebhookCountOrderByAggregateInput
+    _max?: WebhookMaxOrderByAggregateInput
+    _min?: WebhookMinOrderByAggregateInput
+  }
+
+  export type WebhookScalarWhereWithAggregatesInput = {
+    AND?: WebhookScalarWhereWithAggregatesInput | WebhookScalarWhereWithAggregatesInput[]
+    OR?: WebhookScalarWhereWithAggregatesInput[]
+    NOT?: WebhookScalarWhereWithAggregatesInput | WebhookScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Webhook"> | string
+    title?: StringWithAggregatesFilter<"Webhook"> | string
+    method?: EnumMethodsWithAggregatesFilter<"Webhook"> | $Enums.Methods
+    path?: StringWithAggregatesFilter<"Webhook"> | string
+  }
+
+  export type CredentialWhereInput = {
+    AND?: CredentialWhereInput | CredentialWhereInput[]
+    OR?: CredentialWhereInput[]
+    NOT?: CredentialWhereInput | CredentialWhereInput[]
+    id?: StringFilter<"Credential"> | string
+    title?: StringFilter<"Credential"> | string
+    platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
+    data?: JsonFilter<"Credential">
+  }
+
+  export type CredentialOrderByWithRelationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    platform?: SortOrder
+    data?: SortOrder
+  }
+
+  export type CredentialWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: CredentialWhereInput | CredentialWhereInput[]
+    OR?: CredentialWhereInput[]
+    NOT?: CredentialWhereInput | CredentialWhereInput[]
+    title?: StringFilter<"Credential"> | string
+    platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
+    data?: JsonFilter<"Credential">
+  }, "id">
+
+  export type CredentialOrderByWithAggregationInput = {
+    id?: SortOrder
+    title?: SortOrder
+    platform?: SortOrder
+    data?: SortOrder
+    _count?: CredentialCountOrderByAggregateInput
+    _max?: CredentialMaxOrderByAggregateInput
+    _min?: CredentialMinOrderByAggregateInput
+  }
+
+  export type CredentialScalarWhereWithAggregatesInput = {
+    AND?: CredentialScalarWhereWithAggregatesInput | CredentialScalarWhereWithAggregatesInput[]
+    OR?: CredentialScalarWhereWithAggregatesInput[]
+    NOT?: CredentialScalarWhereWithAggregatesInput | CredentialScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Credential"> | string
+    title?: StringWithAggregatesFilter<"Credential"> | string
+    platform?: EnumSupportedPlatformsWithAggregatesFilter<"Credential"> | $Enums.SupportedPlatforms
+    data?: JsonWithAggregatesFilter<"Credential">
+  }
+
   export type UserCreateInput = {
     id?: string
     name: string
@@ -2012,6 +5512,160 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type WorkflowCreateInput = {
+    id?: string
+    title: string
+    enabled: boolean
+    nodes?: WorkflowCreatenodesInput | InputJsonValue[]
+    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowUncheckedCreateInput = {
+    id?: string
+    title: string
+    enabled: boolean
+    nodes?: WorkflowCreatenodesInput | InputJsonValue[]
+    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
+    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
+    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowCreateManyInput = {
+    id?: string
+    title: string
+    enabled: boolean
+    nodes?: WorkflowCreatenodesInput | InputJsonValue[]
+    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
+    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WorkflowUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    enabled?: BoolFieldUpdateOperationsInput | boolean
+    nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
+    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+  }
+
+  export type WebhookCreateInput = {
+    id?: string
+    title: string
+    method: $Enums.Methods
+    path: string
+  }
+
+  export type WebhookUncheckedCreateInput = {
+    id?: string
+    title: string
+    method: $Enums.Methods
+    path: string
+  }
+
+  export type WebhookUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
+    path?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type WebhookUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
+    path?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type WebhookCreateManyInput = {
+    id?: string
+    title: string
+    method: $Enums.Methods
+    path: string
+  }
+
+  export type WebhookUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
+    path?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type WebhookUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
+    path?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type CredentialCreateInput = {
+    id?: string
+    title: string
+    platform: $Enums.SupportedPlatforms
+    data: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialUncheckedCreateInput = {
+    id?: string
+    title: string
+    platform: $Enums.SupportedPlatforms
+    data: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
+    data?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
+    data?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialCreateManyInput = {
+    id?: string
+    title: string
+    platform: $Enums.SupportedPlatforms
+    data: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
+    data?: JsonNullValueInput | InputJsonValue
+  }
+
+  export type CredentialUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
+    data?: JsonNullValueInput | InputJsonValue
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -2068,8 +5722,213 @@ export namespace Prisma {
     _max?: NestedStringFilter<$PrismaModel>
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+  export type JsonNullableListFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonNullableListFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableListFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonNullableListFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonNullableListFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonNullableListFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue[] | ListJsonFieldRefInput<$PrismaModel> | null
+    has?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    hasEvery?: InputJsonValue[] | ListJsonFieldRefInput<$PrismaModel>
+    hasSome?: InputJsonValue[] | ListJsonFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
+  export type WorkflowCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    enabled?: SortOrder
+    nodes?: SortOrder
+    connections?: SortOrder
+  }
+
+  export type WorkflowMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    enabled?: SortOrder
+  }
+
+  export type WorkflowMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    enabled?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type EnumMethodsFilter<$PrismaModel = never> = {
+    equals?: $Enums.Methods | EnumMethodsFieldRefInput<$PrismaModel>
+    in?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    not?: NestedEnumMethodsFilter<$PrismaModel> | $Enums.Methods
+  }
+
+  export type WebhookMethodPathCompoundUniqueInput = {
+    method: $Enums.Methods
+    path: string
+  }
+
+  export type WebhookCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+  }
+
+  export type WebhookMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+  }
+
+  export type WebhookMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    method?: SortOrder
+    path?: SortOrder
+  }
+
+  export type EnumMethodsWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Methods | EnumMethodsFieldRefInput<$PrismaModel>
+    in?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    not?: NestedEnumMethodsWithAggregatesFilter<$PrismaModel> | $Enums.Methods
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMethodsFilter<$PrismaModel>
+    _max?: NestedEnumMethodsFilter<$PrismaModel>
+  }
+
+  export type EnumSupportedPlatformsFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportedPlatforms | EnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportedPlatformsFilter<$PrismaModel> | $Enums.SupportedPlatforms
+  }
+  export type JsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type CredentialCountOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    platform?: SortOrder
+    data?: SortOrder
+  }
+
+  export type CredentialMaxOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    platform?: SortOrder
+  }
+
+  export type CredentialMinOrderByAggregateInput = {
+    id?: SortOrder
+    title?: SortOrder
+    platform?: SortOrder
+  }
+
+  export type EnumSupportedPlatformsWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportedPlatforms | EnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportedPlatformsWithAggregatesFilter<$PrismaModel> | $Enums.SupportedPlatforms
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSupportedPlatformsFilter<$PrismaModel>
+    _max?: NestedEnumSupportedPlatformsFilter<$PrismaModel>
+  }
+  export type JsonWithAggregatesFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>,
+        Required<JsonWithAggregatesFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<JsonWithAggregatesFilterBase<$PrismaModel>>, 'path'>>
+
+  export type JsonWithAggregatesFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedJsonFilter<$PrismaModel>
+    _max?: NestedJsonFilter<$PrismaModel>
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type WorkflowCreatenodesInput = {
+    set: InputJsonValue[]
+  }
+
+  export type WorkflowCreateconnectionsInput = {
+    set: InputJsonValue[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
+  export type WorkflowUpdatenodesInput = {
+    set?: InputJsonValue[]
+    push?: InputJsonValue | InputJsonValue[]
+  }
+
+  export type WorkflowUpdateconnectionsInput = {
+    set?: InputJsonValue[]
+    push?: InputJsonValue | InputJsonValue[]
+  }
+
+  export type EnumMethodsFieldUpdateOperationsInput = {
+    set?: $Enums.Methods
+  }
+
+  export type EnumSupportedPlatformsFieldUpdateOperationsInput = {
+    set?: $Enums.SupportedPlatforms
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -2112,6 +5971,76 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedEnumMethodsFilter<$PrismaModel = never> = {
+    equals?: $Enums.Methods | EnumMethodsFieldRefInput<$PrismaModel>
+    in?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    not?: NestedEnumMethodsFilter<$PrismaModel> | $Enums.Methods
+  }
+
+  export type NestedEnumMethodsWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.Methods | EnumMethodsFieldRefInput<$PrismaModel>
+    in?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
+    not?: NestedEnumMethodsWithAggregatesFilter<$PrismaModel> | $Enums.Methods
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumMethodsFilter<$PrismaModel>
+    _max?: NestedEnumMethodsFilter<$PrismaModel>
+  }
+
+  export type NestedEnumSupportedPlatformsFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportedPlatforms | EnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportedPlatformsFilter<$PrismaModel> | $Enums.SupportedPlatforms
+  }
+
+  export type NestedEnumSupportedPlatformsWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.SupportedPlatforms | EnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    in?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    notIn?: $Enums.SupportedPlatforms[] | ListEnumSupportedPlatformsFieldRefInput<$PrismaModel>
+    not?: NestedEnumSupportedPlatformsWithAggregatesFilter<$PrismaModel> | $Enums.SupportedPlatforms
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumSupportedPlatformsFilter<$PrismaModel>
+    _max?: NestedEnumSupportedPlatformsFilter<$PrismaModel>
+  }
+  export type NestedJsonFilter<$PrismaModel = never> =
+    | PatchUndefined<
+        Either<Required<NestedJsonFilterBase<$PrismaModel>>, Exclude<keyof Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>,
+        Required<NestedJsonFilterBase<$PrismaModel>>
+      >
+    | OptionalFlat<Omit<Required<NestedJsonFilterBase<$PrismaModel>>, 'path'>>
+
+  export type NestedJsonFilterBase<$PrismaModel = never> = {
+    equals?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+    path?: string[]
+    mode?: QueryMode | EnumQueryModeFieldRefInput<$PrismaModel>
+    string_contains?: string | StringFieldRefInput<$PrismaModel>
+    string_starts_with?: string | StringFieldRefInput<$PrismaModel>
+    string_ends_with?: string | StringFieldRefInput<$PrismaModel>
+    array_starts_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_ends_with?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    array_contains?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | null
+    lt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    lte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
+    not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
 

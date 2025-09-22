@@ -15,7 +15,7 @@ export const errorHandlerMiddleware = async (
     time: Date.now(),
   }
 
-  logger.error(`Error on Route : ${errorDetails.route}`, errorHandlerMiddleware)
+  logger.error(`Error on Route : ${errorDetails.route}`, err, errorHandlerMiddleware)
 
   // Send a generic, user-friendly error response to the client
   res.status(500).send('Internal Server Error')

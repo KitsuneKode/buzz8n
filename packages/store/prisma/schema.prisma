@@ -23,3 +23,44 @@ model User {
   @@index(email)
   @@map("user")
 }
+
+model Workflow {
+  id          String  @id @default(cuid())
+  title       String
+  enabled     Boolean
+  nodes       Json[]
+  connections Json[]
+
+  @@map("workflow")
+}
+
+model Webhook {
+  id     String  @id @default(cuid())
+  title  String
+  method Methods
+  path   String
+
+  @@unique([method, path])
+  @@map("webhook")
+}
+
+model Credential {
+  id       String             @id @default(cuid())
+  title    String
+  platform SupportedPlatforms
+  data     Json
+
+  @@index(title)
+  @@map("credential")
+}
+
+enum Methods {
+  POST
+  GET
+  PUT
+}
+
+enum SupportedPlatforms {
+  Telegram
+  Gmail
+}
