@@ -104,7 +104,8 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   title: 'title',
   enabled: 'enabled',
   nodes: 'nodes',
-  connections: 'connections'
+  connections: 'connections',
+  userId: 'userId'
 };
 
 exports.Prisma.WebhookScalarFieldEnum = {
@@ -118,7 +119,8 @@ exports.Prisma.CredentialScalarFieldEnum = {
   id: 'id',
   title: 'title',
   platform: 'platform',
-  data: 'data'
+  data: 'data',
+  userId: 'userId'
 };
 
 exports.Prisma.SortOrder = {
@@ -196,7 +198,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -205,13 +206,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String @id @default(cuid())\n  name          String\n  email         String @unique()\n  password_hash String\n\n  @@index(email)\n  @@map(\"user\")\n}\n\nmodel Workflow {\n  id          String  @id @default(cuid())\n  title       String\n  enabled     Boolean\n  nodes       Json[]\n  connections Json[]\n\n  @@map(\"workflow\")\n}\n\nmodel Webhook {\n  id     String  @id @default(cuid())\n  title  String\n  method Methods\n  path   String\n\n  @@unique([method, path])\n  @@map(\"webhook\")\n}\n\nmodel Credential {\n  id       String             @id @default(cuid())\n  title    String\n  platform SupportedPlatforms\n  data     Json\n\n  @@index(title)\n  @@map(\"credential\")\n}\n\nenum Methods {\n  POST\n  GET\n  PUT\n}\n\nenum SupportedPlatforms {\n  Telegram\n  Gmail\n}\n",
-  "inlineSchemaHash": "6fcfeaf3d078714f786695f23ebfe288674eab8fdd72439e564b8f1c246ee221",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../src/generated\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String       @id @default(cuid())\n  name          String\n  email         String       @unique()\n  password_hash String\n  credentials   Credential[]\n  workflows     Workflow[]\n\n  @@index(email)\n  @@map(\"user\")\n}\n\nmodel Workflow {\n  id          String  @id @default(cuid())\n  title       String\n  enabled     Boolean\n  nodes       Json[]\n  connections Json[]\n\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@map(\"workflow\")\n}\n\nmodel Webhook {\n  id     String  @id @default(cuid())\n  title  String\n  method Methods\n  path   String\n\n  @@unique([method, path])\n  @@map(\"webhook\")\n}\n\nmodel Credential {\n  id       String             @id @default(cuid())\n  title    String             @unique\n  platform SupportedPlatforms\n  data     Json\n\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  @@index(title)\n  @@map(\"credential\")\n}\n\nenum Methods {\n  POST\n  GET\n  PUT\n}\n\nenum SupportedPlatforms {\n  Telegram\n  Gmail\n}\n",
+  "inlineSchemaHash": "69a7a7c7ec5f6ba3192431fb14a52883e1858dbf324f2bf9829a8f9e0e37df3e",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password_hash\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"user\"},\"Workflow\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"enabled\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nodes\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"connections\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":\"workflow\"},\"Webhook\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"enum\",\"type\":\"Methods\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"webhook\"},\"Credential\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"platform\",\"kind\":\"enum\",\"type\":\"SupportedPlatforms\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Json\"}],\"dbName\":\"credential\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"credentials\",\"kind\":\"object\",\"type\":\"Credential\",\"relationName\":\"CredentialToUser\"},{\"name\":\"workflows\",\"kind\":\"object\",\"type\":\"Workflow\",\"relationName\":\"UserToWorkflow\"}],\"dbName\":\"user\"},\"Workflow\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"enabled\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nodes\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"connections\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWorkflow\"}],\"dbName\":\"workflow\"},\"Webhook\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"enum\",\"type\":\"Methods\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":\"webhook\"},\"Credential\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"platform\",\"kind\":\"enum\",\"type\":\"SupportedPlatforms\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CredentialToUser\"}],\"dbName\":\"credential\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

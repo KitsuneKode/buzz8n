@@ -12,7 +12,7 @@ router.post('/sign-up', async (req, res, next) => {
   try {
     const validated = signUpSchema.safeParse(req.body)
     if (!validated.success) {
-      res.status(422).json({ error: 'Invalid data' })
+      res.status(422).send('Invalid data')
       return
     }
 
@@ -32,11 +32,10 @@ router.post('/sign-up', async (req, res, next) => {
     })
 
     if (!user) {
-      res.status(500).send('INTERNAL SERVER ERROR')
-      return
+      throw new Error('Unable to create user')
     }
 
-    res.status(201).send('Sucessfully created the user')
+    res.status(201).send('Sucessfully signed up')
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
@@ -79,7 +78,8 @@ router.post('/sign-in', async (req, res, next) => {
       return
     }
 
-    const token = jwt.sign({ email }, JWT_SECRET!)
+    const userId = user.id
+    const token = jwt.sign({ email, userId }, JWT_SECRET!)
 
     res
       .status(200)
@@ -89,7 +89,7 @@ router.post('/sign-in', async (req, res, next) => {
         httpOnly: true,
         sameSite: true,
       })
-      .send('Signed up sucessfully')
+      .send('Signed in sucessfully')
   } catch (error) {
     next(error)
   }

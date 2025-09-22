@@ -132,7 +132,8 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   title: 'title',
   enabled: 'enabled',
   nodes: 'nodes',
-  connections: 'connections'
+  connections: 'connections',
+  userId: 'userId'
 };
 
 exports.Prisma.WebhookScalarFieldEnum = {
@@ -146,7 +147,8 @@ exports.Prisma.CredentialScalarFieldEnum = {
   id: 'id',
   title: 'title',
   platform: 'platform',
-  data: 'data'
+  data: 'data',
+  userId: 'userId'
 };
 
 exports.Prisma.SortOrder = {

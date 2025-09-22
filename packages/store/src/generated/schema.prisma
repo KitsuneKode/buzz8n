@@ -15,10 +15,12 @@ datasource db {
 }
 
 model User {
-  id            String @id @default(cuid())
+  id            String       @id @default(cuid())
   name          String
-  email         String @unique()
+  email         String       @unique()
   password_hash String
+  credentials   Credential[]
+  workflows     Workflow[]
 
   @@index(email)
   @@map("user")
@@ -30,6 +32,9 @@ model Workflow {
   enabled     Boolean
   nodes       Json[]
   connections Json[]
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("workflow")
 }
@@ -46,9 +51,12 @@ model Webhook {
 
 model Credential {
   id       String             @id @default(cuid())
-  title    String
+  title    String             @unique
   platform SupportedPlatforms
   data     Json
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index(title)
   @@map("credential")
