@@ -1,0 +1,3 @@
+{
+  "extends": "@buzz8n/typescript-config/backend.json"
+}

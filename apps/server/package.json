@@ -1,0 +1,31 @@
+{
+  "name": "@buzz8n/server",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "tsdown",
+    "check-types": "tsc -b",
+    "compile": "bun build --compile --minify --sourcemap --bytecode ./src/index.ts --outfile server",
+    "dev": "bun run --hot src/index.ts",
+    "start": "bun run dist/index.js"
+  },
+  "devDependencies": {
+    "@buzz8n/typescript-config": "*",
+    "@types/bcrypt": "^6.0.0",
+    "@types/bun": "latest",
+    "@types/express": "^5.0.3"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@buzz8n/common": "*",
+    "@buzz8n/store": "*",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcrypt": "^6.0.0",
+    "express": "^5.1.-1",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^4.1.11"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@buzz8n/common",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./types": "./src/types/index.ts",
+    ".": "./src/index.ts",
+    "./config": "./src/utils/config-loader.ts"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@buzz8n/typescript-config": "*",
+    "zod": "^4.1.11"
+  }
+}
