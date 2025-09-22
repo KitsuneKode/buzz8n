@@ -1,0 +1,30 @@
+{
+  "extends": "@buzz8n/typescript-config/react-vite.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@buzz8n/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@buzz8n/store/*": [
+        "../../packages/store/src/*"
+      ],
+      "@buzz8n/common/*": [
+        "../../packages/common/src/*"
+      ]
+    }
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    "eslint.config.js",
+    "prettier.config.js",
+    "vite.config.js"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
