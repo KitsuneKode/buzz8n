@@ -1,6 +1,21 @@
 {
   "extends": "@buzz8n/typescript-config/nextjs.json",
   "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./*"
+      ],
+      "@buzz8n/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@buzz8n/store/*": [
+        "../../packages/store/src/*"
+      ],
+      "@buzz8n/common/*": [
+        "../../packages/common/src/*"
+      ]
+    },
     "plugins": [
       {
         "name": "next"
