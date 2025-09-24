@@ -3,18 +3,8 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@buzz8n/ui/*": [
-        "../../packages/ui/src/*"
-      ],
-      "@buzz8n/store/*": [
-        "../../packages/store/src/*"
-      ],
-      "@buzz8n/common/*": [
-        "../../packages/common/src/*"
-      ]
+      "@/*": ["./*"],
+      "@buzz8n/ui/*": ["../../packages/ui/src/*"]
     },
     "plugins": [
       {
@@ -23,13 +13,11 @@
     ]
   },
   "include": [
+    "next-env.d.ts",
+    "next.config.ts",
     "**/*.ts",
     "**/*.tsx",
-    "next-env.d.ts",
-    "next.config.js",
     ".next/types/**/*.ts"
   ],
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"]
 }

@@ -10,7 +10,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     const { email, userId } = isVerified as JwtPayload
 
     if (!isVerified || !email || !userId) {
-      res.clearCookie('buzz8n_auth').status(401).send('Not authenticated')
+      res.status(401).send('Not authenticated')
       return
     }
 

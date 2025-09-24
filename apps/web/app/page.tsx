@@ -1,12 +1,12 @@
-'use client'
-import dynamic from 'next/dynamic'
-import App from '../components/trial'
+import { Button } from "@buzz8n/ui/components/button"
 
-const DynamicHeader = dynamic(() => import('../components/trial'), {
-  loading: () => <p>Loading...</p>,
-  ssr: false,
-})
-
-export default function Home() {
-  return <App />
+export default function Page() {
+  return (
+    <div className="flex items-center justify-center min-h-svh">
+      <div className="flex flex-col items-center justify-center gap-4">
+        <h1 className="text-2xl font-bold">Hello World</h1>
+        <Button size="sm">Button</Button>
+      </div>
+    </div>
+  )
 }

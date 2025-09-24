@@ -1,27 +1,29 @@
-import { useCallback, useState } from 'react'
+'use client'
 import {
   ReactFlow,
   addEdge,
-  applyEdgeChanges,
   applyNodeChanges,
+  applyEdgeChanges,
+  type Node,
+  type Edge,
+  type FitViewOptions,
+  type OnConnect,
+  type OnNodesChange,
+  type OnEdgesChange,
+  type OnNodeDrag,
+  type DefaultEdgeOptions,
+  Background,
+  Controls,
 } from '@xyflow/react'
-import type {
-  DefaultEdgeOptions,
-  Edge,
-  FitViewOptions,
-  Node,
-  OnConnect,
-  OnEdgesChange,
-  OnNodeDrag,
-  OnNodesChange,
-} from '@xyflow/react'
+import { useState, useCallback } from 'react'
+import '@xyflow/react/dist/style.css'
 
-const initialNodes: Array<Node> = [
+const initialNodes: Node[] = [
   { id: '1', data: { label: 'Node 1' }, position: { x: 5, y: 5 } },
   { id: '2', data: { label: 'Node 2' }, position: { x: 5, y: 100 } },
 ]
 
-const initialEdges: Array<Edge> = [{ id: 'e1-2', source: '1', target: '2' }]
+const initialEdges: Edge[] = [{ id: 'e1-2', source: '1', target: '2' }]
 
 const fitViewOptions: FitViewOptions = {
   padding: 0.2,
@@ -35,9 +37,9 @@ const onNodeDrag: OnNodeDrag = (_, node) => {
   console.log('drag event', node.data)
 }
 
-export default function Flow() {
-  const [nodes, setNodes] = useState<Array<Node>>(initialNodes)
-  const [edges, setEdges] = useState<Array<Edge>>(initialEdges)
+export function Flow() {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes)
+  const [edges, setEdges] = useState<Edge[]>(initialEdges)
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
@@ -54,6 +56,7 @@ export default function Flow() {
 
   return (
     <ReactFlow
+      colorMode={'dark'}
       nodes={nodes}
       edges={edges}
       onNodesChange={onNodesChange}
@@ -63,6 +66,9 @@ export default function Flow() {
       fitView
       fitViewOptions={fitViewOptions}
       defaultEdgeOptions={defaultEdgeOptions}
-    />
+    >
+      <Background />
+      <Controls />
+    </ReactFlow>
   )
 }

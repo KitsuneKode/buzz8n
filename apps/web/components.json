@@ -6,21 +6,15 @@
   "tailwind": {
     "config": "",
     "css": "../../packages/ui/src/styles/globals.css",
-    "baseColor": "zinc",
+    "baseColor": "neutral",
     "cssVariables": true
   },
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "utils": "@buzz8n/ui/lib/utils",
-    "ui": "@buzz8n/ui/components",
+    "hooks": "@/hooks",
     "lib": "@/lib",
-    "hooks": "@/hooks"
-  },
-  "registries": {
-    "@tailark": "https://tailark.com/r/{name}.json",
-    "@smoothui": "https://smoothui.dev/r/{name}.json",
-    "@ai-elements": "https://registry.ai-sdk.dev/{name}.json",
-    "@motion-primitives": "https://motion-primitives.com/c/{name}.json"
+    "utils": "@buzz8n/ui/lib/utils",
+    "ui": "@buzz8n/ui/components"
   }
 }
