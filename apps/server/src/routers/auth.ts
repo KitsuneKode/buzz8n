@@ -1,14 +1,15 @@
+import { Router, type Request, type Response, type NextFunction } from 'express'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { PrismaClientKnownRequestError } from '@buzz8n/store'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
+import { auth } from '@/middlewares/auth-middleware'
 import { password as Password } from 'bun'
 import { prisma } from '@buzz8n/store'
-import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 
 const router = Router()
 
-router.post('/sign-up', async (req, res, next) => {
+router.post('/signup', async (req, res, next) => {
   try {
     const validated = signUpSchema.safeParse(req.body)
     if (!validated.success) {
@@ -48,7 +49,7 @@ router.post('/sign-up', async (req, res, next) => {
   }
 })
 
-router.post('/sign-in', async (req, res, next) => {
+router.post('/signin', async (req, res, next) => {
   const validated = signInSchema.safeParse(req.body)
 
   if (!validated.success) {
@@ -66,6 +67,7 @@ router.post('/sign-in', async (req, res, next) => {
     })
 
     if (!user) {
+      console.log('User with this email doesnot exist')
       res.status(400).send('User with this email doesnot exist')
       return
     }
@@ -73,6 +75,7 @@ router.post('/sign-in', async (req, res, next) => {
     const passwordMatch = await Password.verify(password, user.password_hash)
 
     if (!passwordMatch) {
+      console.log('Email or Password Invalid')
       res.status(400).send('Email or Password Invalid')
 
       return
@@ -87,12 +90,49 @@ router.post('/sign-in', async (req, res, next) => {
         secure: NODE_ENV !== 'development',
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
-        sameSite: true,
+        sameSite: 'lax',
       })
       .send('Signed in sucessfully')
   } catch (error) {
     next(error)
   }
+})
+
+// Get current user profile
+router.get('/me', auth, async (req, res, next) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user.userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+      },
+    })
+
+    if (!user) {
+      res.status(404).json({ error: 'User not found' })
+      return
+    }
+
+    res.status(200).json(user)
+  } catch (error) {
+    next(error)
+  }
+})
+
+// Sign out user
+router.post('/signout', (req, res) => {
+  res
+    .status(200)
+    .clearCookie('buzz8n_auth', {
+      secure: NODE_ENV !== 'development',
+      httpOnly: true,
+      sameSite: 'lax',
+    })
+    .send('Signed out successfully')
 })
 
 export { router as authRouter }

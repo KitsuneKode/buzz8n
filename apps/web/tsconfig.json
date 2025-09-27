@@ -3,8 +3,15 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@buzz8n/ui/*": ["../../packages/ui/src/*"]
+      "@/*": [
+        "./*"
+      ],
+      "@buzz8n/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@buzz8n/common/*": [
+        "../../packages/common/src/*"
+      ]
     },
     "plugins": [
       {
@@ -19,5 +26,7 @@
     "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules"]
+  "exclude": [
+    "node_modules"
+  ]
 }

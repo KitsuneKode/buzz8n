@@ -1,16 +1,22 @@
-import { Geist, Geist_Mono } from "next/font/google"
+import { Lora, Plus_Jakarta_Sans, Roboto_Mono } from 'next/font/google'
 
-import "@buzz8n/ui/globals.css"
-import { Providers } from "@/components/providers"
+import { SmartHeader } from '@/components/site/SmartHeader'
+import { Providers } from '@/components/providers'
+import '@xyflow/react/dist/base.css'
+import '@buzz8n/ui/globals.css'
 
-const fontSans = Geist({
-  subsets: ["latin"],
-  variable: "--font-sans",
+const fontSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-sans',
 })
 
-const fontMono = Geist_Mono({
-  subsets: ["latin"],
-  variable: "--font-mono",
+const fontSerif = Lora({
+  subsets: ['latin'],
+  variable: '--font-serif',
+})
+const fontMono = Roboto_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
 })
 
 export default function RootLayout({
@@ -21,9 +27,12 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${fontSans.variable} ${fontMono.variable} font-sans antialiased `}
+        className={`${fontSans.variable} ${fontSerif.variable} ${fontMono.variable} font-sans antialiased monspace`}
       >
-        <Providers>{children}</Providers>
+        <Providers>
+          <SmartHeader />
+          <main className="min-h-screen">{children}</main>
+        </Providers>
       </body>
     </html>
   )

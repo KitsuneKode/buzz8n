@@ -12,9 +12,14 @@
   "iconLibrary": "lucide",
   "aliases": {
     "components": "@/components",
-    "hooks": "@/hooks",
-    "lib": "@/lib",
     "utils": "@buzz8n/ui/lib/utils",
-    "ui": "@buzz8n/ui/components"
+    "ui": "@buzz8n/ui/components",
+    "lib": "@/lib",
+    "hooks": "@/hooks"
+  },
+  "registries": {
+    "@tailark": "https://tailark.com/r/{name}.json",
+    "@origin-ui": "https://originui.com/r/{name}.json",
+    "@react-flow": "https://ui.reactflow.dev/{name}"
   }
 }
