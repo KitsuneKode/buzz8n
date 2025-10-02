@@ -136,6 +136,7 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   nodes: 'nodes',
   connections: 'connections',
   userId: 'userId',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -145,6 +146,7 @@ exports.Prisma.WebhookScalarFieldEnum = {
   title: 'title',
   method: 'method',
   path: 'path',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -155,6 +157,7 @@ exports.Prisma.CredentialScalarFieldEnum = {
   platform: 'platform',
   data: 'data',
   userId: 'userId',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };

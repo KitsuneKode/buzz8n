@@ -1,12 +1,17 @@
 'use client'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
-import { Trash2, Eye, EyeOff, Copy, Check } from 'lucide-react'
+import { Trash2, Eye, EyeOff, Copy, Check, Loader2 } from 'lucide-react'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { CredentialResponse } from '@buzz8n/common/types'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
 import { Credential } from '@/lib/types/credentials'
 import { Badge } from '@buzz8n/ui/components/badge'
+import { API_URL } from '@/utils/config'
 import { useState } from 'react'
+import axios from 'axios'
 
 interface CredentialsListProps {
   credentials: Credential[]
@@ -29,6 +34,34 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
       return newSet
     })
   }
+
+  const queryClient = useQueryClient()
+
+  const { isPending, mutate: handleDeleteCredential } = useMutation({
+    mutationFn: async (credentialId: string) => {
+      const response = await axios.delete(`${API_URL}/credential`, {
+        data: {
+          id: credentialId,
+        },
+        withCredentials: true,
+      })
+
+      return response.data
+    },
+
+    onSuccess: (responseData) => {
+      toast.success('Credential successfully deleted')
+
+      removeCredential(responseData.id)
+
+      queryClient.setQueryData(['credential'], (old: Array<CredentialResponse>) =>
+        old.filter((c) => c.id !== responseData.id),
+      )
+    },
+    onError: () => {
+      toast.error('Failed to delete credential')
+    },
+  })
 
   const copyToClipboard = async (text: string, credentialId: string, field: string) => {
     try {
@@ -180,10 +213,15 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
                 <Button
                   variant="ghost"
                   size="icon"
+                  disabled={isPending}
                   className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeCredential(credential.id)}
+                  onClick={() => handleDeleteCredential(credential.id)}
                 >
-                  <Trash2 className="h-4 w-4" />
+                  {isPending ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
                 </Button>
               </div>
             </CardHeader>

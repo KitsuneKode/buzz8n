@@ -132,7 +132,6 @@ export function useAuth(): UseAuthReturn {
     onSuccess: () => {
       toast.success('Signed out successfully')
       // Clear user data from cache
-      queryClient.setQueryData(AUTH_QUERY_KEY, null)
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
       router.push('/signin')
     },

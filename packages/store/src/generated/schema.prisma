@@ -38,8 +38,9 @@ model Workflow {
   nodes       Json[]
   connections Json[]
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  archived Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -53,6 +54,8 @@ model Webhook {
   method Methods
   path   String
 
+  archived Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -62,12 +65,13 @@ model Webhook {
 
 model Credential {
   id       String             @id @default(cuid())
-  title    String             @unique
+  title    String
   platform SupportedPlatforms
   data     Json
 
-  userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId   String
+  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  archived Boolean @default(false)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

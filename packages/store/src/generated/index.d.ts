@@ -2332,6 +2332,7 @@ export namespace Prisma {
     title: string | null
     enabled: boolean | null
     userId: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2341,6 +2342,7 @@ export namespace Prisma {
     title: string | null
     enabled: boolean | null
     userId: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2352,6 +2354,7 @@ export namespace Prisma {
     nodes: number
     connections: number
     userId: number
+    archived: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2363,6 +2366,7 @@ export namespace Prisma {
     title?: true
     enabled?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2372,6 +2376,7 @@ export namespace Prisma {
     title?: true
     enabled?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2383,6 +2388,7 @@ export namespace Prisma {
     nodes?: true
     connections?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2467,6 +2473,7 @@ export namespace Prisma {
     nodes: JsonValue[]
     connections: JsonValue[]
     userId: string
+    archived: boolean
     createdAt: Date
     updatedAt: Date
     _count: WorkflowCountAggregateOutputType | null
@@ -2495,6 +2502,7 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2507,6 +2515,7 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2519,6 +2528,7 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2531,11 +2541,12 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
   export type WorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2558,6 +2569,7 @@ export namespace Prisma {
       nodes: Prisma.JsonValue[]
       connections: Prisma.JsonValue[]
       userId: string
+      archived: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["workflow"]>
@@ -2990,6 +3002,7 @@ export namespace Prisma {
     readonly nodes: FieldRef<"Workflow", 'Json[]'>
     readonly connections: FieldRef<"Workflow", 'Json[]'>
     readonly userId: FieldRef<"Workflow", 'String'>
+    readonly archived: FieldRef<"Workflow", 'Boolean'>
     readonly createdAt: FieldRef<"Workflow", 'DateTime'>
     readonly updatedAt: FieldRef<"Workflow", 'DateTime'>
   }
@@ -3421,6 +3434,7 @@ export namespace Prisma {
     title: string | null
     method: $Enums.Methods | null
     path: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3430,6 +3444,7 @@ export namespace Prisma {
     title: string | null
     method: $Enums.Methods | null
     path: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3439,6 +3454,7 @@ export namespace Prisma {
     title: number
     method: number
     path: number
+    archived: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3450,6 +3466,7 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3459,6 +3476,7 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3468,6 +3486,7 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3550,6 +3569,7 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    archived: boolean
     createdAt: Date
     updatedAt: Date
     _count: WebhookCountAggregateOutputType | null
@@ -3576,6 +3596,7 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
@@ -3585,6 +3606,7 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
@@ -3594,6 +3616,7 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
@@ -3603,11 +3626,12 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "method" | "path" | "createdAt" | "updatedAt", ExtArgs["result"]["webhook"]>
+  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "method" | "path" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["webhook"]>
 
   export type $WebhookPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Webhook"
@@ -3617,6 +3641,7 @@ export namespace Prisma {
       title: string
       method: $Enums.Methods
       path: string
+      archived: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["webhook"]>
@@ -4046,6 +4071,7 @@ export namespace Prisma {
     readonly title: FieldRef<"Webhook", 'String'>
     readonly method: FieldRef<"Webhook", 'Methods'>
     readonly path: FieldRef<"Webhook", 'String'>
+    readonly archived: FieldRef<"Webhook", 'Boolean'>
     readonly createdAt: FieldRef<"Webhook", 'DateTime'>
     readonly updatedAt: FieldRef<"Webhook", 'DateTime'>
   }
@@ -4429,6 +4455,7 @@ export namespace Prisma {
     title: string | null
     platform: $Enums.SupportedPlatforms | null
     userId: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4438,6 +4465,7 @@ export namespace Prisma {
     title: string | null
     platform: $Enums.SupportedPlatforms | null
     userId: string | null
+    archived: boolean | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4448,6 +4476,7 @@ export namespace Prisma {
     platform: number
     data: number
     userId: number
+    archived: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -4459,6 +4488,7 @@ export namespace Prisma {
     title?: true
     platform?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4468,6 +4498,7 @@ export namespace Prisma {
     title?: true
     platform?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4478,6 +4509,7 @@ export namespace Prisma {
     platform?: true
     data?: true
     userId?: true
+    archived?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -4561,6 +4593,7 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonValue
     userId: string
+    archived: boolean
     createdAt: Date
     updatedAt: Date
     _count: CredentialCountAggregateOutputType | null
@@ -4588,6 +4621,7 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4599,6 +4633,7 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4610,6 +4645,7 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4621,11 +4657,12 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "platform" | "data" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["credential"]>
+  export type CredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "platform" | "data" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["credential"]>
   export type CredentialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -4647,6 +4684,7 @@ export namespace Prisma {
       platform: $Enums.SupportedPlatforms
       data: Prisma.JsonValue
       userId: string
+      archived: boolean
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["credential"]>
@@ -5078,6 +5116,7 @@ export namespace Prisma {
     readonly platform: FieldRef<"Credential", 'SupportedPlatforms'>
     readonly data: FieldRef<"Credential", 'Json'>
     readonly userId: FieldRef<"Credential", 'String'>
+    readonly archived: FieldRef<"Credential", 'Boolean'>
     readonly createdAt: FieldRef<"Credential", 'DateTime'>
     readonly updatedAt: FieldRef<"Credential", 'DateTime'>
   }
@@ -5527,6 +5566,7 @@ export namespace Prisma {
     nodes: 'nodes',
     connections: 'connections',
     userId: 'userId',
+    archived: 'archived',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5539,6 +5579,7 @@ export namespace Prisma {
     title: 'title',
     method: 'method',
     path: 'path',
+    archived: 'archived',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5552,6 +5593,7 @@ export namespace Prisma {
     platform: 'platform',
     data: 'data',
     userId: 'userId',
+    archived: 'archived',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -5770,6 +5812,7 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -5782,6 +5825,7 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -5797,6 +5841,7 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -5809,6 +5854,7 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: WorkflowCountOrderByAggregateInput
@@ -5826,6 +5872,7 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringWithAggregatesFilter<"Workflow"> | string
+    archived?: BoolWithAggregatesFilter<"Workflow"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
   }
@@ -5838,6 +5885,7 @@ export namespace Prisma {
     title?: StringFilter<"Webhook"> | string
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
     path?: StringFilter<"Webhook"> | string
+    archived?: BoolFilter<"Webhook"> | boolean
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeFilter<"Webhook"> | Date | string
   }
@@ -5847,6 +5895,7 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -5860,6 +5909,7 @@ export namespace Prisma {
     title?: StringFilter<"Webhook"> | string
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
     path?: StringFilter<"Webhook"> | string
+    archived?: BoolFilter<"Webhook"> | boolean
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeFilter<"Webhook"> | Date | string
   }, "id" | "method_path">
@@ -5869,6 +5919,7 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: WebhookCountOrderByAggregateInput
@@ -5884,6 +5935,7 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Webhook"> | string
     method?: EnumMethodsWithAggregatesFilter<"Webhook"> | $Enums.Methods
     path?: StringWithAggregatesFilter<"Webhook"> | string
+    archived?: BoolWithAggregatesFilter<"Webhook"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Webhook"> | Date | string
   }
@@ -5897,6 +5949,7 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    archived?: BoolFilter<"Credential"> | boolean
     createdAt?: DateTimeFilter<"Credential"> | Date | string
     updatedAt?: DateTimeFilter<"Credential"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -5908,6 +5961,7 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -5915,17 +5969,18 @@ export namespace Prisma {
 
   export type CredentialWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    title?: string
     AND?: CredentialWhereInput | CredentialWhereInput[]
     OR?: CredentialWhereInput[]
     NOT?: CredentialWhereInput | CredentialWhereInput[]
+    title?: StringFilter<"Credential"> | string
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    archived?: BoolFilter<"Credential"> | boolean
     createdAt?: DateTimeFilter<"Credential"> | Date | string
     updatedAt?: DateTimeFilter<"Credential"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
-  }, "id" | "title">
+  }, "id">
 
   export type CredentialOrderByWithAggregationInput = {
     id?: SortOrder
@@ -5933,6 +5988,7 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CredentialCountOrderByAggregateInput
@@ -5949,6 +6005,7 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsWithAggregatesFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonWithAggregatesFilter<"Credential">
     userId?: StringWithAggregatesFilter<"Credential"> | string
+    archived?: BoolWithAggregatesFilter<"Credential"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Credential"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Credential"> | Date | string
   }
@@ -6030,6 +6087,7 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkflowsInput
@@ -6042,6 +6100,7 @@ export namespace Prisma {
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6052,6 +6111,7 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkflowsNestedInput
@@ -6064,6 +6124,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6075,6 +6136,7 @@ export namespace Prisma {
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6085,6 +6147,7 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6096,6 +6159,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6105,6 +6169,7 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6114,6 +6179,7 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6123,6 +6189,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6132,6 +6199,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6141,6 +6209,7 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6150,6 +6219,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6159,6 +6229,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6168,6 +6239,7 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCredentialsInput
@@ -6179,6 +6251,7 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
     userId: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6188,6 +6261,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCredentialsNestedInput
@@ -6199,6 +6273,7 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6209,6 +6284,7 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
     userId: string
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6218,6 +6294,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6228,6 +6305,7 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6368,6 +6446,7 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6377,6 +6456,7 @@ export namespace Prisma {
     title?: SortOrder
     enabled?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6386,6 +6466,7 @@ export namespace Prisma {
     title?: SortOrder
     enabled?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6415,6 +6496,7 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6424,6 +6506,7 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6433,6 +6516,7 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6483,6 +6567,7 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6492,6 +6577,7 @@ export namespace Prisma {
     title?: SortOrder
     platform?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6501,6 +6587,7 @@ export namespace Prisma {
     title?: SortOrder
     platform?: SortOrder
     userId?: SortOrder
+    archived?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -6833,6 +6920,7 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6842,6 +6930,7 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6862,6 +6951,7 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6872,6 +6962,7 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6911,6 +7002,7 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    archived?: BoolFilter<"Credential"> | boolean
     createdAt?: DateTimeFilter<"Credential"> | Date | string
     updatedAt?: DateTimeFilter<"Credential"> | Date | string
   }
@@ -6941,6 +7033,7 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
   }
@@ -7062,6 +7155,7 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7072,6 +7166,7 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7081,6 +7176,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7090,6 +7186,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7099,6 +7196,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7109,6 +7207,7 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7119,6 +7218,7 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7129,6 +7229,7 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

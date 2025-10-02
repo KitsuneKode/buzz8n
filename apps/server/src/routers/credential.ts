@@ -15,6 +15,7 @@ router.get('/credential', async (req, res, next: NextFunction) => {
     const credentials = await prisma.credential.findMany({
       where: {
         userId,
+        archived: false,
       },
       select: {
         id: true,
@@ -67,6 +68,44 @@ router.post('/credential', async (req: Request, res: Response, next: NextFunctio
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
         res.status(409).send('Credential with that title already exists')
+        return
+      }
+    }
+
+    next(error)
+  }
+})
+
+router.delete('/credential', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const credentialId = req.body.id as string
+
+    if (!credentialId) {
+      logger.error('no Id')
+
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    const credential = await prisma.credential.update({
+      where: {
+        id: credentialId,
+        userId: req.user!.userId,
+      },
+      data: {
+        archived: true,
+      },
+    })
+
+    if (!credential) {
+      throw new Error('No credential were created')
+    }
+
+    res.status(200).json(credential)
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        res.status(404).send('Credential with that id doesnot exists')
         return
       }
     }

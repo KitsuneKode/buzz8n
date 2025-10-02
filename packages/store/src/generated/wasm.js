@@ -108,6 +108,7 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   nodes: 'nodes',
   connections: 'connections',
   userId: 'userId',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -117,6 +118,7 @@ exports.Prisma.WebhookScalarFieldEnum = {
   title: 'title',
   method: 'method',
   path: 'path',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -127,6 +129,7 @@ exports.Prisma.CredentialScalarFieldEnum = {
   platform: 'platform',
   data: 'data',
   userId: 'userId',
+  archived: 'archived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -186,8 +189,8 @@ const config = {
       "fromEnvVar": null
     },
     "config": {
-      "runtime": "bun",
       "moduleFormat": "esm",
+      "runtime": "bun",
       "engineType": "library"
     },
     "binaryTargets": [
@@ -212,7 +215,6 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -221,13 +223,13 @@ const config = {
       }
     }
   },
-  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client-js\"\n  output       = \"../src/generated\"\n  moduleFormat = \"esm\"\n  runtime      = \"bun\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String       @id @default(cuid())\n  name          String\n  email         String       @unique()\n  password_hash String\n  credentials   Credential[]\n  workflows     Workflow[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index(email)\n  @@map(\"user\")\n}\n\nmodel Workflow {\n  id          String  @id @default(cuid())\n  title       String\n  enabled     Boolean\n  nodes       Json[]\n  connections Json[]\n\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"workflow\")\n}\n\nmodel Webhook {\n  id     String  @id @default(cuid())\n  title  String\n  method Methods\n  path   String\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([method, path])\n  @@map(\"webhook\")\n}\n\nmodel Credential {\n  id       String             @id @default(cuid())\n  title    String             @unique\n  platform SupportedPlatforms\n  data     Json\n\n  userId String\n  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index(title)\n  @@map(\"credential\")\n}\n\nenum Methods {\n  POST\n  GET\n  PUT\n}\n\nenum SupportedPlatforms {\n  Telegram\n  Gmail\n  Slack\n  Discord\n  Webhook\n  Twilio\n}\n",
-  "inlineSchemaHash": "d62fa492904db52ed4de8e58c73c2e33c8d28e16940915c5674016115a0c984f",
+  "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider     = \"prisma-client-js\"\n  output       = \"../src/generated\"\n  moduleFormat = \"esm\"\n  runtime      = \"bun\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String       @id @default(cuid())\n  name          String\n  email         String       @unique()\n  password_hash String\n  credentials   Credential[]\n  workflows     Workflow[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index(email)\n  @@map(\"user\")\n}\n\nmodel Workflow {\n  id          String  @id @default(cuid())\n  title       String\n  enabled     Boolean\n  nodes       Json[]\n  connections Json[]\n\n  userId   String\n  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n  archived Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@map(\"workflow\")\n}\n\nmodel Webhook {\n  id     String  @id @default(cuid())\n  title  String\n  method Methods\n  path   String\n\n  archived Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@unique([method, path])\n  @@map(\"webhook\")\n}\n\nmodel Credential {\n  id       String             @id @default(cuid())\n  title    String\n  platform SupportedPlatforms\n  data     Json\n\n  userId   String\n  user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)\n  archived Boolean @default(false)\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n\n  @@index(title)\n  @@map(\"credential\")\n}\n\nenum Methods {\n  POST\n  GET\n  PUT\n}\n\nenum SupportedPlatforms {\n  Telegram\n  Gmail\n  Slack\n  Discord\n  Webhook\n  Twilio\n}\n",
+  "inlineSchemaHash": "9cee4b82730e629e7c206088fee91187e70379e7c8678bfb8ae5848d6cd6c82e",
   "copyEngine": true
 }
 config.dirname = '/'
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"credentials\",\"kind\":\"object\",\"type\":\"Credential\",\"relationName\":\"CredentialToUser\"},{\"name\":\"workflows\",\"kind\":\"object\",\"type\":\"Workflow\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"user\"},\"Workflow\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"enabled\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nodes\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"connections\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"workflow\"},\"Webhook\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"enum\",\"type\":\"Methods\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"webhook\"},\"Credential\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"platform\",\"kind\":\"enum\",\"type\":\"SupportedPlatforms\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CredentialToUser\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"credential\"}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"name\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"email\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"password_hash\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"credentials\",\"kind\":\"object\",\"type\":\"Credential\",\"relationName\":\"CredentialToUser\"},{\"name\":\"workflows\",\"kind\":\"object\",\"type\":\"Workflow\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"user\"},\"Workflow\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"enabled\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"nodes\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"connections\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"UserToWorkflow\"},{\"name\":\"archived\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"workflow\"},\"Webhook\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"method\",\"kind\":\"enum\",\"type\":\"Methods\"},{\"name\":\"path\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"archived\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"webhook\"},\"Credential\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"title\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"platform\",\"kind\":\"enum\",\"type\":\"SupportedPlatforms\"},{\"name\":\"data\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"userId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"user\",\"kind\":\"object\",\"type\":\"User\",\"relationName\":\"CredentialToUser\"},{\"name\":\"archived\",\"kind\":\"scalar\",\"type\":\"Boolean\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":\"credential\"}},\"enums\":{},\"types\":{}}")
 defineDmmfProperty(exports.Prisma, config.runtimeDataModel)
 config.engineWasm = {
   getRuntime: async () => require('./query_engine_bg.js'),

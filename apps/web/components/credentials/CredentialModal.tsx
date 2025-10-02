@@ -3,6 +3,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
 import { CredentialData, Provider, TelegramFormData } from '@/lib/types/credentials'
 import { CredentialResponse } from '@buzz8n/common/types/credentials'
+import axios, { AxiosError, isAxiosError } from 'axios'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
@@ -11,7 +12,6 @@ import ProviderPicker from './ProviderPicker'
 import { useEffect, useState } from 'react'
 import TelegramForm from './TelegramForm'
 import { API_URL } from '@/utils/config'
-import axios from 'axios'
 
 const CredentialModal = () => {
   const [step, setStep] = useState<'provider' | 'form'>('provider')
@@ -69,8 +69,13 @@ const CredentialModal = () => {
       setCredentialModalOpen(false)
     },
     onError: (error) => {
-      console.error(error.message)
-      toast.error('Failed to add credential')
+      if (isAxiosError(error)) {
+        if (error.response?.data) {
+          toast.error(error.response.data)
+        } else {
+          toast.error('Failed to create credentials')
+        }
+      }
     },
   })
 
