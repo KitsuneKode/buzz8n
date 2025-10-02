@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { useRouter } from 'next/navigation'
+import { useCookies } from 'react-cookie'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
 import { z } from 'zod'
@@ -53,6 +54,7 @@ export function useAuth(): UseAuthReturn {
         const response = await axios.get(`${API_URL}/me`, {
           withCredentials: true,
         })
+
         return response.data
       } catch (error) {
         // If unauthorized, user is not authenticated
@@ -79,6 +81,8 @@ export function useAuth(): UseAuthReturn {
           withCredentials: true,
         },
       )
+
+      console.log(response.data)
       return response.data
     },
     onSuccess: () => {
@@ -105,7 +109,7 @@ export function useAuth(): UseAuthReturn {
     },
     onSuccess: () => {
       toast.success('Account created successfully! Please sign in.')
-      router.push('/sign-in')
+      router.push('/signin')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-up failed. Please try again.'
@@ -116,9 +120,13 @@ export function useAuth(): UseAuthReturn {
   // Sign out mutation
   const signOutMutation = useMutation({
     mutationFn: async () => {
-      const response = await axios.post(`${API_URL}signout`, {
-        withCredentials: true,
-      })
+      const response = await axios.post(
+        `${API_URL}/signout`,
+        {},
+        {
+          withCredentials: true,
+        },
+      )
       return response.data
     },
     onSuccess: () => {
@@ -126,7 +134,7 @@ export function useAuth(): UseAuthReturn {
       // Clear user data from cache
       queryClient.setQueryData(AUTH_QUERY_KEY, null)
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
-      router.push('/sign-in')
+      router.push('/signin')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-out failed. Please try again.'
@@ -136,7 +144,7 @@ export function useAuth(): UseAuthReturn {
 
   return {
     // User state
-    user: user || null,
+    user: user ?? null,
     isAuthenticated: !!user,
     isLoading,
 

@@ -49,7 +49,11 @@ export type Methods = (typeof Methods)[keyof typeof Methods]
 
 export const SupportedPlatforms: {
   Telegram: 'Telegram',
-  Gmail: 'Gmail'
+  Gmail: 'Gmail',
+  Slack: 'Slack',
+  Discord: 'Discord',
+  Webhook: 'Webhook',
+  Twilio: 'Twilio'
 };
 
 export type SupportedPlatforms = (typeof SupportedPlatforms)[keyof typeof SupportedPlatforms]
@@ -1217,6 +1221,8 @@ export namespace Prisma {
     name: string | null
     email: string | null
     password_hash: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1224,6 +1230,8 @@ export namespace Prisma {
     name: string | null
     email: string | null
     password_hash: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1231,6 +1239,8 @@ export namespace Prisma {
     name: number
     email: number
     password_hash: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -1240,6 +1250,8 @@ export namespace Prisma {
     name?: true
     email?: true
     password_hash?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1247,6 +1259,8 @@ export namespace Prisma {
     name?: true
     email?: true
     password_hash?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1254,6 +1268,8 @@ export namespace Prisma {
     name?: true
     email?: true
     password_hash?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -1334,6 +1350,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt: Date
+    updatedAt: Date
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -1358,6 +1376,8 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     password_hash?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     credentials?: boolean | User$credentialsArgs<ExtArgs>
     workflows?: boolean | User$workflowsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1368,6 +1388,8 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     password_hash?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1375,6 +1397,8 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     password_hash?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1382,9 +1406,11 @@ export namespace Prisma {
     name?: boolean
     email?: boolean
     password_hash?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password_hash", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "password_hash" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     credentials?: boolean | User$credentialsArgs<ExtArgs>
     workflows?: boolean | User$workflowsArgs<ExtArgs>
@@ -1404,6 +1430,8 @@ export namespace Prisma {
       name: string
       email: string
       password_hash: string
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -1833,6 +1861,8 @@ export namespace Prisma {
     readonly name: FieldRef<"User", 'String'>
     readonly email: FieldRef<"User", 'String'>
     readonly password_hash: FieldRef<"User", 'String'>
+    readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly updatedAt: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -2302,6 +2332,8 @@ export namespace Prisma {
     title: string | null
     enabled: boolean | null
     userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type WorkflowMaxAggregateOutputType = {
@@ -2309,6 +2341,8 @@ export namespace Prisma {
     title: string | null
     enabled: boolean | null
     userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type WorkflowCountAggregateOutputType = {
@@ -2318,6 +2352,8 @@ export namespace Prisma {
     nodes: number
     connections: number
     userId: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -2327,6 +2363,8 @@ export namespace Prisma {
     title?: true
     enabled?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type WorkflowMaxAggregateInputType = {
@@ -2334,6 +2372,8 @@ export namespace Prisma {
     title?: true
     enabled?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type WorkflowCountAggregateInputType = {
@@ -2343,6 +2383,8 @@ export namespace Prisma {
     nodes?: true
     connections?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -2425,6 +2467,8 @@ export namespace Prisma {
     nodes: JsonValue[]
     connections: JsonValue[]
     userId: string
+    createdAt: Date
+    updatedAt: Date
     _count: WorkflowCountAggregateOutputType | null
     _min: WorkflowMinAggregateOutputType | null
     _max: WorkflowMaxAggregateOutputType | null
@@ -2451,6 +2495,8 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workflow"]>
 
@@ -2461,6 +2507,8 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workflow"]>
 
@@ -2471,6 +2519,8 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["workflow"]>
 
@@ -2481,9 +2531,11 @@ export namespace Prisma {
     nodes?: boolean
     connections?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections" | "userId", ExtArgs["result"]["workflow"]>
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
   export type WorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2506,6 +2558,8 @@ export namespace Prisma {
       nodes: Prisma.JsonValue[]
       connections: Prisma.JsonValue[]
       userId: string
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["workflow"]>
     composites: {}
   }
@@ -2936,6 +2990,8 @@ export namespace Prisma {
     readonly nodes: FieldRef<"Workflow", 'Json[]'>
     readonly connections: FieldRef<"Workflow", 'Json[]'>
     readonly userId: FieldRef<"Workflow", 'String'>
+    readonly createdAt: FieldRef<"Workflow", 'DateTime'>
+    readonly updatedAt: FieldRef<"Workflow", 'DateTime'>
   }
     
 
@@ -3365,6 +3421,8 @@ export namespace Prisma {
     title: string | null
     method: $Enums.Methods | null
     path: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type WebhookMaxAggregateOutputType = {
@@ -3372,6 +3430,8 @@ export namespace Prisma {
     title: string | null
     method: $Enums.Methods | null
     path: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type WebhookCountAggregateOutputType = {
@@ -3379,6 +3439,8 @@ export namespace Prisma {
     title: number
     method: number
     path: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -3388,6 +3450,8 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type WebhookMaxAggregateInputType = {
@@ -3395,6 +3459,8 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type WebhookCountAggregateInputType = {
@@ -3402,6 +3468,8 @@ export namespace Prisma {
     title?: true
     method?: true
     path?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -3482,6 +3550,8 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    createdAt: Date
+    updatedAt: Date
     _count: WebhookCountAggregateOutputType | null
     _min: WebhookMinAggregateOutputType | null
     _max: WebhookMaxAggregateOutputType | null
@@ -3506,6 +3576,8 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
 
   export type WebhookSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3513,6 +3585,8 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
 
   export type WebhookSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -3520,6 +3594,8 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }, ExtArgs["result"]["webhook"]>
 
   export type WebhookSelectScalar = {
@@ -3527,9 +3603,11 @@ export namespace Prisma {
     title?: boolean
     method?: boolean
     path?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "method" | "path", ExtArgs["result"]["webhook"]>
+  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "method" | "path" | "createdAt" | "updatedAt", ExtArgs["result"]["webhook"]>
 
   export type $WebhookPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Webhook"
@@ -3539,6 +3617,8 @@ export namespace Prisma {
       title: string
       method: $Enums.Methods
       path: string
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["webhook"]>
     composites: {}
   }
@@ -3966,6 +4046,8 @@ export namespace Prisma {
     readonly title: FieldRef<"Webhook", 'String'>
     readonly method: FieldRef<"Webhook", 'Methods'>
     readonly path: FieldRef<"Webhook", 'String'>
+    readonly createdAt: FieldRef<"Webhook", 'DateTime'>
+    readonly updatedAt: FieldRef<"Webhook", 'DateTime'>
   }
     
 
@@ -4347,6 +4429,8 @@ export namespace Prisma {
     title: string | null
     platform: $Enums.SupportedPlatforms | null
     userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type CredentialMaxAggregateOutputType = {
@@ -4354,6 +4438,8 @@ export namespace Prisma {
     title: string | null
     platform: $Enums.SupportedPlatforms | null
     userId: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
   }
 
   export type CredentialCountAggregateOutputType = {
@@ -4362,6 +4448,8 @@ export namespace Prisma {
     platform: number
     data: number
     userId: number
+    createdAt: number
+    updatedAt: number
     _all: number
   }
 
@@ -4371,6 +4459,8 @@ export namespace Prisma {
     title?: true
     platform?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type CredentialMaxAggregateInputType = {
@@ -4378,6 +4468,8 @@ export namespace Prisma {
     title?: true
     platform?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
   }
 
   export type CredentialCountAggregateInputType = {
@@ -4386,6 +4478,8 @@ export namespace Prisma {
     platform?: true
     data?: true
     userId?: true
+    createdAt?: true
+    updatedAt?: true
     _all?: true
   }
 
@@ -4467,6 +4561,8 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonValue
     userId: string
+    createdAt: Date
+    updatedAt: Date
     _count: CredentialCountAggregateOutputType | null
     _min: CredentialMinAggregateOutputType | null
     _max: CredentialMaxAggregateOutputType | null
@@ -4492,6 +4588,8 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["credential"]>
 
@@ -4501,6 +4599,8 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["credential"]>
 
@@ -4510,6 +4610,8 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["credential"]>
 
@@ -4519,9 +4621,11 @@ export namespace Prisma {
     platform?: boolean
     data?: boolean
     userId?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
   }
 
-  export type CredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "platform" | "data" | "userId", ExtArgs["result"]["credential"]>
+  export type CredentialOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "platform" | "data" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["credential"]>
   export type CredentialInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -4543,6 +4647,8 @@ export namespace Prisma {
       platform: $Enums.SupportedPlatforms
       data: Prisma.JsonValue
       userId: string
+      createdAt: Date
+      updatedAt: Date
     }, ExtArgs["result"]["credential"]>
     composites: {}
   }
@@ -4972,6 +5078,8 @@ export namespace Prisma {
     readonly platform: FieldRef<"Credential", 'SupportedPlatforms'>
     readonly data: FieldRef<"Credential", 'Json'>
     readonly userId: FieldRef<"Credential", 'String'>
+    readonly createdAt: FieldRef<"Credential", 'DateTime'>
+    readonly updatedAt: FieldRef<"Credential", 'DateTime'>
   }
     
 
@@ -5404,7 +5512,9 @@ export namespace Prisma {
     id: 'id',
     name: 'name',
     email: 'email',
-    password_hash: 'password_hash'
+    password_hash: 'password_hash',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -5416,7 +5526,9 @@ export namespace Prisma {
     enabled: 'enabled',
     nodes: 'nodes',
     connections: 'connections',
-    userId: 'userId'
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type WorkflowScalarFieldEnum = (typeof WorkflowScalarFieldEnum)[keyof typeof WorkflowScalarFieldEnum]
@@ -5426,7 +5538,9 @@ export namespace Prisma {
     id: 'id',
     title: 'title',
     method: 'method',
-    path: 'path'
+    path: 'path',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type WebhookScalarFieldEnum = (typeof WebhookScalarFieldEnum)[keyof typeof WebhookScalarFieldEnum]
@@ -5437,7 +5551,9 @@ export namespace Prisma {
     title: 'title',
     platform: 'platform',
     data: 'data',
-    userId: 'userId'
+    userId: 'userId',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
   };
 
   export type CredentialScalarFieldEnum = (typeof CredentialScalarFieldEnum)[keyof typeof CredentialScalarFieldEnum]
@@ -5491,6 +5607,20 @@ export namespace Prisma {
    * Reference to a field of type 'String[]'
    */
   export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime'
+   */
+  export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    
+
+
+  /**
+   * Reference to a field of type 'DateTime[]'
+   */
+  export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
     
 
 
@@ -5575,6 +5705,8 @@ export namespace Prisma {
     name?: StringFilter<"User"> | string
     email?: StringFilter<"User"> | string
     password_hash?: StringFilter<"User"> | string
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
     credentials?: CredentialListRelationFilter
     workflows?: WorkflowListRelationFilter
   }
@@ -5584,6 +5716,8 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     password_hash?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     credentials?: CredentialOrderByRelationAggregateInput
     workflows?: WorkflowOrderByRelationAggregateInput
   }
@@ -5596,6 +5730,8 @@ export namespace Prisma {
     NOT?: UserWhereInput | UserWhereInput[]
     name?: StringFilter<"User"> | string
     password_hash?: StringFilter<"User"> | string
+    createdAt?: DateTimeFilter<"User"> | Date | string
+    updatedAt?: DateTimeFilter<"User"> | Date | string
     credentials?: CredentialListRelationFilter
     workflows?: WorkflowListRelationFilter
   }, "id" | "email">
@@ -5605,6 +5741,8 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     password_hash?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -5618,6 +5756,8 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"User"> | string
     email?: StringWithAggregatesFilter<"User"> | string
     password_hash?: StringWithAggregatesFilter<"User"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
   }
 
   export type WorkflowWhereInput = {
@@ -5630,6 +5770,8 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    createdAt?: DateTimeFilter<"Workflow"> | Date | string
+    updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -5640,6 +5782,8 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -5653,6 +5797,8 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    createdAt?: DateTimeFilter<"Workflow"> | Date | string
+    updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
@@ -5663,6 +5809,8 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: WorkflowCountOrderByAggregateInput
     _max?: WorkflowMaxOrderByAggregateInput
     _min?: WorkflowMinOrderByAggregateInput
@@ -5678,6 +5826,8 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringWithAggregatesFilter<"Workflow"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
   }
 
   export type WebhookWhereInput = {
@@ -5688,6 +5838,8 @@ export namespace Prisma {
     title?: StringFilter<"Webhook"> | string
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
     path?: StringFilter<"Webhook"> | string
+    createdAt?: DateTimeFilter<"Webhook"> | Date | string
+    updatedAt?: DateTimeFilter<"Webhook"> | Date | string
   }
 
   export type WebhookOrderByWithRelationInput = {
@@ -5695,6 +5847,8 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type WebhookWhereUniqueInput = Prisma.AtLeast<{
@@ -5706,6 +5860,8 @@ export namespace Prisma {
     title?: StringFilter<"Webhook"> | string
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
     path?: StringFilter<"Webhook"> | string
+    createdAt?: DateTimeFilter<"Webhook"> | Date | string
+    updatedAt?: DateTimeFilter<"Webhook"> | Date | string
   }, "id" | "method_path">
 
   export type WebhookOrderByWithAggregationInput = {
@@ -5713,6 +5869,8 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: WebhookCountOrderByAggregateInput
     _max?: WebhookMaxOrderByAggregateInput
     _min?: WebhookMinOrderByAggregateInput
@@ -5726,6 +5884,8 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter<"Webhook"> | string
     method?: EnumMethodsWithAggregatesFilter<"Webhook"> | $Enums.Methods
     path?: StringWithAggregatesFilter<"Webhook"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Webhook"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Webhook"> | Date | string
   }
 
   export type CredentialWhereInput = {
@@ -5737,6 +5897,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    createdAt?: DateTimeFilter<"Credential"> | Date | string
+    updatedAt?: DateTimeFilter<"Credential"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
@@ -5746,6 +5908,8 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
   }
 
@@ -5758,6 +5922,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    createdAt?: DateTimeFilter<"Credential"> | Date | string
+    updatedAt?: DateTimeFilter<"Credential"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id" | "title">
 
@@ -5767,6 +5933,8 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
     _count?: CredentialCountOrderByAggregateInput
     _max?: CredentialMaxOrderByAggregateInput
     _min?: CredentialMinOrderByAggregateInput
@@ -5781,6 +5949,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsWithAggregatesFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonWithAggregatesFilter<"Credential">
     userId?: StringWithAggregatesFilter<"Credential"> | string
+    createdAt?: DateTimeWithAggregatesFilter<"Credential"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Credential"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -5788,6 +5958,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     credentials?: CredentialCreateNestedManyWithoutUserInput
     workflows?: WorkflowCreateNestedManyWithoutUserInput
   }
@@ -5797,6 +5969,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     credentials?: CredentialUncheckedCreateNestedManyWithoutUserInput
     workflows?: WorkflowUncheckedCreateNestedManyWithoutUserInput
   }
@@ -5806,6 +5980,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     credentials?: CredentialUpdateManyWithoutUserNestedInput
     workflows?: WorkflowUpdateManyWithoutUserNestedInput
   }
@@ -5815,6 +5991,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     credentials?: CredentialUncheckedUpdateManyWithoutUserNestedInput
     workflows?: WorkflowUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -5824,6 +6002,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type UserUpdateManyMutationInput = {
@@ -5831,6 +6011,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -5838,6 +6020,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowCreateInput = {
@@ -5846,6 +6030,8 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkflowsInput
   }
 
@@ -5856,6 +6042,8 @@ export namespace Prisma {
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkflowUpdateInput = {
@@ -5864,6 +6052,8 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkflowsNestedInput
   }
 
@@ -5874,6 +6064,8 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowCreateManyInput = {
@@ -5883,6 +6075,8 @@ export namespace Prisma {
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkflowUpdateManyMutationInput = {
@@ -5891,6 +6085,8 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowUncheckedUpdateManyInput = {
@@ -5900,6 +6096,8 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebhookCreateInput = {
@@ -5907,6 +6105,8 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WebhookUncheckedCreateInput = {
@@ -5914,6 +6114,8 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WebhookUpdateInput = {
@@ -5921,6 +6123,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebhookUncheckedUpdateInput = {
@@ -5928,6 +6132,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebhookCreateManyInput = {
@@ -5935,6 +6141,8 @@ export namespace Prisma {
     title: string
     method: $Enums.Methods
     path: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WebhookUpdateManyMutationInput = {
@@ -5942,6 +6150,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WebhookUncheckedUpdateManyInput = {
@@ -5949,6 +6159,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CredentialCreateInput = {
@@ -5956,6 +6168,8 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
     user: UserCreateNestedOneWithoutCredentialsInput
   }
 
@@ -5965,6 +6179,8 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
     userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type CredentialUpdateInput = {
@@ -5972,6 +6188,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutCredentialsNestedInput
   }
 
@@ -5981,6 +6199,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CredentialCreateManyInput = {
@@ -5989,6 +6209,8 @@ export namespace Prisma {
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
     userId: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type CredentialUpdateManyMutationInput = {
@@ -5996,6 +6218,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CredentialUncheckedUpdateManyInput = {
@@ -6004,6 +6228,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
     userId?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -6019,6 +6245,17 @@ export namespace Prisma {
     endsWith?: string | StringFieldRefInput<$PrismaModel>
     mode?: QueryMode
     not?: NestedStringFilter<$PrismaModel> | string
+  }
+
+  export type DateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
   export type CredentialListRelationFilter = {
@@ -6046,6 +6283,8 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     password_hash?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -6053,6 +6292,8 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     password_hash?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -6060,6 +6301,8 @@ export namespace Prisma {
     name?: SortOrder
     email?: SortOrder
     password_hash?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -6078,6 +6321,20 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
+  }
+
+  export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type BoolFilter<$PrismaModel = never> = {
@@ -6111,6 +6368,8 @@ export namespace Prisma {
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type WorkflowMaxOrderByAggregateInput = {
@@ -6118,6 +6377,8 @@ export namespace Prisma {
     title?: SortOrder
     enabled?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type WorkflowMinOrderByAggregateInput = {
@@ -6125,6 +6386,8 @@ export namespace Prisma {
     title?: SortOrder
     enabled?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type BoolWithAggregatesFilter<$PrismaModel = never> = {
@@ -6152,6 +6415,8 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type WebhookMaxOrderByAggregateInput = {
@@ -6159,6 +6424,8 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type WebhookMinOrderByAggregateInput = {
@@ -6166,6 +6433,8 @@ export namespace Prisma {
     title?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type EnumMethodsWithAggregatesFilter<$PrismaModel = never> = {
@@ -6214,6 +6483,8 @@ export namespace Prisma {
     platform?: SortOrder
     data?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type CredentialMaxOrderByAggregateInput = {
@@ -6221,6 +6492,8 @@ export namespace Prisma {
     title?: SortOrder
     platform?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type CredentialMinOrderByAggregateInput = {
@@ -6228,6 +6501,8 @@ export namespace Prisma {
     title?: SortOrder
     platform?: SortOrder
     userId?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type EnumSupportedPlatformsWithAggregatesFilter<$PrismaModel = never> = {
@@ -6296,6 +6571,10 @@ export namespace Prisma {
 
   export type StringFieldUpdateOperationsInput = {
     set?: string
+  }
+
+  export type DateTimeFieldUpdateOperationsInput = {
+    set?: Date | string
   }
 
   export type CredentialUpdateManyWithoutUserNestedInput = {
@@ -6426,6 +6705,17 @@ export namespace Prisma {
     not?: NestedStringFilter<$PrismaModel> | string
   }
 
+  export type NestedDateTimeFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeFilter<$PrismaModel> | Date | string
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -6452,6 +6742,20 @@ export namespace Prisma {
     gt?: number | IntFieldRefInput<$PrismaModel>
     gte?: number | IntFieldRefInput<$PrismaModel>
     not?: NestedIntFilter<$PrismaModel> | number
+  }
+
+  export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeWithAggregatesFilter<$PrismaModel> | Date | string
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedDateTimeFilter<$PrismaModel>
+    _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
   export type NestedBoolFilter<$PrismaModel = never> = {
@@ -6529,6 +6833,8 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type CredentialUncheckedCreateWithoutUserInput = {
@@ -6536,6 +6842,8 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type CredentialCreateOrConnectWithoutUserInput = {
@@ -6554,6 +6862,8 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkflowUncheckedCreateWithoutUserInput = {
@@ -6562,6 +6872,8 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkflowCreateOrConnectWithoutUserInput = {
@@ -6599,6 +6911,8 @@ export namespace Prisma {
     platform?: EnumSupportedPlatformsFilter<"Credential"> | $Enums.SupportedPlatforms
     data?: JsonFilter<"Credential">
     userId?: StringFilter<"Credential"> | string
+    createdAt?: DateTimeFilter<"Credential"> | Date | string
+    updatedAt?: DateTimeFilter<"Credential"> | Date | string
   }
 
   export type WorkflowUpsertWithWhereUniqueWithoutUserInput = {
@@ -6627,6 +6941,8 @@ export namespace Prisma {
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
+    createdAt?: DateTimeFilter<"Workflow"> | Date | string
+    updatedAt?: DateTimeFilter<"Workflow"> | Date | string
   }
 
   export type UserCreateWithoutWorkflowsInput = {
@@ -6634,6 +6950,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     credentials?: CredentialCreateNestedManyWithoutUserInput
   }
 
@@ -6642,6 +6960,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     credentials?: CredentialUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -6666,6 +6986,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     credentials?: CredentialUpdateManyWithoutUserNestedInput
   }
 
@@ -6674,6 +6996,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     credentials?: CredentialUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -6682,6 +7006,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     workflows?: WorkflowCreateNestedManyWithoutUserInput
   }
 
@@ -6690,6 +7016,8 @@ export namespace Prisma {
     name: string
     email: string
     password_hash: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
     workflows?: WorkflowUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -6714,6 +7042,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: WorkflowUpdateManyWithoutUserNestedInput
   }
 
@@ -6722,6 +7052,8 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     email?: StringFieldUpdateOperationsInput | string
     password_hash?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflows?: WorkflowUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -6730,6 +7062,8 @@ export namespace Prisma {
     title: string
     platform: $Enums.SupportedPlatforms
     data: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type WorkflowCreateManyUserInput = {
@@ -6738,6 +7072,8 @@ export namespace Prisma {
     enabled: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    createdAt?: Date | string
+    updatedAt?: Date | string
   }
 
   export type CredentialUpdateWithoutUserInput = {
@@ -6745,6 +7081,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CredentialUncheckedUpdateWithoutUserInput = {
@@ -6752,6 +7090,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type CredentialUncheckedUpdateManyWithoutUserInput = {
@@ -6759,6 +7099,8 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     platform?: EnumSupportedPlatformsFieldUpdateOperationsInput | $Enums.SupportedPlatforms
     data?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowUpdateWithoutUserInput = {
@@ -6767,6 +7109,8 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowUncheckedUpdateWithoutUserInput = {
@@ -6775,6 +7119,8 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type WorkflowUncheckedUpdateManyWithoutUserInput = {
@@ -6783,6 +7129,8 @@ export namespace Prisma {
     enabled?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
 

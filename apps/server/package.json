@@ -1,6 +1,6 @@
 {
   "name": "@buzz8n/server",
-  "module": "src/index.ts",
+  "module": "./src/index.ts",
   "type": "module",
   "private": true,
   "scripts": {

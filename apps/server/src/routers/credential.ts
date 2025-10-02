@@ -6,17 +6,36 @@ import { logger } from '@/utils/logger'
 
 const router = Router()
 
-router.get('/credential/get', auth, (req, res) => {
+router.use('/credential', auth)
+
+router.get('/credential', async (req, res, next: NextFunction) => {
   try {
-    res.status(200).send(`Sucessfully fetch workflow for ${req.user.email}`)
+    const userId = req.user!.userId
+
+    const credentials = await prisma.credential.findMany({
+      where: {
+        userId,
+      },
+      select: {
+        id: true,
+        data: true,
+        platform: true,
+        title: true,
+        createdAt: true,
+      },
+    })
+
+    res.status(200).send({ credentials })
     return
-  } catch (error) { }
-  console.log('this')
+  } catch (error) {
+    next(error)
+  }
 })
 
-router.post('/credential/create', auth, async (req: Request, res: Response, next: NextFunction) => {
+router.post('/credential', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const isParsed = credentialSchema.safeParse(req.body)
+    console.log(req.body.data)
 
     if (!isParsed.success) {
       logger.error('not parsed')
@@ -28,12 +47,14 @@ router.post('/credential/create', auth, async (req: Request, res: Response, next
 
     const { platform, data, title } = isParsed.data
 
+    console.log(data)
+
     const credential = await prisma.credential.create({
       data: {
         data,
         title,
         platform,
-        userId: req.user.userId,
+        userId: req.user!.userId,
       },
     })
 
@@ -41,7 +62,7 @@ router.post('/credential/create', auth, async (req: Request, res: Response, next
       throw new Error('No credential were created')
     }
 
-    res.status(201).send(`Sucessfully created credentials for ${req.user.email}`)
+    res.status(201).json(credential)
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {

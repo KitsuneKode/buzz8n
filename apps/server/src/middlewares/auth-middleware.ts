@@ -7,7 +7,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     const authCookie = req.cookies['buzz8n_auth']
 
     if (!authCookie) {
-      res.status(401).json({ error: 'Access token required' })
+      res.status(401).send('Access token required')
       return
     }
 

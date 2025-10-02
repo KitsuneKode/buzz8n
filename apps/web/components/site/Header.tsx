@@ -10,7 +10,6 @@ import {
 import {
   Menu,
   X,
-  Brain,
   Zap,
   User,
   Settings,
@@ -18,24 +17,20 @@ import {
   ChevronDown,
   Sparkles,
   Dog,
+  Loader2,
 } from 'lucide-react'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import type { TabType } from '@/stores/dashboard'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
+import { useAuth } from '@/hooks/useAuth'
+import { motion } from 'motion/react'
 import Image from 'next/image'
 import Link from 'next/link'
 
 interface HeaderProps {
   variant?: 'marketing' | 'dashboard'
-  user?: {
-    name: string
-    email: string
-    avatar?: string
-  }
-  onSignOut?: () => void
   className?: string
   // Dashboard-specific props
   activeTab?: TabType
@@ -52,8 +47,6 @@ interface NavItem {
 
 export function Header({
   variant = 'marketing',
-  user,
-  onSignOut,
   className = '',
   activeTab,
   onTabChange,
@@ -63,6 +56,19 @@ export function Header({
   const [scrollY, setScrollY] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+
+  const { signOut, isLoading, user: userData } = useAuth()
+
+  const onSignOut = () => {
+    signOut()
+  }
+  const user = userData && {
+    name: userData.name,
+    email: userData.email,
+    avatar: '',
+  }
+
+  console.log(user)
 
   const marketingNavItems: NavItem[] = [
     { id: 'features', label: 'AI Features', href: '#features' },
@@ -213,24 +219,40 @@ export function Header({
           <div className="hidden md:flex items-center space-x-3">
             {variant === 'marketing' ? (
               <>
-                <Link href="/signup">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-muted-foreground hover:text-foreground"
-                  >
-                    Sign Up
-                  </Button>
-                </Link>
-                <Link href="/signin">
-                  <Button
-                    size="sm"
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95"
-                  >
-                    <Dog className="w-4 h-4 mr-2" />
-                    Start Building
-                  </Button>
-                </Link>
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                ) : !user ? (
+                  <>
+                    <Link href="/signup">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-muted-foreground hover:text-foreground"
+                      >
+                        Sign Up
+                      </Button>
+                    </Link>
+                    <Link href="/signin">
+                      <Button
+                        size="sm"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95"
+                      >
+                        <Dog className="w-4 h-4 mr-2" />
+                        Start Building
+                      </Button>
+                    </Link>
+                  </>
+                ) : (
+                  <Link href="/dashboard">
+                    <Button
+                      size="sm"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95"
+                    >
+                      <Dog className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </Button>
+                  </Link>
+                )}
               </>
             ) : (
               <>
@@ -323,17 +345,32 @@ export function Header({
               <div className="pt-4 space-y-2 border-t border-border">
                 {variant === 'marketing' ? (
                   <>
-                    <Link href="/signin" className="block">
-                      <Button variant="ghost" size="sm" className="w-full justify-start">
-                        Sign In
-                      </Button>
-                    </Link>
-                    <Link href="/signup" className="block">
-                      <Button size="sm" className="w-full">
-                        <Dog className="w-4 h-4 mr-2" />
-                        Start Building
-                      </Button>
-                    </Link>
+                    {isLoading ? (
+                      <div className="w-full">
+                        <Loader2 className="animate-spin " />
+                      </div>
+                    ) : !user ? (
+                      <>
+                        <Link href="/signin" className="block">
+                          <Button variant="ghost" size="sm" className="w-full justify-start">
+                            Sign In
+                          </Button>
+                        </Link>
+                        <Link href="/signup" className="block">
+                          <Button size="sm" className="w-full">
+                            <Dog className="w-4 h-4 mr-2" />
+                            Start Building
+                          </Button>
+                        </Link>
+                      </>
+                    ) : (
+                      <Link href="/dashboard" className="block">
+                        <Button size="sm" className="w-full">
+                          <Dog className="w-4 h-4 mr-2" />
+                          Dashboard
+                        </Button>
+                      </Link>
+                    )}
                   </>
                 ) : (
                   <>

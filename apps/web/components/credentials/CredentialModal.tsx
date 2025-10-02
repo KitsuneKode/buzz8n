@@ -1,28 +1,29 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
+import { CredentialData, Provider, TelegramFormData } from '@/lib/types/credentials'
+import { CredentialResponse } from '@buzz8n/common/types/credentials'
+import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
+import { useMutation } from '@tanstack/react-query'
 import ProviderPicker from './ProviderPicker'
+import { useEffect, useState } from 'react'
 import TelegramForm from './TelegramForm'
+import { API_URL } from '@/utils/config'
+import axios from 'axios'
 
-export type Provider = 'telegram' | 'slack' | 'discord' | 'twilio' | 'gmail' | 'webhook'
-
-export interface CredentialData {
-  provider: Provider
-  name: string
-  config: Record<string, string | boolean | number>
-}
-
-interface CredentialModalProps {
-  isOpen: boolean
-  onClose: () => void
-  onSave: (data: CredentialData) => void
-}
-
-const CredentialModal = ({ isOpen, onClose, onSave }: CredentialModalProps) => {
+const CredentialModal = () => {
   const [step, setStep] = useState<'provider' | 'form'>('provider')
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null)
+
+  const {
+    setCredentialModalOpen,
+    isCredentialModalOpen: isOpen,
+    addCredential,
+  } = useDashboardStore()
+
+  const onClose = () => setCredentialModalOpen(false)
 
   useEffect(() => {
     if (!isOpen) {
@@ -31,8 +32,8 @@ const CredentialModal = ({ isOpen, onClose, onSave }: CredentialModalProps) => {
     }
   }, [isOpen])
 
-
   const handleProviderSelect = (provider: Provider) => {
+    console.log(provider)
     setSelectedProvider(provider)
     setStep('form')
   }
@@ -41,16 +42,48 @@ const CredentialModal = ({ isOpen, onClose, onSave }: CredentialModalProps) => {
     setStep('provider')
     setSelectedProvider(null)
   }
+  const { mutate: saveCredentialMuate } = useMutation({
+    mutationFn: async (credentialData: CredentialData) => {
+      const payload = {
+        title: credentialData.name,
+        platform: credentialData.provider,
+        data: credentialData.config,
+      }
 
-  const handleFormSave = (formData: { name: string; [key: string]: string | boolean | number }) => {
-    if (selectedProvider) {
-      const { name, ...config } = formData
-      onSave({
-        provider: selectedProvider,
-        name,
-        config
+      console.log(credentialData, 'data to be foning to db')
+      const response = await axios.post<CredentialResponse>(`${API_URL}/credential`, payload, {
+        headers: { 'Content-Type': 'application/json' },
+        withCredentials: true,
       })
+
+      return response.data
+    },
+    onSuccess: (responseData: CredentialResponse) => {
+      addCredential({
+        id: responseData.id,
+        name: responseData.title,
+        provider: responseData.platform,
+        config: responseData.data,
+        createdAt: responseData.createdAt,
+      })
+      setCredentialModalOpen(false)
+    },
+    onError: (error) => {
+      console.error(error.message)
+      toast.error('Failed to add credential')
+    },
+  })
+
+  const handleFormSubmit = async (formData: TelegramFormData) => {
+    if (!selectedProvider) {
+      toast.error('Please select a provider')
+      return
     }
+    saveCredentialMuate({
+      config: formData,
+      name: formData.name,
+      provider: selectedProvider,
+    })
   }
 
   const getModalTitle = () => {
@@ -65,12 +98,14 @@ const CredentialModal = ({ isOpen, onClose, onSave }: CredentialModalProps) => {
 
   const renderFormComponent = () => {
     switch (selectedProvider) {
-      case 'telegram':
-        return <TelegramForm onSave={handleFormSave} onBack={handleBack} onCancel={onClose} />
+      case 'Telegram':
+        return <TelegramForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
       default:
         return (
           <div className="p-6 text-center">
-            <p className="text-muted-foreground">Form for {selectedProvider} is not implemented yet.</p>
+            <p className="text-muted-foreground">
+              Form for {selectedProvider} is not implemented yet.
+            </p>
             <div className="flex justify-between mt-6">
               <Button variant="ghost" onClick={handleBack}>
                 Back
@@ -90,7 +125,7 @@ const CredentialModal = ({ isOpen, onClose, onSave }: CredentialModalProps) => {
         <DialogHeader>
           <DialogTitle>{getModalTitle()}</DialogTitle>
         </DialogHeader>
-        
+
         <div className="max-h-[60vh] overflow-y-auto">
           {step === 'provider' ? (
             <ProviderPicker onSelect={handleProviderSelect} />

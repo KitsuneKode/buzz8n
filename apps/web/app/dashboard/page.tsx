@@ -3,37 +3,57 @@
 import CredentialModal from '@/components/credentials/CredentialModal'
 import ExecutionsTable from '@/components/ExecutionsTable'
 import CredentialsList from '@/components/CredentialsList'
+import { CredentialResponse } from '@buzz8n/common/types'
 import { useDashboardStore } from '@/stores/dashboard'
+import { Button } from '@buzz8n/ui/components/button'
+import { Credential } from '@/lib/types/credentials'
+import { useQuery } from '@tanstack/react-query'
 import HeaderNav from '@/components/HeaderNav'
-import ActionBar from '@/components/ActionBar'
+import { API_URL } from '@/utils/config'
+import { useEffect } from 'react'
+import axios from 'axios'
 
 const DashboardPage = () => {
+  const { activeTab, setActiveTab, credentials, executions, createWorkflow, openCredentialModal } =
+    useDashboardStore()
+
   const {
-    activeTab,
-    setActiveTab,
-    isCredentialModalOpen,
-    setCredentialModalOpen,
-    credentials,
-    executions,
-    addCredential,
-    createWorkflow,
-    openCredentialModal,
-  } = useDashboardStore()
+    data: initialCredentials,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ['credential'],
+    queryFn: async () => {
+      const response = await axios.get(`${API_URL}/credential`, {
+        withCredentials: true,
+      })
+
+      return response.data.credentials
+    },
+  })
+
+  useEffect(() => {
+    if (initialCredentials && !isLoading && !isError) {
+      console.log('Credentials fetched successfully:', initialCredentials)
+
+      const credentials: Credential[] = initialCredentials.map(
+        (credential: CredentialResponse) => ({
+          config: credential.data,
+          id: credential.id,
+          name: credential.title,
+          provider: credential.platform,
+          createdAt: new Date(credential.createdAt),
+        }),
+      )
+      useDashboardStore.setState({ credentials })
+    }
+    if (isError) {
+      console.error('Failed to fetch credentials', error)
+    }
+  }, [initialCredentials, isLoading, isError, error])
 
   const hasCredentials = credentials.length > 0
-
-  const handleCredentialSaved = (credentialData: {
-    name: string
-    provider: string
-    config: Record<string, string | boolean | number>
-  }) => {
-    addCredential({
-      name: credentialData.name,
-      provider: credentialData.provider,
-      config: credentialData.config,
-    })
-    setCredentialModalOpen(false)
-  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -111,12 +131,12 @@ const DashboardPage = () => {
                   Connect your accounts and services to enable powerful integrations in your
                   workflows.
                 </p>
-                <button
+                <Button
                   onClick={openCredentialModal}
                   className="mt-6 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-2 rounded-lg font-medium transition-colors"
                 >
                   Add first credential
-                </button>
+                </Button>
               </div>
             ) : (
               <CredentialsList credentials={credentials} />
@@ -138,22 +158,17 @@ const DashboardPage = () => {
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto pt-16">
+    <div className="max-w-screen-xl mx-auto pt-18">
       <HeaderNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onCreateWorkflow={createWorkflow}
       />
       <div className="px-6 py-6">
-        <ActionBar onCreateWorkflow={createWorkflow} onNewCredential={openCredentialModal} />
         <div className="mt-8">{renderTabContent()}</div>
       </div>
 
-      <CredentialModal
-        isOpen={isCredentialModalOpen}
-        onClose={() => setCredentialModalOpen(false)}
-        onSave={handleCredentialSaved}
-      />
+      <CredentialModal />
     </div>
   )
 }

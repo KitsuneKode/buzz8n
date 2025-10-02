@@ -1,5 +1,4 @@
 import type { NextFunction, Request, Response } from 'express'
-import { PrismaClientKnownRequestError } from '@buzz8n/store'
 import { logger } from '@/utils/logger'
 
 export const errorHandlerMiddleware = async (

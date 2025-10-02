@@ -124,7 +124,9 @@ exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
   name: 'name',
   email: 'email',
-  password_hash: 'password_hash'
+  password_hash: 'password_hash',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.WorkflowScalarFieldEnum = {
@@ -133,14 +135,18 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   enabled: 'enabled',
   nodes: 'nodes',
   connections: 'connections',
-  userId: 'userId'
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.WebhookScalarFieldEnum = {
   id: 'id',
   title: 'title',
   method: 'method',
-  path: 'path'
+  path: 'path',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.CredentialScalarFieldEnum = {
@@ -148,7 +154,9 @@ exports.Prisma.CredentialScalarFieldEnum = {
   title: 'title',
   platform: 'platform',
   data: 'data',
-  userId: 'userId'
+  userId: 'userId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.SortOrder = {
@@ -178,7 +186,11 @@ exports.Methods = exports.$Enums.Methods = {
 
 exports.SupportedPlatforms = exports.$Enums.SupportedPlatforms = {
   Telegram: 'Telegram',
-  Gmail: 'Gmail'
+  Gmail: 'Gmail',
+  Slack: 'Slack',
+  Discord: 'Discord',
+  Webhook: 'Webhook',
+  Twilio: 'Twilio'
 };
 
 exports.Prisma.ModelName = {

@@ -91,6 +91,7 @@ router.post('/signin', async (req, res, next) => {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
         sameSite: 'lax',
+        path: '/',
       })
       .send('Signed in sucessfully')
   } catch (error) {
@@ -103,7 +104,7 @@ router.get('/me', auth, async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: {
-        id: req.user.userId,
+        id: req.user!.userId,
       },
       select: {
         id: true,
@@ -125,14 +126,7 @@ router.get('/me', auth, async (req, res, next) => {
 
 // Sign out user
 router.post('/signout', (req, res) => {
-  res
-    .status(200)
-    .clearCookie('buzz8n_auth', {
-      secure: NODE_ENV !== 'development',
-      httpOnly: true,
-      sameSite: 'lax',
-    })
-    .send('Signed out successfully')
+  res.status(200).clearCookie('buzz8n_auth').send('Signed out successfully')
 })
 
 export { router as authRouter }

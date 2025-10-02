@@ -1,194 +1,173 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@buzz8n/ui/components/form'
+import { TelegramFormData, telegramFormSchema } from '@/lib/types/credentials'
+import { Checkbox } from '@buzz8n/ui/components/checkbox'
 import { Button } from '@buzz8n/ui/components/button'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@buzz8n/ui/components/input'
-import { Label } from '@buzz8n/ui/components/label'
 import { Eye, EyeOff } from 'lucide-react'
-
-interface TelegramFormData {
-  name: string
-  botToken: string
-  chatId: string
-  sendTestMessage: boolean
-  [key: string]: string | boolean | number
-}
+import { useForm } from 'react-hook-form'
+import { useState } from 'react'
 
 interface TelegramFormProps {
-  onSave: (data: TelegramFormData) => void
   onBack: () => void
   onCancel: () => void
+  onSubmit: (data: TelegramFormData) => void
 }
 
-const TelegramForm = ({ onSave, onBack, onCancel }: TelegramFormProps) => {
-  const [formData, setFormData] = useState<TelegramFormData>({
-    name: '',
-    botToken: '',
-    chatId: '',
-    sendTestMessage: false
-  })
-
-  const [errors, setErrors] = useState<Partial<TelegramFormData>>({})
+const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
   const [showBotToken, setShowBotToken] = useState(false)
 
-  const validateForm = useCallback(() => {
-    const newErrors: Partial<TelegramFormData> = {}
+  const form = useForm<TelegramFormData>({
+    resolver: zodResolver(telegramFormSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+    defaultValues: {
+      name: '',
+      botToken: '',
+      chatId: '',
+      sendTestMessage: false,
+    },
+  })
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Credential name is required'
-    }
-
-    if (!formData.botToken.trim()) {
-      newErrors.botToken = 'Bot token is required'
-    } else if (!formData.botToken.match(/^\d+:[A-Za-z0-9_-]+$/)) {
-      newErrors.botToken = 'Invalid bot token format'
-    }
-
-    if (!formData.chatId.trim()) {
-      newErrors.chatId = 'Chat ID is required'
-    } else if (!formData.chatId.match(/^-?\d+$/)) {
-      newErrors.chatId = 'Chat ID must be a number'
-    }
-
-    setErrors(newErrors)
-    return Object.keys(newErrors).length === 0
-  }, [formData])
-
-  const handleSubmit = useCallback((e: React.FormEvent) => {
-    e.preventDefault()
-    if (validateForm()) {
-      onSave(formData)
-    }
-  }, [formData, onSave, validateForm])
-
-  const handleInputChange = (field: keyof TelegramFormData, value: string | boolean) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
-    // Clear error when user starts typing
-    if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: undefined }))
-    }
+  const onFormSubmit = (data: TelegramFormData) => {
+    console.log('Form submitted:', data)
+    onSubmit?.(data)
   }
 
-  const isFormValid = formData.name.trim() && formData.botToken.trim() && formData.chatId.trim()
-
-
   return (
-    <form onSubmit={handleSubmit} className="p-6 space-y-6">
-      <div className="space-y-4">
-        {/* Credential Name */}
-        <div className="space-y-2">
-          <Label htmlFor="credential-name">
-            Credential name <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="credential-name"
-            type="text"
-            value={formData.name}
-            onChange={(e) => handleInputChange('name', e.target.value)}
-            placeholder="e.g., My Telegram Bot"
-            className={errors.name ? 'border-destructive' : ''}
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onFormSubmit)} className="p-6 space-y-6">
+        <div className="space-y-4">
+          {/* Credential Name */}
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Credential name <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., My Telegram Bot" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          {errors.name && (
-            <p className="text-sm text-destructive">{errors.name}</p>
-          )}
+
+          {/* Bot Token */}
+          <FormField
+            control={form.control}
+            name="botToken"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Bot token <span className="text-destructive">*</span>
+                </FormLabel>
+                <div className="relative">
+                  <FormControl>
+                    <Input
+                      type={showBotToken ? 'text' : 'password'}
+                      placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxyz"
+                      className="pr-10"
+                      {...field}
+                    />
+                  </FormControl>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowBotToken(!showBotToken)}
+                    className="absolute inset-y-0 right-0 h-full w-10"
+                  >
+                    {showBotToken ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </Button>
+                </div>
+                <FormDescription>
+                  Get your bot token from{' '}
+                  <a
+                    href="https://t.me/BotFather"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline"
+                  >
+                    @BotFather
+                  </a>
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Chat ID */}
+          <FormField
+            control={form.control}
+            name="chatId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Chat ID <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., -1001234567890 or 123456789" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Use negative numbers for groups/channels, positive for direct messages
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Send Test Message Toggle */}
+          <FormField
+            control={form.control}
+            name="sendTestMessage"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
+                <FormControl>
+                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                </FormControl>
+                <FormLabel className="text-sm font-normal">
+                  Send test message after saving
+                </FormLabel>
+              </FormItem>
+            )}
+          />
         </div>
 
-        {/* Bot Token */}
-        <div className="space-y-2">
-          <Label htmlFor="bot-token">
-            Bot token <span className="text-destructive">*</span>
-          </Label>
-          <div className="relative">
-            <Input
-              id="bot-token"
-              type={showBotToken ? 'text' : 'password'}
-              value={formData.botToken}
-              onChange={(e) => handleInputChange('botToken', e.target.value)}
-              placeholder="123456789:ABCdefGHIjklMNOpqrSTUvwxyz"
-              className={`pr-10 ${errors.botToken ? 'border-destructive' : ''}`}
-            />
+        {/* Form Actions */}
+        <div className="flex items-center justify-between pt-4 border-t">
+          <Button type="button" variant="ghost" onClick={onBack}>
+            Back
+          </Button>
+
+          <div className="flex space-x-3">
             <Button
+              disabled={form.formState.isSubmitting}
               type="button"
-              variant="ghost"
-              size="icon"
-              onClick={() => setShowBotToken(!showBotToken)}
-              className="absolute inset-y-0 right-0 h-full w-10"
+              variant="outline"
+              onClick={onCancel}
             >
-              {showBotToken ? (
-                <EyeOff className="w-4 h-4" />
-              ) : (
-                <Eye className="w-4 h-4" />
-              )}
+              Cancel
+            </Button>
+            <Button disabled={form.formState.isSubmitting} type="submit">
+              Save credential
             </Button>
           </div>
-          {errors.botToken && (
-            <p className="text-sm text-destructive">{errors.botToken}</p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Get your bot token from{' '}
-            <a 
-              href="https://t.me/BotFather" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
-            >
-              @BotFather
-            </a>
-          </p>
         </div>
-
-        {/* Chat ID */}
-        <div className="space-y-2">
-          <Label htmlFor="chat-id">
-            Chat ID <span className="text-destructive">*</span>
-          </Label>
-          <Input
-            id="chat-id"
-            type="text"
-            value={formData.chatId}
-            onChange={(e) => handleInputChange('chatId', e.target.value)}
-            placeholder="e.g., -1001234567890 or 123456789"
-            className={errors.chatId ? 'border-destructive' : ''}
-          />
-          {errors.chatId && (
-            <p className="text-sm text-destructive">{errors.chatId}</p>
-          )}
-          <p className="text-xs text-muted-foreground">
-            Use negative numbers for groups/channels, positive for direct messages
-          </p>
-        </div>
-
-        {/* Send Test Message Toggle */}
-        <div className="flex items-center space-x-2">
-          <input
-            id="send-test"
-            type="checkbox"
-            checked={formData.sendTestMessage}
-            onChange={(e) => handleInputChange('sendTestMessage', e.target.checked)}
-            className="rounded border-input"
-          />
-          <Label htmlFor="send-test" className="text-sm font-normal">
-            Send test message after saving
-          </Label>
-        </div>
-      </div>
-
-      {/* Form Actions */}
-      <div className="flex items-center justify-between pt-4 border-t">
-        <Button type="button" variant="ghost" onClick={onBack}>
-          Back
-        </Button>
-        
-        <div className="flex space-x-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit" disabled={!isFormValid}>
-            Save credential
-          </Button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </Form>
   )
 }
 

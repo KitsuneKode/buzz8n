@@ -1,11 +1,12 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
-import { Badge } from '@buzz8n/ui/components/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
 import { Trash2, Eye, EyeOff, Copy, Check } from 'lucide-react'
+import { useDashboardStore } from '@/stores/dashboard'
+import { Button } from '@buzz8n/ui/components/button'
+import { Credential } from '@/lib/types/credentials'
+import { Badge } from '@buzz8n/ui/components/badge'
 import { useState } from 'react'
-import { Credential, useDashboardStore } from '@/stores/dashboard'
 
 interface CredentialsListProps {
   credentials: Credential[]
@@ -18,7 +19,7 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
 
   const toggleSecretVisibility = (credentialId: string, field: string) => {
     const key = `${credentialId}-${field}`
-    setVisibleSecrets(prev => {
+    setVisibleSecrets((prev) => {
       const newSet = new Set(prev)
       if (newSet.has(key)) {
         newSet.delete(key)
@@ -33,9 +34,9 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
     try {
       await navigator.clipboard.writeText(text)
       const key = `${credentialId}-${field}`
-      setCopiedFields(prev => new Set(prev).add(key))
+      setCopiedFields((prev) => new Set(prev).add(key))
       setTimeout(() => {
-        setCopiedFields(prev => {
+        setCopiedFields((prev) => {
           const newSet = new Set(prev)
           newSet.delete(key)
           return newSet
@@ -52,28 +53,40 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
       day: 'numeric',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit'
-    }).format(date)
+      minute: '2-digit',
+    }).format(new Date(date))
   }
 
   const getProviderColor = (provider: string) => {
-    switch (provider.toLowerCase()) {
-      case 'telegram': return 'bg-blue-500'
-      case 'slack': return 'bg-purple-500'
-      case 'discord': return 'bg-indigo-500'
-      case 'gmail': return 'bg-red-500'
-      case 'twilio': return 'bg-orange-500'
-      case 'webhook': return 'bg-gray-500'
-      default: return 'bg-gray-500'
+    switch (provider) {
+      case 'Telegram':
+        return 'bg-blue-500'
+      case 'Slack':
+        return 'bg-purple-500'
+      case 'Discord':
+        return 'bg-indigo-500'
+      case 'Gmail':
+        return 'bg-red-500'
+      case 'Twilio':
+        return 'bg-orange-500'
+      case 'Webhook':
+        return 'bg-gray-500'
+      default:
+        return 'bg-gray-500'
     }
   }
 
-  const renderConfigField = (credential: Credential, key: string, value: string | boolean | number) => {
-    const isSecret = key.toLowerCase().includes('token') || 
-                    key.toLowerCase().includes('password') || 
-                    key.toLowerCase().includes('secret') ||
-                    key.toLowerCase().includes('key')
-    
+  const renderConfigField = (
+    credential: Credential,
+    key: string,
+    value: string | boolean | number,
+  ) => {
+    const isSecret =
+      key.toLowerCase().includes('token') ||
+      key.toLowerCase().includes('password') ||
+      key.toLowerCase().includes('secret') ||
+      key.toLowerCase().includes('key')
+
     const secretKey = `${credential.id}-${key}`
     const isVisible = visibleSecrets.has(secretKey)
     const isCopied = copiedFields.has(secretKey)
@@ -81,22 +94,22 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
     if (typeof value === 'boolean') {
       return (
         <div key={key} className="flex items-center justify-between py-2">
-          <span className="text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
-          <Badge variant={value ? 'default' : 'secondary'}>
-            {value ? 'Enabled' : 'Disabled'}
-          </Badge>
+          <span className="text-sm text-muted-foreground capitalize">
+            {key.replace(/([A-Z])/g, ' $1')}
+          </span>
+          <Badge variant={value ? 'default' : 'secondary'}>{value ? 'Enabled' : 'Disabled'}</Badge>
         </div>
       )
     }
 
     if (typeof value === 'string') {
-      const displayValue = isSecret && !isVisible 
-        ? '•'.repeat(Math.min(value.length, 20))
-        : value
+      const displayValue = isSecret && !isVisible ? '•'.repeat(Math.min(value.length, 20)) : value
 
       return (
         <div key={key} className="flex items-center justify-between py-2 group">
-          <span className="text-sm text-muted-foreground capitalize">{key.replace(/([A-Z])/g, ' $1')}</span>
+          <span className="text-sm text-muted-foreground capitalize">
+            {key.replace(/([A-Z])/g, ' $1')}
+          </span>
           <div className="flex items-center space-x-2">
             <code className="text-xs bg-muted px-2 py-1 rounded font-mono max-w-48 truncate">
               {displayValue}
@@ -118,7 +131,11 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
                 className="h-6 w-6"
                 onClick={() => copyToClipboard(value, credential.id, key)}
               >
-                {isCopied ? <Check className="h-3 w-3 text-green-500" /> : <Copy className="h-3 w-3" />}
+                {isCopied ? (
+                  <Check className="h-3 w-3 text-green-500" />
+                ) : (
+                  <Copy className="h-3 w-3" />
+                )}
               </Button>
             </div>
           </div>
@@ -136,9 +153,7 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
           <h2 className="text-2xl font-semibold text-foreground">Credentials</h2>
           <p className="text-muted-foreground">Manage your service connections and API keys</p>
         </div>
-        <Button onClick={openCredentialModal}>
-          Add credential
-        </Button>
+        <Button onClick={openCredentialModal}>Add credential</Button>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -147,9 +162,12 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
             <CardHeader className="pb-3">
               <div className="flex items-start justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className={`w-8 h-8 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center`}>
+                  <div
+                    className={`w-8 h-8 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center`}
+                  >
                     <span className="text-white text-xs font-bold uppercase">
-                      {credential.provider.slice(0, 2)}
+                      {credential.provider?.charAt(0).toUpperCase() +
+                        credential.provider?.charAt(1).toLowerCase()}
                     </span>
                   </div>
                   <div>
@@ -169,16 +187,18 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="space-y-1">
-              {Object.entries(credential.config).map(([key, value]) => 
-                renderConfigField(credential, key, value)
-              )}
-              <div className="pt-3 border-t border-border mt-4">
-                <span className="text-xs text-muted-foreground">
-                  Created {formatDate(credential.createdAt)}
-                </span>
-              </div>
-            </CardContent>
+            {credential.config && (
+              <CardContent className="space-y-1">
+                {Object.entries(credential.config).map(([key, value]) =>
+                  renderConfigField(credential, key, value),
+                )}
+                <div className="pt-3 border-t border-border mt-4">
+                  <span className="text-xs text-muted-foreground">
+                    Created {formatDate(credential.createdAt)}
+                  </span>
+                </div>
+              </CardContent>
+            )}
           </Card>
         ))}
       </div>
