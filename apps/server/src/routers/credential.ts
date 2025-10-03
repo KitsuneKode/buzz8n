@@ -48,8 +48,6 @@ router.post('/credential', async (req: Request, res: Response, next: NextFunctio
 
     const { platform, data, title } = isParsed.data
 
-    console.log(data)
-
     const credential = await prisma.credential.create({
       data: {
         data,

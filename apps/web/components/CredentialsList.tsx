@@ -1,14 +1,15 @@
 'use client'
 
-import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
-import { Trash2, Eye, EyeOff, Copy, Check, Loader2 } from 'lucide-react'
+import { Trash2, Eye, EyeOff, Copy, Check, Loader2, ChevronDown } from 'lucide-react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CredentialResponse } from '@buzz8n/common/types'
 import { useDashboardStore } from '@/stores/dashboard'
+import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { Credential } from '@/lib/types/credentials'
 import { Badge } from '@buzz8n/ui/components/badge'
+import { Card } from '@buzz8n/ui/components/card'
 import { API_URL } from '@/utils/config'
 import { useState } from 'react'
 import axios from 'axios'
@@ -21,6 +22,7 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
   const { removeCredential, openCredentialModal } = useDashboardStore()
   const [visibleSecrets, setVisibleSecrets] = useState<Set<string>>(new Set())
   const [copiedFields, setCopiedFields] = useState<Set<string>>(new Set())
+  const [expandedCredential, setExpandedCredential] = useState<string | null>(null)
 
   const toggleSecretVisibility = (credentialId: string, field: string) => {
     const key = `${credentialId}-${field}`
@@ -180,7 +182,7 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 w-full">
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Credentials</h2>
@@ -189,56 +191,99 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
         <Button onClick={openCredentialModal}>Add credential</Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {credentials.map((credential) => (
-          <Card key={credential.id} className="relative">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center space-x-3">
+      <div className="space-y-2 flex flex-col items-center ">
+        {credentials.map((credential) => {
+          const isExpanded = expandedCredential === credential.id
+
+          return (
+            <Card key={credential.id} className="relative overflow-hidden w-xl">
+              <motion.div layout initial={false} transition={{ duration: 0.3, ease: 'easeInOut' }}>
+                {/* List Item - Always Visible */}
+                <div
+                  className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                  onClick={() => setExpandedCredential(isExpanded ? null : credential.id)}
+                >
+                  {/* Provider Icon */}
                   <div
-                    className={`w-8 h-8 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center`}
+                    className={`w-10 h-10 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center shrink-0`}
                   >
-                    <span className="text-white text-xs font-bold uppercase">
+                    <span className="text-white text-sm font-bold uppercase">
                       {credential.provider?.charAt(0).toUpperCase() +
                         credential.provider?.charAt(1).toLowerCase()}
                     </span>
                   </div>
-                  <div>
-                    <CardTitle className="text-base">{credential.name}</CardTitle>
-                    <Badge variant="outline" className="text-xs mt-1">
-                      {credential.provider}
-                    </Badge>
+
+                  {/* Content Area */}
+                  <div className="flex-1 min-w-0 flex items-center gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-foreground truncate">
+                          {credential.name}
+                        </h3>
+                        <Badge variant="outline" className="text-xs shrink-0">
+                          {credential.provider}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 truncate">
+                        Created {formatDate(credential.createdAt)}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center gap-1 shrink-0">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      disabled={isPending}
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        handleDeleteCredential(credential.id)
+                      }}
+                    >
+                      {isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="h-4 w-4" />
+                      )}
+                    </Button>
+                    <motion.div
+                      animate={{ rotate: isExpanded ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="shrink-0"
+                    >
+                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    </motion.div>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  disabled={isPending}
-                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                  onClick={() => handleDeleteCredential(credential.id)}
-                >
-                  {isPending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Trash2 className="h-4 w-4" />
+
+                {/* Expanded Details */}
+                <AnimatePresence initial={false}>
+                  {isExpanded && credential.config && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    >
+                      <div className="border-t border-border px-4 pb-4 space-y-1">
+                        <div className="pt-4 pb-2">
+                          <h4 className="text-sm font-semibold text-foreground mb-3">
+                            Configuration Details
+                          </h4>
+                        </div>
+                        {Object.entries(credential.config).map(([key, value]) =>
+                          renderConfigField(credential, key, value),
+                        )}
+                      </div>
+                    </motion.div>
                   )}
-                </Button>
-              </div>
-            </CardHeader>
-            {credential.config && (
-              <CardContent className="space-y-1">
-                {Object.entries(credential.config).map(([key, value]) =>
-                  renderConfigField(credential, key, value),
-                )}
-                <div className="pt-3 border-t border-border mt-4">
-                  <span className="text-xs text-muted-foreground">
-                    Created {formatDate(credential.createdAt)}
-                  </span>
-                </div>
-              </CardContent>
-            )}
-          </Card>
-        ))}
+                </AnimatePresence>
+              </motion.div>
+            </Card>
+          )
+        })}
       </div>
     </div>
   )

@@ -3,13 +3,13 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
 import { CredentialData, Provider, TelegramFormData } from '@/lib/types/credentials'
 import { CredentialResponse } from '@buzz8n/common/types/credentials'
-import axios, { AxiosError, isAxiosError } from 'axios'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { useMutation } from '@tanstack/react-query'
 import ProviderPicker from './ProviderPicker'
 import { useEffect, useState } from 'react'
+import axios, { isAxiosError } from 'axios'
 import TelegramForm from './TelegramForm'
 import { API_URL } from '@/utils/config'
 
@@ -33,7 +33,6 @@ const CredentialModal = () => {
   }, [isOpen])
 
   const handleProviderSelect = (provider: Provider) => {
-    console.log(provider)
     setSelectedProvider(provider)
     setStep('form')
   }
