@@ -1,20 +1,20 @@
 'use client'
 
 import {
-  Brain,
-  Zap,
-  Network,
-  Target,
-  Lightbulb,
-  Gauge,
-  Shield,
-  Workflow,
   ArrowRight,
+  Brain,
+  Gauge,
+  Lightbulb,
+  Network,
+  Shield,
+  Target,
+  Workflow,
+  Zap,
 } from 'lucide-react'
 import { Card, CardContent } from '@buzz8n/ui/components/card'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { useState, useEffect } from 'react'
-import { motion } from 'motion/react'
+import { Variants, motion } from 'motion/react'
+import { useEffect, useState } from 'react'
 
 interface Feature {
   id: string
@@ -131,7 +131,7 @@ export function AdaptiveFeatureGrid({ className = '' }: AdaptiveFeatureGridProps
     return colors[category]
   }
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
@@ -142,7 +142,7 @@ export function AdaptiveFeatureGrid({ className = '' }: AdaptiveFeatureGridProps
     },
   }
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 20, scale: 0.95 },
     visible: {
       opacity: 1,
