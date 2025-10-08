@@ -1,18 +1,14 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@buzz8n/ui/components/tooltip'
-import { 
-  Plus, 
-  Copy, 
-  Layers3, 
-  Sparkles,
-  Zap,
-  Database,
-  Workflow,
-  Users
-} from 'lucide-react'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@buzz8n/ui/components/tooltip'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { Button } from '@buzz8n/ui/components/button'
+import { Plus } from 'lucide-react'
 
 const toolbarButtons = [
   {
@@ -20,38 +16,13 @@ const toolbarButtons = [
     icon: Plus,
     label: 'Add node',
     description: 'Add a new node to your workflow',
-    action: 'toggleNodePalette'
+    action: 'toggleNodePalette',
+    highlight: false,
   },
-  {
-    id: 'duplicate',
-    icon: Copy,
-    label: 'Duplicate',
-    description: 'Duplicate selected nodes',
-    action: 'duplicateSelected'
-  },
-  {
-    id: 'layers',
-    icon: Layers3,
-    label: 'Layers',
-    description: 'Manage workflow layers',
-    action: 'openLayers'
-  },
-  {
-    id: 'ai-assistant',
-    icon: Sparkles,
-    label: 'AI Assistant',
-    description: 'Get AI suggestions for your workflow',
-    action: 'openAI',
-    highlight: true
-  }
 ]
 
 export function FloatingToolbar() {
-  const { 
-    toggleNodePalette,
-    selectedNodes,
-    isNodePaletteOpen 
-  } = useWorkflowEditorStore()
+  const { toggleNodePalette, selectedNodes, isNodePaletteOpen } = useWorkflowEditorStore()
 
   const handleAction = (action: string) => {
     switch (action) {
@@ -74,7 +45,7 @@ export function FloatingToolbar() {
 
   return (
     <TooltipProvider>
-      <div className="fixed right-4 top-1/2 -translate-y-1/2 z-40 flex flex-col space-y-2">
+      <div className="fixed right-4 top-1/4 -translate-y-1/2 z-40 flex flex-col space-y-2">
         {toolbarButtons.map((button) => (
           <Tooltip key={button.id}>
             <TooltipTrigger asChild>
@@ -95,17 +66,15 @@ export function FloatingToolbar() {
             <TooltipContent side="left" className="max-w-xs">
               <div className="text-center">
                 <div className="font-medium">{button.label}</div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {button.description}
-                </div>
+                <div className="text-xs text-muted-foreground mt-1">{button.description}</div>
               </div>
             </TooltipContent>
           </Tooltip>
         ))}
-        
-        {/* Quick Categories */}
-        <div className="w-px h-4 bg-border mx-auto my-2" />
-        
+        <>
+          {/* Quick Categories */}
+          {/* <div className="w-px h-4 bg-border mx-auto my-2" />
+
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -120,9 +89,7 @@ export function FloatingToolbar() {
           <TooltipContent side="left">
             <div className="text-center">
               <div className="font-medium">Triggers</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Add workflow triggers
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Add workflow triggers</div>
             </div>
           </TooltipContent>
         </Tooltip>
@@ -141,9 +108,7 @@ export function FloatingToolbar() {
           <TooltipContent side="left">
             <div className="text-center">
               <div className="font-medium">Actions</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Add workflow actions
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Add workflow actions</div>
             </div>
           </TooltipContent>
         </Tooltip>
@@ -162,9 +127,7 @@ export function FloatingToolbar() {
           <TooltipContent side="left">
             <div className="text-center">
               <div className="font-medium">Flow Control</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Add conditional logic
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Add conditional logic</div>
             </div>
           </TooltipContent>
         </Tooltip>
@@ -183,12 +146,12 @@ export function FloatingToolbar() {
           <TooltipContent side="left">
             <div className="text-center">
               <div className="font-medium">Integrations</div>
-              <div className="text-xs text-muted-foreground mt-1">
-                Connect external services
-              </div>
+              <div className="text-xs text-muted-foreground mt-1">Connect external services</div>
             </div>
           </TooltipContent>
-        </Tooltip>
+          </Tooltip>
+          */}
+        </>
       </div>
     </TooltipProvider>
   )

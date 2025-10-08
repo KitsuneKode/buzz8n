@@ -14,6 +14,7 @@ export interface NodeData extends Node {
   data: {
     label: string
     type: NodeType
+    description?: string
     config: Record<string, any>
     credentials?: CredentialRef
     status?: ExecutionStatus
@@ -33,7 +34,7 @@ export interface CredentialRef {
 
 export type NodeType =
   | 'manualTrigger'
-  | 'telegramGetChat'
+  | 'telegramSendMessage'
   | 'emailSend'
   | 'webhook'
   | 'schedule'

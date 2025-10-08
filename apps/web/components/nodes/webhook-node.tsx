@@ -9,7 +9,7 @@ import { IconWebhook } from '@tabler/icons-react'
 import { ButtonHandle } from './button-handle'
 import { Plus } from 'lucide-react'
 
-const WebhookNode = ({ data }: NodeProps) => {
+const WebhookNode = ({ id, data }: NodeProps) => {
   const { addNodes } = useReactFlow()
   return (
     <NodeTooltip>
@@ -21,7 +21,7 @@ const WebhookNode = ({ data }: NodeProps) => {
           <BaseNode className="flex flex-col items-center gap-2 p-4">
             <BaseNodeContent className={`flex items-center justify-center w-16 h-16`}>
               <ButtonHandle
-                id={data.id as string}
+                id={id as string}
                 type="source"
                 position={Position.Right}
                 className="p-1"
@@ -30,8 +30,7 @@ const WebhookNode = ({ data }: NodeProps) => {
                   onClick={() => {
                     addNodes({
                       id: '6',
-
-                      type: 'telegram',
+                      type: 'telegramGetChat',
                       position: {
                         x: 100,
                         y: 100,

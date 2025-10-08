@@ -1,134 +1,147 @@
 'use client'
 
 import {
-  Play,
-  MessageCircle,
-  Mail,
-  Webhook,
+  BarChart3,
   Clock,
-  Zap,
   FileText,
   GitBranch,
   MessageSquare,
-  BarChart3,
   MoreHorizontal,
+  Play,
   Plus,
+  Zap,
 } from 'lucide-react'
+import {
+  NodeTooltip,
+  NodeTooltipContent,
+  NodeTooltipTrigger,
+} from '@/components/nodes/node-tooltip'
 import { BaseNode, BaseNodeContent, BaseNodeDescription } from '@/components/nodes/base-node'
 import { NodeStatusIndicator } from '@/components/nodes/node-status-indicator'
+import { IconBrandTelegram, IconMail, IconWebhook } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { Handle, Position, NodeProps } from '@xyflow/react'
+import { ButtonHandle } from '@/components/nodes/button-handle'
+import { BaseHandle } from '@/components/nodes/base-handle'
 import { NodeData, NodeType } from '@/lib/types/workflow'
-import { IconBrandTelegram } from '@tabler/icons-react'
 import { Button } from '@buzz8n/ui/components/button'
+import { NodeProps, Position } from '@xyflow/react'
 import { memo } from 'react'
 
 const getNodeIcon = (type: NodeType) => {
   switch (type) {
     case 'manualTrigger':
-      return <Play className="w-8 h-8" />
-    case 'telegramGetChat':
-      return <IconBrandTelegram size={32} />
+      return <Play size={48} />
+    case 'telegramSendMessage':
+      return <IconBrandTelegram size={48} />
     case 'emailSend':
-      return <Mail className="w-8 h-8" />
+      return <IconMail size={48} />
     case 'webhook':
-      return <Webhook className="w-8 h-8" />
+      return <IconWebhook size={48} />
     case 'schedule':
-      return <Clock className="w-8 h-8" />
+      return <Clock size={48} />
     case 'appEvent':
-      return <Zap className="w-8 h-8" />
+      return <Zap size={48} />
     case 'formSubmission':
-      return <FileText className="w-8 h-8" />
+      return <FileText size={48} />
     case 'executedByWorkflow':
-      return <GitBranch className="w-8 h-8" />
+      return <GitBranch size={48} />
     case 'chatMessage':
-      return <MessageSquare className="w-8 h-8" />
+      return <MessageSquare size={48} />
     case 'evaluation':
-      return <BarChart3 className="w-8 h-8" />
+      return <BarChart3 size={48} />
     default:
-      return <MoreHorizontal className="w-8 h-8" />
+      return <MoreHorizontal size={48} />
   }
 }
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'running':
-      return 'border-yellow-500 bg-yellow-50'
+      return 'bg-yellow-500 '
     case 'success':
-      return 'border-green-500 bg-green-50'
+      return 'bg-green-500 '
     case 'failed':
-      return 'border-red-500 bg-red-50'
+      return 'bg-red-500 '
     case 'queued':
-      return 'border-blue-500 bg-blue-50'
+      return 'bg-blue-500 '
     default:
-      return 'border-border bg-card'
+      return 'bg-gray-500 '
   }
 }
 
-export const WorkflowNode = memo(({ data, selected }: NodeProps<NodeData>) => {
-  const { selectNode } = useWorkflowEditorStore()
+const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
+  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+
+  const hasOutgoing = edges.some((e) => e.source === data.id)
 
   const handleClick = () => {
     selectNode(data.id)
   }
 
   return (
-    <div onClick={handleClick}>
-      <NodeStatusIndicator status={data.status || 'initial'} variant="border">
-        <BaseNode
-          className={`
-          min-w-[120px] cursor-pointer transition-all duration-200
+    <NodeTooltip>
+      <NodeTooltipContent position={Position.Top} className="text-white">
+        {data?.description}
+      </NodeTooltipContent>
+      <NodeTooltipTrigger>
+        <NodeStatusIndicator status={data.status || 'initial'} variant="border">
+          <BaseNode
+            onClick={handleClick}
+            className={`
+          flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-200
           ${selected ? 'ring-2 ring-primary shadow-lg' : ''}
-          ${getStatusColor(data.status || 'idle')}
         `}
-        >
-          <BaseNodeContent className="flex flex-col items-center gap-3 p-4 relative">
-            {/* Input Handle */}
-            {data.type !== 'manualTrigger' && (
-              <Handle
-                type="target"
-                position={Position.Left}
-                className="w-3 h-3 bg-muted-foreground border-2 border-background"
-              />
-            )}
-
-            {/* Node Icon */}
-            <div className="flex items-center justify-center text-muted-foreground">
-              {getNodeIcon(data.type)}
+          >
+            <div
+              className={`
+              rounded-full p-1 text-xs absolute text-black top-2 right-2
+              ${getStatusColor(data.status || 'initial')}
+            `}
+            >
+              {data.status}
             </div>
+            <BaseNodeContent className="flex items-center justify-center gap-3 p-6">
+              {/* Input Handle */}
+              {data.type !== 'manualTrigger' && (
+                <BaseHandle
+                  type="target"
+                  position={Position.Left}
+                  className=" bg-muted-foreground border-2 border-background"
+                />
+              )}
 
-            {/* Node Label */}
-            <BaseNodeDescription className="static text-xs font-medium text-center text-foreground">
+              {/* Node Icon */}
+              {getNodeIcon(data.type)}
+
+              {/* Output Handle */}
+              {!hasOutgoing && (
+                <ButtonHandle
+                  type="source"
+                  position={Position.Right}
+                  className="bg-muted-foreground border-2 border-background"
+                >
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openNodePaletteFor(data.id)
+                    }}
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-sm border"
+                  >
+                    <Plus size={10} />
+                  </Button>
+                </ButtonHandle>
+              )}
+            </BaseNodeContent>
+            <BaseNodeDescription className="text-xs font-medium text-center text-foreground text-nowrap -bottom-12">
               {data.label}
             </BaseNodeDescription>
-
-            {/* Status indicator for manual trigger */}
-            {data.type === 'manualTrigger' && (
-              <div className="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full flex items-center justify-center">
-                <div className="w-1.5 h-1.5 bg-white rounded-full" />
-              </div>
-            )}
-
-            {/* Output Handle */}
-            <Handle
-              type="source"
-              position={Position.Right}
-              className="w-3 h-3 bg-muted-foreground border-2 border-background"
-            />
-
-            {/* Add button handle for connecting */}
-            <div className="absolute -right-6 top-1/2 -translate-y-1/2">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="w-6 h-6 rounded-full bg-background border border-border opacity-0 group-hover:opacity-100 transition-opacity"
-              >
-                <Plus className="w-3 h-3" />
-              </Button>
-            </div>
-          </BaseNodeContent>
-        </BaseNode>
-      </NodeStatusIndicator>
-    </div>
+          </BaseNode>
+        </NodeStatusIndicator>
+      </NodeTooltipTrigger>
+    </NodeTooltip>
   )
-})
+}
+
+export const WorkflowNode = memo(Workflow)

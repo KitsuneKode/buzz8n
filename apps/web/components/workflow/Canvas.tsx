@@ -1,14 +1,12 @@
 'use client'
 
 import {
-  ReactFlow,
   Background,
-  Controls,
-  MiniMap,
-  Panel,
-  useReactFlow,
   BackgroundVariant,
   ConnectionLineType,
+  Panel,
+  ReactFlow,
+  useReactFlow,
 } from '@xyflow/react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { Fullscreen, Minus, Plus } from 'lucide-react'
@@ -19,7 +17,7 @@ import '@xyflow/react/dist/style.css'
 
 const nodeTypes = {
   manualTrigger: WorkflowNode,
-  telegramGetChat: WorkflowNode,
+  telegramSendMessage: WorkflowNode,
   emailSend: WorkflowNode,
   webhook: WorkflowNode,
   schedule: WorkflowNode,

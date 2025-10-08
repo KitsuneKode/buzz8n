@@ -1,11 +1,11 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
-import { Badge } from '@buzz8n/ui/components/badge'
-import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
-import { Separator } from '@buzz8n/ui/components/separator'
 import { X, Copy, Trash2, Info, AlertTriangle, XCircle, Bug } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
+import { Separator } from '@buzz8n/ui/components/separator'
+import { Button } from '@buzz8n/ui/components/button'
+import { Badge } from '@buzz8n/ui/components/badge'
 import { ExecutionLog } from '@/lib/types/workflow'
 
 const getLevelIcon = (level: ExecutionLog['level']) => {
@@ -39,35 +39,30 @@ const getLevelColor = (level: ExecutionLog['level']) => {
 }
 
 export function LogsDrawer() {
-  const {
-    currentExecution,
-    nodes,
-    toggleLogsDrawer,
-    clearLogs,
-  } = useWorkflowEditorStore()
+  const { currentExecution, nodes, toggleLogsDrawer, clearLogs } = useWorkflowEditorStore()
 
   if (!currentExecution) return null
 
   const handleCopyLogs = () => {
     const logsText = currentExecution.logs
-      .map(log => `[${log.timestamp.toISOString()}] ${log.level.toUpperCase()}: ${log.message}`)
+      .map((log) => `[${log.timestamp.toISOString()}] ${log.level.toUpperCase()}: ${log.message}`)
       .join('\n')
-    
+
     navigator.clipboard.writeText(logsText)
   }
 
   const getNodeLabel = (nodeId: string) => {
-    const node = nodes.find(n => n.id === nodeId)
+    const node = nodes.find((n) => n.id === nodeId)
     return node?.data.label || nodeId
   }
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', { 
-      hour12: false, 
-      hour: '2-digit', 
-      minute: '2-digit', 
+    return date.toLocaleTimeString('en-US', {
+      hour12: false,
+      hour: '2-digit',
+      minute: '2-digit',
       second: '2-digit',
-      fractionalSecondDigits: 3
+      fractionalSecondDigits: 3,
     })
   }
 
@@ -78,17 +73,20 @@ export function LogsDrawer() {
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center space-x-4">
             <h3 className="font-semibold">Execution Logs</h3>
-            <Badge variant="outline">
-              {currentExecution.logs.length} entries
-            </Badge>
-            <Badge 
-              variant={currentExecution.status === 'success' ? 'default' : 
-                      currentExecution.status === 'failed' ? 'destructive' : 'secondary'}
+            <Badge variant="outline">{currentExecution.logs.length} entries</Badge>
+            <Badge
+              variant={
+                currentExecution.status === 'success'
+                  ? 'default'
+                  : currentExecution.status === 'error'
+                    ? 'destructive'
+                    : 'secondary'
+              }
             >
               {currentExecution.status}
             </Badge>
           </div>
-          
+
           <div className="flex items-center space-x-2">
             <Button
               variant="outline"
@@ -108,11 +106,7 @@ export function LogsDrawer() {
               <Trash2 className="w-4 h-4 mr-2" />
               Clear
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleLogsDrawer}
-            >
+            <Button variant="ghost" size="icon" onClick={toggleLogsDrawer}>
               <X className="w-4 h-4" />
             </Button>
           </div>
@@ -138,9 +132,7 @@ export function LogsDrawer() {
         <ScrollArea className="flex-1">
           <div className="p-4">
             {currentExecution.logs.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">
-                No logs available
-              </div>
+              <div className="text-center text-muted-foreground py-8">No logs available</div>
             ) : (
               <div className="space-y-2">
                 {currentExecution.logs.map((log, index) => (
@@ -170,9 +162,7 @@ export function LogsDrawer() {
                         </div>
                       </div>
                     </div>
-                    {index < currentExecution.logs.length - 1 && (
-                      <Separator className="mt-2" />
-                    )}
+                    {index < currentExecution.logs.length - 1 && <Separator className="mt-2" />}
                   </div>
                 ))}
               </div>

@@ -16,6 +16,7 @@
     "@buzz8n/ui": "*",
     "@tabler/icons-react": "^3.35.0",
     "@tanstack/react-query": "^5.90.2",
+    "@tanstack/react-query-devtools": "^5.90.2",
     "@xyflow/react": "^12.8.5",
     "axios": "^1.12.2",
     "lucide-react": "^0.475.0",

@@ -1,13 +1,29 @@
 'use client'
 
-import { useState } from 'react'
-import { Input } from '@buzz8n/ui/components/input'
-import { Button } from '@buzz8n/ui/components/button'
-import { Badge } from '@buzz8n/ui/components/badge'
-import { Search, Play, Mail, Webhook, Clock, Zap, FileText, GitBranch, MessageSquare, BarChart3, MoreHorizontal, Sparkles, Database, Users, Plus } from 'lucide-react'
-import { IconBrandTelegram } from '@tabler/icons-react'
+import {
+  Search,
+  Play,
+  Mail,
+  Webhook,
+  Clock,
+  Zap,
+  FileText,
+  GitBranch,
+  MessageSquare,
+  BarChart3,
+  MoreHorizontal,
+  Sparkles,
+  Database,
+  Users,
+  Plus,
+} from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeTemplate, NodeType } from '@/lib/types/workflow'
+import { IconBrandTelegram } from '@tabler/icons-react'
+import { Button } from '@buzz8n/ui/components/button'
+import { Input } from '@buzz8n/ui/components/input'
+import { Badge } from '@buzz8n/ui/components/badge'
+import { useState } from 'react'
 
 const nodeCategories = [
   {
@@ -23,98 +39,98 @@ const nodeCategories = [
         category: 'ai',
         defaultConfig: {},
       },
-    ]
+    ],
   },
   {
     id: 'app-action',
     label: 'Action in an app',
     nodes: [
       {
-        id: 'telegram-get-chat',
-        type: 'telegramGetChat' as NodeType,
-        label: 'Do something in an app or service like Google Sheets, Telegram or Notion',
-        description: 'Connect and interact with external applications',
+        id: 'telegram-send-message',
+        type: 'telegramSendMessage' as NodeType,
+        label: 'Telegram Send Message',
+        description: 'Send a message to a Telegram chat',
         icon: 'telegram',
         category: 'app-action',
         defaultConfig: { chatId: '' },
       },
-    ]
+    ],
   },
-  {
-    id: 'data-transformation',
-    label: 'Data transformation',
-    nodes: [
-      {
-        id: 'data-transform',
-        type: 'other' as NodeType,
-        label: 'Manipulate, filter or convert data',
-        description: 'Transform and process your workflow data',
-        icon: 'zap',
-        category: 'data-transformation',
-        defaultConfig: {},
-      },
-    ]
-  },
-  {
-    id: 'flow',
-    label: 'Flow',
-    nodes: [
-      {
-        id: 'flow-control',
-        type: 'other' as NodeType,
-        label: 'Branch, merge or loop the flow, etc.',
-        description: 'Control the execution flow of your workflow',
-        icon: 'git-branch',
-        category: 'flow',
-        defaultConfig: {},
-      },
-    ]
-  },
-  {
-    id: 'core',
-    label: 'Core',
-    nodes: [
-      {
-        id: 'core-nodes',
-        type: 'other' as NodeType,
-        label: 'Set values, make HTTP requests, set webhooks, etc.',
-        description: 'Essential workflow building blocks',
-        icon: 'database',
-        category: 'core',
-        defaultConfig: {},
-      },
-    ]
-  },
-  {
-    id: 'human-in-loop',
-    label: 'Human in the loop',
-    nodes: [
-      {
-        id: 'human-approval',
-        type: 'other' as NodeType,
-        label: 'Wait for approval or human input before continuing',
-        description: 'Include human decision points in automation',
-        icon: 'users',
-        category: 'human-in-loop',
-        defaultConfig: {},
-      },
-    ]
-  },
-  {
-    id: 'add-trigger',
-    label: 'Add another trigger',
-    nodes: [
-      {
-        id: 'additional-trigger',
-        type: 'manualTrigger' as NodeType,
-        label: 'Triggers start your workflow. Workflows can have multiple triggers.',
-        description: 'Add more ways to start your workflow',
-        icon: 'plus',
-        category: 'add-trigger',
-        defaultConfig: {},
-      },
-    ]
-  },
+  // {
+  //   id: 'data-transformation',
+  //   label: 'Data transformation',
+  //   nodes: [
+  //     {
+  //       id: 'data-transform',
+  //       type: 'other' as NodeType,
+  //       label: 'Manipulate, filter or convert data',
+  //       description: 'Transform and process your workflow data',
+  //       icon: 'zap',
+  //       category: 'data-transformation',
+  //       defaultConfig: {},
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: 'flow',
+  //   label: 'Flow',
+  //   nodes: [
+  //     {
+  //       id: 'flow-control',
+  //       type: 'other' as NodeType,
+  //       label: 'Branch, merge or loop the flow, etc.',
+  //       description: 'Control the execution flow of your workflow',
+  //       icon: 'git-branch',
+  //       category: 'flow',
+  //       defaultConfig: {},
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: 'core',
+  //   label: 'Core',
+  //   nodes: [
+  //     {
+  //       id: 'core-nodes',
+  //       type: 'other' as NodeType,
+  //       label: 'Set values, make HTTP requests, set webhooks, etc.',
+  //       description: 'Essential workflow building blocks',
+  //       icon: 'database',
+  //       category: 'core',
+  //       defaultConfig: {},
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: 'human-in-loop',
+  //   label: 'Human in the loop',
+  //   nodes: [
+  //     {
+  //       id: 'human-approval',
+  //       type: 'other' as NodeType,
+  //       label: 'Wait for approval or human input before continuing',
+  //       description: 'Include human decision points in automation',
+  //       icon: 'users',
+  //       category: 'human-in-loop',
+  //       defaultConfig: {},
+  //     },
+  //   ],
+  // },
+  // {
+  //   id: 'add-trigger',
+  //   label: 'Add another trigger',
+  //   nodes: [
+  //     {
+  //       id: 'additional-trigger',
+  //       type: 'manualTrigger' as NodeType,
+  //       label: 'Triggers start your workflow. Workflows can have multiple triggers.',
+  //       description: 'Add more ways to start your workflow',
+  //       icon: 'plus',
+  //       category: 'add-trigger',
+  //       defaultConfig: {},
+  //     },
+  //   ],
+  // },
 ]
 
 const getNodeIcon = (iconType: string) => {
@@ -154,20 +170,37 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const { addNode, toggleNodePalette } = useWorkflowEditorStore()
+  const { addNode, toggleNodePalette, pendingConnectFromNodeId, nodes, addNodeWithEdge } =
+    useWorkflowEditorStore()
 
-  const filteredCategories = nodeCategories.map(category => ({
-    ...category,
-    nodes: category.nodes.filter(node =>
-      node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      node.description.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  })).filter(category => category.nodes.length > 0)
+  const filteredCategories = nodeCategories
+    .map((category) => ({
+      ...category,
+      nodes: category.nodes.filter(
+        (node) =>
+          node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          node.description.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    }))
+    .filter((category) => category.nodes.length > 0)
+
+  const OFFSET = { x: 240, y: 0 }
 
   const handleNodeClick = (template: NodeTemplate) => {
-    // Add node to center of viewport
-    addNode(template, { x: 250, y: 200 })
-    toggleNodePalette()
+    if (pendingConnectFromNodeId) {
+      const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
+      const pos = anchor
+        ? { x: anchor.position.x + OFFSET.x, y: anchor.position.y + OFFSET.y }
+        : { x: 100, y: 100 }
+
+      addNodeWithEdge(pendingConnectFromNodeId, template, pos)
+      // If addNodeWithEdge already closes palette and clears pending state, no need to also do:
+      // clearPendingConnect(); toggleNodePalette();
+    } else {
+      // Fallback add (e.g., when palette opened from toolbar)
+      addNode(template, { x: 100, y: 100 })
+      toggleNodePalette()
+    }
   }
 
   const onDragStart = (event: React.DragEvent, template: NodeTemplate) => {
@@ -220,9 +253,7 @@ export function NodePalette() {
                       {getNodeIcon(node.icon)}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm text-foreground">
-                        {node.label}
-                      </div>
+                      <div className="font-medium text-sm text-foreground">{node.label}</div>
                       <div className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {node.description}
                       </div>

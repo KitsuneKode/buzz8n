@@ -24,6 +24,14 @@ export function WorkflowEditor() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
+      // Delete selected nodes (Delete/Backspace)
+      if (event.key === 'Backspace' || event.key === 'Delete') {
+        if (event.target === document.body) {
+          event.preventDefault()
+          deleteSelectedNodes()
+        }
+      }
+
       // Save workflow (Cmd/Ctrl + S)
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault()
@@ -34,14 +42,6 @@ export function WorkflowEditor() {
       if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
         event.preventDefault()
         executeWorkflow()
-      }
-
-      // Delete selected nodes (Delete/Backspace)
-      if (event.key === 'Delete' || event.key === 'Backspace') {
-        if (event.target === document.body) {
-          event.preventDefault()
-          deleteSelectedNodes()
-        }
       }
     }
 

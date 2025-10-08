@@ -28,6 +28,7 @@ interface WorkflowEditorState {
   edges: EdgeData[]
   selectedNodes: string[]
   selectedEdges: string[]
+  pendingConnectFromNodeId: string | null
 
   // UI state
   activeTab: 'editor' | 'executions' | 'evaluations'
@@ -50,6 +51,11 @@ interface WorkflowEditorState {
   onEdgesChange: (changes: EdgeChange<EdgeData>[]) => void
   onConnect: (connection: Connection) => void
   addNode: (template: NodeTemplate, position: { x: number; y: number }) => void
+  addNodeWithEdge: (
+    prevNodeId: string,
+    template: NodeTemplate,
+    position: { x: number; y: number },
+  ) => void
   deleteSelectedNodes: () => void
   selectNode: (nodeId: string | null) => void
 
@@ -57,6 +63,8 @@ interface WorkflowEditorState {
   toggleNodePalette: () => void
   toggleLogsDrawer: () => void
   togglePropertiesPanel: () => void
+  openNodePaletteFor: (nodeId: string) => void
+  clearPendingConnect: () => void
 
   // Workflow actions
   saveWorkflow: () => void
@@ -80,14 +88,15 @@ const nodeTemplates: NodeTemplate[] = [
     defaultConfig: {},
   },
   {
-    id: 'telegram-get-chat',
-    type: 'telegramGetChat',
-    label: 'Get a chat',
-    description: 'Get chat information from Telegram',
+    id: 'telegram-send-message',
+    type: 'telegramSendMessage',
+    label: 'Send a message',
+    description: 'Send a message through Telegram',
     icon: '💬',
     category: 'app-event',
     defaultConfig: {
       chatId: '',
+      message: '',
     },
     requiredCredentials: ['telegram'],
   },
@@ -123,6 +132,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   isExecuting: false,
   currentExecution: null,
   executionHistory: [],
+  pendingConnectFromNodeId: null,
 
   // Workflow actions
   setWorkflow: (workflow) =>
@@ -157,6 +167,35 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     }))
   },
 
+  addNodeWithEdge: (prevNodeId, template, position) => {
+    const newNode: NodeData = {
+      id: `node_${Date.now()}`,
+      type: template.type,
+      position,
+      data: {
+        label: template.label,
+        type: template.type,
+        description: template.description,
+        config: { ...template.defaultConfig },
+        status: 'initial',
+      },
+    }
+
+    const newEdge: EdgeData = {
+      id: `${prevNodeId}-${newNode.id}`,
+      source: prevNodeId,
+      target: newNode.id,
+    }
+
+    set((state) => ({
+      nodes: [...state.nodes, newNode],
+      edges: [...state.edges, newEdge],
+      isDirty: true,
+      selectedNodeId: newNode.id, // optional quality-of-life
+      pendingConnectFromNodeId: null, // clear attach mode
+      isNodePaletteOpen: false, // close palette
+    }))
+  },
   addNode: (template, position) => {
     const newNode: NodeData = {
       id: `node_${Date.now()}`,
@@ -165,6 +204,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       data: {
         label: template.label,
         type: template.type,
+        description: template.description,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
@@ -207,6 +247,12 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     set((state) => ({
       isPropertiesPanelOpen: !state.isPropertiesPanelOpen,
     })),
+
+  openNodePaletteFor: (
+    nodeId: string, // NEW
+  ) => set({ isNodePaletteOpen: true, pendingConnectFromNodeId: nodeId, selectedNodeId: nodeId }),
+
+  clearPendingConnect: () => set({ pendingConnectFromNodeId: null }),
 
   // Workflow actions
   saveWorkflow: () => {

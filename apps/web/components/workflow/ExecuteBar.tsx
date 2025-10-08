@@ -1,32 +1,26 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
-import { Badge } from '@buzz8n/ui/components/badge'
 import { Play, Square, RotateCcw, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { Button } from '@buzz8n/ui/components/button'
+import { Badge } from '@buzz8n/ui/components/badge'
 
 export function ExecuteBar() {
-  const {
-    nodes,
-    isExecuting,
-    currentExecution,
-    executeWorkflow,
-    stopExecution,
-    toggleLogsDrawer,
-  } = useWorkflowEditorStore()
+  const { nodes, isExecuting, currentExecution, executeWorkflow, stopExecution, toggleLogsDrawer } =
+    useWorkflowEditorStore()
 
   const canExecute = nodes.length > 0 && !isExecuting
-  const hasManualTrigger = nodes.some(node => node.data.type === 'manualTrigger')
+  const hasManualTrigger = nodes.some((node) => node.data.type === 'manualTrigger')
 
   const getExecutionStatusIcon = () => {
     if (!currentExecution) return null
-    
+
     switch (currentExecution.status) {
-      case 'running':
+      case 'loading':
         return <RotateCcw className="w-4 h-4 animate-spin" />
       case 'success':
         return <CheckCircle className="w-4 h-4 text-green-500" />
-      case 'failed':
+      case 'error':
         return <XCircle className="w-4 h-4 text-red-500" />
       default:
         return <Clock className="w-4 h-4" />
@@ -35,13 +29,13 @@ export function ExecuteBar() {
 
   const getExecutionStatusText = () => {
     if (!currentExecution) return null
-    
+
     switch (currentExecution.status) {
-      case 'running':
+      case 'loading':
         return 'Executing...'
       case 'success':
         return `Completed in ${currentExecution.durationMs}ms`
-      case 'failed':
+      case 'error':
         return 'Execution failed'
       default:
         return 'Queued'
@@ -58,7 +52,7 @@ export function ExecuteBar() {
           onClick={isExecuting ? stopExecution : executeWorkflow}
           disabled={!canExecute && !isExecuting}
           className="flex items-center space-x-2"
-          variant={isExecuting ? "destructive" : "default"}
+          variant={isExecuting ? 'destructive' : 'default'}
         >
           {isExecuting ? (
             <>
@@ -77,12 +71,15 @@ export function ExecuteBar() {
         {currentExecution && (
           <div className="flex items-center space-x-2">
             {getExecutionStatusIcon()}
-            <span className="text-sm text-muted-foreground">
-              {getExecutionStatusText()}
-            </span>
-            <Badge 
-              variant={currentExecution.status === 'success' ? 'default' : 
-                      currentExecution.status === 'failed' ? 'destructive' : 'secondary'}
+            <span className="text-sm text-muted-foreground">{getExecutionStatusText()}</span>
+            <Badge
+              variant={
+                currentExecution.status === 'success'
+                  ? 'default'
+                  : currentExecution.status === 'error'
+                    ? 'destructive'
+                    : 'secondary'
+              }
             >
               {currentExecution.status}
             </Badge>
@@ -91,11 +88,7 @@ export function ExecuteBar() {
 
         {/* Logs Button */}
         {currentExecution && currentExecution.logs.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={toggleLogsDrawer}
-          >
+          <Button variant="outline" size="sm" onClick={toggleLogsDrawer}>
             View logs ({currentExecution.logs.length})
           </Button>
         )}
