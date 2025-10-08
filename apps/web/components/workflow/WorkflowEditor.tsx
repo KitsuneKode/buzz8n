@@ -6,7 +6,6 @@ import { ReactFlowProvider } from '@xyflow/react'
 import { RightPanel } from './RightPanel'
 import { LogsDrawer } from './LogsDrawer'
 import { ExecuteBar } from './ExecuteBar'
-import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
 import { useEffect } from 'react'
@@ -65,7 +64,6 @@ export function WorkflowEditor() {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
-          <Sidebar />
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col relative">

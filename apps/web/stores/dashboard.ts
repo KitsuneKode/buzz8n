@@ -1,5 +1,4 @@
 import { Credential } from '@/lib/types/credentials'
-import { redirect } from 'next/navigation'
 import { create } from 'zustand'
 
 export type TabType = 'workflows' | 'credentials' | 'executions' | 'settings'
@@ -25,6 +24,7 @@ interface DashboardState {
   credentials: Credential[]
   addCredential: (credential: Credential) => void
   removeCredential: (id: string) => void
+  getCredentialById: (id: string) => Credential | undefined
 
   // Executions
   executions: Execution[]
@@ -97,21 +97,25 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
     }))
   },
 
+  getCredentialById: (id) => {
+    const state = get()
+    return state.credentials.find((cred) => cred.id === id)
+  },
   // Action handlers
   createWorkflow: () => {
     console.log('Creating workflow...')
     // Navigate to workflow editor
-    if (typeof window !== 'undefined') {
-      redirect('/workflow/new')
-    }
-    // Add a new execution to simulate workflow creation
-    const { addExecution } = get()
-    addExecution({
-      workflowName: 'New Workflow',
-      status: 'queued',
-      startedAt: new Date(),
-      runTimeMs: 0,
-    })
+    // if (typeof window !== 'undefined') {
+    //   window.location.href = '/workflow/new'
+    // }
+    // // Add a new execution to simulate workflow creation
+    // const { addExecution } = get()
+    // addExecution({
+    //   workflowName: 'New Workflow',
+    //   status: 'queued',
+    //   startedAt: new Date(),
+    //   runTimeMs: 0,
+    // })
   },
 
   openCredentialModal: () => {

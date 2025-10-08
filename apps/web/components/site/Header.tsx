@@ -19,10 +19,10 @@ import {
   Dog,
   Loader2,
 } from 'lucide-react'
+import { redirect, usePathname } from 'next/navigation'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import type { TabType } from '@/stores/dashboard'
-import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { motion } from 'motion/react'
@@ -50,7 +50,6 @@ export function Header({
   className = '',
   activeTab,
   onTabChange,
-  onCreateWorkflow,
 }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [scrollY, setScrollY] = useState(0)
@@ -67,8 +66,6 @@ export function Header({
     email: userData.email,
     avatar: '',
   }
-
-  console.log(user)
 
   const marketingNavItems: NavItem[] = [
     { id: 'features', label: 'AI Features', href: '#features' },
@@ -125,10 +122,15 @@ export function Header({
     } else {
       // Dashboard navigation
       if (onTabChange) {
-        onTabChange(item.id as TabType)
+        if (pathname.includes('/dashboard')) {
+          onTabChange(item.id as TabType)
+        } else {
+          onTabChange(item.id as TabType)
+          redirect(item.href)
+        }
       } else {
         // Fallback to regular navigation if no tab handler
-        window.location.href = item.href
+        redirect(item.href)
       }
     }
   }

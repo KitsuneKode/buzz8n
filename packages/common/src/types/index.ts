@@ -1,3 +1,3 @@
-export * from './auth.ts'
-export * from './credentials.ts'
-export * from './utils.ts'
+export * from './auth'
+export * from './credentials'
+export * from './utils'

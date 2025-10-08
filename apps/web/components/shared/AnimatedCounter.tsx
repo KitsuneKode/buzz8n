@@ -11,13 +11,13 @@ interface AnimatedCounterProps {
   trigger?: boolean
 }
 
-export function AnimatedCounter({ 
-  end, 
-  duration = 2000, 
-  suffix = '', 
-  prefix = '', 
+export function AnimatedCounter({
+  end,
+  duration = 2000,
+  suffix = '',
+  prefix = '',
   className = '',
-  trigger = true 
+  trigger = true,
 }: AnimatedCounterProps) {
   const [count, setCount] = useState(0)
   const [isVisible, setIsVisible] = useState(false)
@@ -26,11 +26,11 @@ export function AnimatedCounter({
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && trigger) {
+        if (entry?.isIntersecting && trigger) {
           setIsVisible(true)
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     )
 
     if (ref.current) {
@@ -49,11 +49,11 @@ export function AnimatedCounter({
     const animate = (currentTime: number) => {
       if (!startTime) startTime = currentTime
       const progress = Math.min((currentTime - startTime) / duration, 1)
-      
+
       // Easing function for smooth animation
       const easeOutCubic = 1 - Math.pow(1 - progress, 3)
       const currentCount = Math.floor(end * easeOutCubic)
-      
+
       setCount(currentCount)
 
       if (progress < 1) {
@@ -82,7 +82,9 @@ export function AnimatedCounter({
 
   return (
     <span ref={ref} className={className}>
-      {prefix}{formatNumber(count)}{suffix}
+      {prefix}
+      {formatNumber(count)}
+      {suffix}
     </span>
   )
 }

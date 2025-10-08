@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@buzz8n/ui'],
+  reactStrictMode: false,
   images: {
     remotePatterns: [
       {

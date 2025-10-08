@@ -83,7 +83,7 @@ export function Canvas() {
         snapGrid={[15, 15]}
         connectionLineType={ConnectionLineType.Bezier}
         defaultEdgeOptions={{
-          type: 'bezier',
+          type: ConnectionLineType.Bezier,
           animated: false,
         }}
         className="bg-background"

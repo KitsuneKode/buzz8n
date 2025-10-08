@@ -54,6 +54,15 @@ const nodeCategories = [
         category: 'app-action',
         defaultConfig: { chatId: '' },
       },
+      {
+        id: 'resend-send-email',
+        type: 'emailSend' as NodeType,
+        label: 'Send an email',
+        description: 'Send an email via Resend Email credentials',
+        icon: 'email',
+        category: 'app-action',
+        defaultConfig: {},
+      },
     ],
   },
   // {
@@ -139,7 +148,7 @@ const getNodeIcon = (iconType: string) => {
       return <Play className="w-5 h-5" />
     case 'telegram':
       return <IconBrandTelegram size={20} />
-    case 'mail':
+    case 'email':
       return <Mail className="w-5 h-5" />
     case 'webhook':
       return <Webhook className="w-5 h-5" />
@@ -170,8 +179,7 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const { addNode, toggleNodePalette, pendingConnectFromNodeId, nodes, addNodeWithEdge } =
-    useWorkflowEditorStore()
+  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge } = useWorkflowEditorStore()
 
   const filteredCategories = nodeCategories
     .map((category) => ({
@@ -186,8 +194,20 @@ export function NodePalette() {
 
   const OFFSET = { x: 240, y: 0 }
 
+  const existingNodesOffset =
+    nodes.length > 0
+      ? {
+          x: Math.random() * 300 + 100,
+          y: Math.random() * 200 + 100,
+        }
+      : {
+          x: 100,
+          y: 100,
+        }
+
   const handleNodeClick = (template: NodeTemplate) => {
     if (pendingConnectFromNodeId) {
+      console.log('in herer')
       const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
       const pos = anchor
         ? { x: anchor.position.x + OFFSET.x, y: anchor.position.y + OFFSET.y }
@@ -198,8 +218,7 @@ export function NodePalette() {
       // clearPendingConnect(); toggleNodePalette();
     } else {
       // Fallback add (e.g., when palette opened from toolbar)
-      addNode(template, { x: 100, y: 100 })
-      toggleNodePalette()
+      addNode(template, existingNodesOffset)
     }
   }
 

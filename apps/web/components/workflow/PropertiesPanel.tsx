@@ -14,13 +14,22 @@ import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
 import React from 'react'
+import { toast } from '@buzz8n/ui/components/sonner'
 
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard'
 
 export function PropertiesPanel() {
-  const { nodes, selectedNodeId } = useWorkflowEditorStore()
+  const {
+    nodes,
+    selectedNodeId,
+    updateSelectedNodeConfig,
+    setSelectedNodeCredentialRef,
+    deleteNode,
+    openNodePaletteFor,
+    resendEmail,
+  } = useWorkflowEditorStore()
   const { credentials } = useDashboardStore()
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
@@ -28,7 +37,6 @@ export function PropertiesPanel() {
   if (!selectedNode) {
     return <div className="p-4 text-center text-muted-foreground">No node selected</div>
   }
-
   const nodeConfig = selectedNode.data.config || {}
   const requiredCredentials =
     selectedNode.data.type === 'telegramSendMessage'
@@ -38,12 +46,23 @@ export function PropertiesPanel() {
         : []
 
   const handleConfigChange = (key: string, value: string | boolean) => {
-    // Update node configuration
-    console.log(`Updating ${key} to ${value} for node ${selectedNodeId}`)
+    updateSelectedNodeConfig({ [key]: value })
   }
 
   const handleDeleteNode = () => {
-    console.log(`Deleting node ${selectedNodeId}`)
+    if (!selectedNodeId) return
+    deleteNode(selectedNodeId)
+  }
+
+  const handleSave = () => {
+    // Node config & credentials are already updated live via onChange handlers.
+    // Provide user feedback without saving the whole workflow.
+    toast.success('Node settings saved')
+  }
+
+  const handleContinue = () => {
+    if (!selectedNodeId) return
+    openNodePaletteFor(selectedNodeId)
   }
 
   return (
@@ -69,16 +88,30 @@ export function PropertiesPanel() {
       {/* Properties Form */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
         {/* Credentials Section */}
+
         {requiredCredentials.length > 0 && (
           <div className="space-y-3">
             <Label className="text-sm font-medium">Credential to connect with</Label>
-            <Select defaultValue="">
+            <Select
+              defaultValue={selectedNode.data.credentials?.id || ''}
+              onValueChange={(id) => {
+                if (id === 'create-new') return // handled elsewhere
+                const cred = credentials.find((c) => c.id === id)
+                if (cred) {
+                  setSelectedNodeCredentialRef({ id: cred.id, name: cred.name, provider: cred.provider })
+                }
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Select a credential" />
               </SelectTrigger>
               <SelectContent>
                 {credentials
-                  .filter((cred) => requiredCredentials.includes(cred.provider))
+                  .filter((cred) =>
+                    requiredCredentials.length === 0
+                      ? true
+                      : requiredCredentials.includes(String(cred.provider).toLowerCase()),
+                  )
                   .map((cred) => (
                     <SelectItem key={cred.id} value={cred.id}>
                       {cred.name}
@@ -87,8 +120,11 @@ export function PropertiesPanel() {
                 <SelectItem value="create-new">+ Create new credential</SelectItem>
               </SelectContent>
             </Select>
-            {credentials.filter((cred) => requiredCredentials.includes(cred.provider)).length ===
-              0 && (
+            {credentials.filter((cred) =>
+              requiredCredentials.length === 0
+                ? true
+                : requiredCredentials.includes(String(cred.provider).toLowerCase()),
+            ).length === 0 && (
               <div className="flex items-center space-x-2 text-amber-600 text-sm">
                 <AlertCircle className="w-4 h-4" />
                 <span>No {requiredCredentials[0]} credentials found</span>
@@ -256,6 +292,23 @@ export function PropertiesPanel() {
             }
           />
         </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="p-4 border-t border-border flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Button variant="outline" onClick={handleSave}>Save</Button>
+          <Button variant="default" onClick={handleContinue}>Continue</Button>
+        </div>
+        {selectedNode.data.type === 'emailSend' && (
+          <Button
+            variant="ghost"
+            className="text-primary"
+            onClick={() => selectedNodeId && resendEmail(selectedNodeId)}
+          >
+            Resend Email
+          </Button>
+        )}
       </div>
     </div>
   )

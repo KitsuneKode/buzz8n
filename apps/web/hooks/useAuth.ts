@@ -2,6 +2,7 @@
 
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
+import { getQueryClient } from '@/utils/get-query-client'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { useRouter } from 'next/navigation'
 import axios, { AxiosError } from 'axios'
@@ -43,7 +44,7 @@ const AUTH_QUERY_KEY = ['auth', 'user']
 
 export function useAuth(): UseAuthReturn {
   const router = useRouter()
-  const queryClient = useQueryClient()
+  const queryClient = getQueryClient()
 
   // Fetch current user profile
   const { data: user, isLoading } = useQuery({

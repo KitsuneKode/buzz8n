@@ -25,6 +25,7 @@ import { BaseHandle } from '@/components/nodes/base-handle'
 import { NodeData, NodeType } from '@/lib/types/workflow'
 import { Button } from '@buzz8n/ui/components/button'
 import { NodeProps, Position } from '@xyflow/react'
+import { cn } from '@buzz8n/ui/lib/utils'
 import { memo } from 'react'
 
 const getNodeIcon = (type: NodeType) => {
@@ -69,13 +70,14 @@ const getStatusColor = (status: string) => {
   }
 }
 
-const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
-  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
+  const { edges, nodes, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
 
-  const hasOutgoing = edges.some((e) => e.source === data.id)
+  const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
+  const hasOutgoing = edges.some((e) => e.source === id)
 
   const handleClick = () => {
-    selectNode(data.id)
+    selectNode(id)
   }
 
   return (
@@ -87,10 +89,11 @@ const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
         <NodeStatusIndicator status={data.status || 'initial'} variant="border">
           <BaseNode
             onClick={handleClick}
-            className={`
-          flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-200
-          ${selected ? 'ring-2 ring-primary shadow-lg' : ''}
-        `}
+            className={cn(
+              'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-200',
+              selected && 'ring-2 ring-primary shadow-lg',
+              isFirstNode && 'rounded-l-4xl',
+            )}
           >
             <div
               className={`
@@ -102,7 +105,7 @@ const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
             </div>
             <BaseNodeContent className="flex items-center justify-center gap-3 p-6">
               {/* Input Handle */}
-              {data.type !== 'manualTrigger' && (
+              {!isFirstNode && (
                 <BaseHandle
                   type="target"
                   position={Position.Left}
@@ -114,7 +117,7 @@ const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
               {getNodeIcon(data.type)}
 
               {/* Output Handle */}
-              {!hasOutgoing && (
+              {!hasOutgoing ? (
                 <ButtonHandle
                   type="source"
                   position={Position.Right}
@@ -123,7 +126,8 @@ const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
                   <Button
                     onClick={(e) => {
                       e.stopPropagation()
-                      openNodePaletteFor(data.id)
+                      console.log(id, 'clickedhere')
+                      openNodePaletteFor(id)
                     }}
                     size="sm"
                     variant="secondary"
@@ -132,6 +136,12 @@ const Workflow = ({ data, selected }: NodeProps<NodeData>) => {
                     <Plus size={10} />
                   </Button>
                 </ButtonHandle>
+              ) : (
+                <BaseHandle
+                  type="source"
+                  position={Position.Right}
+                  className="bg-muted-foreground border-2 border-background"
+                ></BaseHandle>
               )}
             </BaseNodeContent>
             <BaseNodeDescription className="text-xs font-medium text-center text-foreground text-nowrap -bottom-12">

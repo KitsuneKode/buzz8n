@@ -3,55 +3,60 @@
 import CredentialModal from '@/components/credentials/CredentialModal'
 import ExecutionsTable from '@/components/ExecutionsTable'
 import CredentialsList from '@/components/CredentialsList'
-import { CredentialResponse } from '@buzz8n/common/types'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
-import { Credential } from '@/lib/types/credentials'
-import { useQuery } from '@tanstack/react-query'
 import HeaderNav from '@/components/HeaderNav'
-import { API_URL } from '@/utils/config'
-import { useEffect } from 'react'
-import axios from 'axios'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 
 const DashboardPage = () => {
   const { activeTab, setActiveTab, credentials, executions, createWorkflow, openCredentialModal } =
     useDashboardStore()
 
-  const {
-    data: initialCredentials,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
-    queryKey: ['credential'],
-    queryFn: async () => {
-      const response = await axios.get(`${API_URL}/credential`, {
-        withCredentials: true,
-      })
+  const router = useRouter()
 
-      return response.data.credentials
-    },
-  })
+  const onCreateWorkflow = () => {
+    // createWorkflowMutateAsync()
+    // createWorkflow();
 
-  useEffect(() => {
-    if (initialCredentials && !isLoading && !isError) {
-      console.log('Credentials fetched successfully:', initialCredentials)
+    router.push('/workflow/new')
+  }
 
-      const credentials: Credential[] = initialCredentials.map(
-        (credential: CredentialResponse) => ({
-          config: credential.data,
-          id: credential.id,
-          name: credential.title,
-          provider: credential.platform,
-          createdAt: new Date(credential.createdAt),
-        }),
-      )
-      useDashboardStore.setState({ credentials })
-    }
-    if (isError) {
-      console.error('Failed to fetch credentials', error)
-    }
-  }, [initialCredentials, isLoading, isError, error])
+  // const {
+  //   data: initialCredentials,
+  //   isLoading,
+  //   isError,
+  //   error,
+  // } = useQuery({
+  //   queryKey: ['credential'],
+  //   queryFn: async () => {
+  //     const response = await axios.get(`${API_URL}/credential`, {
+  //       withCredentials: true,
+  //     })
+  //
+  //     return response.data.credentials
+  //   },
+  // })
+  //
+  // useEffect(() => {
+  //   if (initialCredentials && !isLoading && !isError) {
+  //     console.log('Credentials fetched successfully:', initialCredentials)
+  //
+  //     const credentials: Credential[] = initialCredentials.map(
+  //       (credential: CredentialResponse) => ({
+  //         config: credential.data,
+  //         id: credential.id,
+  //         name: credential.title,
+  //         provider: credential.platform,
+  //         createdAt: new Date(credential.createdAt),
+  //       }),
+  //     )
+  //     useDashboardStore.setState({ credentials })
+  //   }
+  //   if (isError) {
+  //     console.error('Failed to fetch credentials', error)
+  //   }
+  // }, [initialCredentials, isLoading, isError, error])
 
   const hasCredentials = credentials.length > 0
 
@@ -62,7 +67,7 @@ const DashboardPage = () => {
           <div className="space-y-6 ">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
               <div className="bg-card border border-border rounded-lg p-6 hover:border-muted-foreground/50 transition-colors cursor-pointer">
-                <div className="flex items-center space-x-3 mb-4">
+                <Link className="flex items-center space-x-3 mb-4" href={'/workflow/new'}>
                   <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                     <svg
                       className="w-5 h-5 text-primary-foreground"
@@ -86,7 +91,7 @@ const DashboardPage = () => {
                       Build a custom workflow from the ground up
                     </p>
                   </div>
-                </div>
+                </Link>
               </div>
               <div className="bg-card border border-border rounded-lg p-6 hover:border-muted-foreground/50 transition-colors cursor-pointer">
                 <div className="flex items-center space-x-3 mb-4">
@@ -162,7 +167,7 @@ const DashboardPage = () => {
       <HeaderNav
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        onCreateWorkflow={createWorkflow}
+        onCreateWorkflow={onCreateWorkflow}
       />
       <div className="px-6 py-6">
         <div className="mt-8">{renderTabContent()}</div>

@@ -12,8 +12,7 @@ export const SupportedPlatforms = z.enum([
 export const credentialSchema = z.object({
   title: z.string(),
   platform: SupportedPlatforms,
-  data: z.record(z.string(), z.any()) // <-- returns Record<string, any>
-  
+  data: z.record(z.string(), z.any()), // <-- returns Record<string, any>
 })
 
 export const credentialResponse = z.object({

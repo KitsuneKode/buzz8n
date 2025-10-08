@@ -14,6 +14,7 @@ import {
   Execution,
   ExecutionLog,
   NodeTemplate,
+  CredentialRef,
 } from '@/lib/types/workflow'
 
 import { create } from 'zustand'
@@ -58,6 +59,10 @@ interface WorkflowEditorState {
   ) => void
   deleteSelectedNodes: () => void
   selectNode: (nodeId: string | null) => void
+  deleteNode: (nodeId: string) => void
+  updateSelectedNodeConfig: (patch: Record<string, unknown>) => void
+  setSelectedNodeCredentialRef: (credential: CredentialRef | null) => void
+  resendEmail: (nodeId: string) => Promise<void>
 
   // UI actions
   toggleNodePalette: () => void
@@ -65,6 +70,7 @@ interface WorkflowEditorState {
   togglePropertiesPanel: () => void
   openNodePaletteFor: (nodeId: string) => void
   clearPendingConnect: () => void
+  closeRightPanel: () => void
 
   // Workflow actions
   saveWorkflow: () => void
@@ -191,9 +197,9 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       nodes: [...state.nodes, newNode],
       edges: [...state.edges, newEdge],
       isDirty: true,
-      selectedNodeId: newNode.id, // optional quality-of-life
-      pendingConnectFromNodeId: null, // clear attach mode
-      isNodePaletteOpen: false, // close palette
+      isNodePaletteOpen: false,
+      pendingConnectFromNodeId: null,
+      selectedNodeId: newNode.id,
     }))
   },
   addNode: (template, position) => {
@@ -213,6 +219,18 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     set((state) => ({
       nodes: [...state.nodes, newNode],
       isDirty: true,
+      // When adding from the palette or toolbar, close the palette and open properties for the new node
+      isNodePaletteOpen: false,
+      selectedNodeId: newNode.id,
+    }))
+  },
+
+  deleteNode: (nodeId) => {
+    set((state) => ({
+      nodes: state.nodes.filter((n) => n.id !== nodeId),
+      edges: state.edges.filter((e) => e.source !== nodeId && e.target !== nodeId),
+      isDirty: true,
+      selectedNodeId: state.selectedNodeId === nodeId ? null : state.selectedNodeId,
     }))
   },
 
@@ -230,7 +248,12 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     }))
   },
 
-  selectNode: (nodeId) => set({ selectedNodeId: nodeId }),
+  selectNode: (nodeId) =>
+    set((state) => ({
+      selectedNodeId: nodeId,
+      // Only close the palette when a node is selected; keep it as-is on deselect
+      isNodePaletteOpen: nodeId ? false : state.isNodePaletteOpen,
+    })),
 
   // UI actions
   toggleNodePalette: () =>
@@ -253,6 +276,13 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   ) => set({ isNodePaletteOpen: true, pendingConnectFromNodeId: nodeId, selectedNodeId: nodeId }),
 
   clearPendingConnect: () => set({ pendingConnectFromNodeId: null }),
+
+  closeRightPanel: () =>
+    set({
+      isNodePaletteOpen: false,
+      selectedNodeId: null,
+      pendingConnectFromNodeId: null,
+    }),
 
   // Workflow actions
   saveWorkflow: () => {
@@ -370,6 +400,67 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
           }
         : null,
     }))
+  },
+
+  updateSelectedNodeConfig: (patch: Record<string, unknown>) => {
+    const { selectedNodeId } = get()
+    if (!selectedNodeId) return
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === selectedNodeId
+          ? { ...n, data: { ...n.data, config: { ...n.data.config, ...patch } } }
+          : n,
+      ),
+      isDirty: true,
+    }))
+  },
+
+  setSelectedNodeCredentialRef: (credential) => {
+    const { selectedNodeId } = get()
+    if (!selectedNodeId) return
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === selectedNodeId
+          ? { ...n, data: { ...n.data, credentials: credential || undefined } }
+          : n,
+      ),
+      isDirty: true,
+    }))
+  },
+
+  resendEmail: async (nodeId: string) => {
+    const node = get().nodes.find((n) => n.id === nodeId)
+    if (!node || node.data.type !== 'emailSend') return
+
+    // Set loading status
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, status: 'loading' } } : n,
+      ),
+    }))
+
+    get().addExecutionLog({
+      timestamp: new Date(),
+      nodeId,
+      level: 'info',
+      message: `Resending email for node: ${node.data.label}`,
+    })
+
+    // Simulate
+    await new Promise((r) => setTimeout(r, 800))
+
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === nodeId ? { ...n, data: { ...n.data, status: 'success' } } : n,
+      ),
+    }))
+
+    get().addExecutionLog({
+      timestamp: new Date(),
+      nodeId,
+      level: 'info',
+      message: 'Email resent successfully',
+    })
   },
 }))
 
