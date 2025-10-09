@@ -1,62 +1,35 @@
 'use client'
 
 import CredentialModal from '@/components/credentials/CredentialModal'
+import { WorkflowModal } from '@/components/workflow/WorkflowModal'
+import { WorkflowCard } from '@/components/workflow/WorkflowCard'
+import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
 import ExecutionsTable from '@/components/ExecutionsTable'
 import CredentialsList from '@/components/CredentialsList'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import HeaderNav from '@/components/HeaderNav'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
+import { useState } from 'react'
 
 const DashboardPage = () => {
-  const { activeTab, setActiveTab, credentials, executions, createWorkflow, openCredentialModal } =
+  const { activeTab, setActiveTab, credentials, executions, openCredentialModal } =
     useDashboardStore()
 
-  const router = useRouter()
+  const [showWorkflowModal, setShowWorkflowModal] = useState(false)
+
+  // Fetch workflows list
+  const { data: workflows, isLoading: workflowsLoading } = useSuspenseQuery({
+    queryKey: ['workflows', 'list', { filters: { limit: 20 } }],
+    queryFn: () =>
+      prefetchWorkflowsList({
+        limit: 20,
+      }),
+  })
 
   const onCreateWorkflow = () => {
-    // createWorkflowMutateAsync()
-    // createWorkflow();
-
-    router.push('/workflow/new')
+    setShowWorkflowModal(true)
   }
-
-  // const {
-  //   data: initialCredentials,
-  //   isLoading,
-  //   isError,
-  //   error,
-  // } = useQuery({
-  //   queryKey: ['credential'],
-  //   queryFn: async () => {
-  //     const response = await axios.get(`${API_URL}/credential`, {
-  //       withCredentials: true,
-  //     })
-  //
-  //     return response.data.credentials
-  //   },
-  // })
-  //
-  // useEffect(() => {
-  //   if (initialCredentials && !isLoading && !isError) {
-  //     console.log('Credentials fetched successfully:', initialCredentials)
-  //
-  //     const credentials: Credential[] = initialCredentials.map(
-  //       (credential: CredentialResponse) => ({
-  //         config: credential.data,
-  //         id: credential.id,
-  //         name: credential.title,
-  //         provider: credential.platform,
-  //         createdAt: new Date(credential.createdAt),
-  //       }),
-  //     )
-  //     useDashboardStore.setState({ credentials })
-  //   }
-  //   if (isError) {
-  //     console.error('Failed to fetch credentials', error)
-  //   }
-  // }, [initialCredentials, isLoading, isError, error])
 
   const hasCredentials = credentials.length > 0
 
@@ -64,10 +37,14 @@ const DashboardPage = () => {
     switch (activeTab) {
       case 'workflows':
         return (
-          <div className="space-y-6 ">
+          <div className="space-y-6">
+            {/* Create New Workflow Card */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-              <div className="bg-card border border-border rounded-lg p-6 hover:border-muted-foreground/50 transition-colors cursor-pointer">
-                <Link className="flex items-center space-x-3 mb-4" href={'/workflow/new'}>
+              <div
+                className="bg-card border border-border rounded-lg p-6 hover:border-muted-foreground/50 transition-colors cursor-pointer"
+                onClick={onCreateWorkflow}
+              >
+                <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                     <svg
                       className="w-5 h-5 text-primary-foreground"
@@ -91,8 +68,9 @@ const DashboardPage = () => {
                       Build a custom workflow from the ground up
                     </p>
                   </div>
-                </Link>
+                </div>
               </div>
+
               <div className="bg-card border border-border rounded-lg p-6 hover:border-muted-foreground/50 transition-colors cursor-pointer">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className="w-10 h-10 bg-secondary rounded-lg flex items-center justify-center">
@@ -120,6 +98,48 @@ const DashboardPage = () => {
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Existing Workflows */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">Your Workflows</h2>
+                {workflows && workflows.length > 0 && (
+                  <span className="text-sm text-muted-foreground">
+                    {workflows.length} workflow{workflows.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+
+              {workflowsLoading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="bg-card border border-border rounded-lg p-6 animate-pulse"
+                    >
+                      <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                      <div className="h-3 bg-muted rounded w-1/2 mb-4"></div>
+                      <div className="h-3 bg-muted rounded w-full"></div>
+                    </div>
+                  ))}
+                </div>
+              ) : workflows && workflows.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {workflows.map((workflow) => (
+                    <WorkflowCard key={workflow.id} workflow={workflow} />
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="text-4xl mb-4">🚀</div>
+                  <h3 className="text-lg font-semibold text-foreground mb-2">No workflows yet</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Create your first workflow to get started with automation
+                  </p>
+                  <Button onClick={onCreateWorkflow}>Create Your First Workflow</Button>
+                </div>
+              )}
             </div>
           </div>
         )
@@ -174,6 +194,7 @@ const DashboardPage = () => {
       </div>
 
       <CredentialModal />
+      <WorkflowModal open={showWorkflowModal} onOpenChange={setShowWorkflowModal} />
     </div>
   )
 }

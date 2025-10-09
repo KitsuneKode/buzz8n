@@ -33,8 +33,8 @@ model User {
 
 model Workflow {
   id          String  @id @default(cuid())
-  title       String
-  enabled     Boolean
+  name        String
+  active      Boolean
   nodes       Json[]
   connections Json[]
 

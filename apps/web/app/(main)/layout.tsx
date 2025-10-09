@@ -1,6 +1,7 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import CredentialsBootstrap from '@/components/CredentialBootStrap'
+import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
 import { getQueryClient } from '@/utils/get-query-client'
+import DataBootStrap from '@/components/DataBootStrap'
 import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
 import axios from 'axios'
@@ -9,9 +10,8 @@ export default async function MainLayout({ children }: { children: React.ReactNo
   const queryClient = getQueryClient()
 
   const cookieHeader = (await cookies()).toString()
-  console.log('one time', cookieHeader)
 
-  await queryClient.prefetchQuery({
+  const credentialPrefetch = queryClient.prefetchQuery({
     queryKey: ['credentials'],
     queryFn: async () => {
       try {
@@ -27,9 +27,22 @@ export default async function MainLayout({ children }: { children: React.ReactNo
     },
   })
 
+  const workflowListPrefetch = queryClient.prefetchQuery({
+    queryKey: ['workflows', 'list', { filters: { limit: 20 } }],
+    queryFn: () =>
+      prefetchWorkflowsList(
+        {
+          limit: 20,
+        },
+        cookieHeader,
+      ),
+  })
+
+  await Promise.all([credentialPrefetch, workflowListPrefetch])
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <CredentialsBootstrap />
+      <DataBootStrap />
       {children}
     </HydrationBoundary>
   )

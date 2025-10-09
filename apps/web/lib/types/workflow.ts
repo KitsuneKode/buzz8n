@@ -1,6 +1,17 @@
+// Re-export types from common package for backward compatibility
+import { CredentialRef, ExecutionStatus, NodeType, Workflow } from '@buzz8n/common/types/workflow'
 import { Node, Edge } from '@xyflow/react'
+export type {
+  CredentialRef,
+  NodeType,
+  ExecutionStatus,
+  Execution,
+  ExecutionLog,
+  NodeCategory,
+  NodeTemplate,
+} from '@buzz8n/common/types'
 
-export interface WorkflowData {
+export interface WorkflowData extends Workflow {
   id: string
   name: string
   nodes: NodeData[]
@@ -24,62 +35,4 @@ export interface NodeData extends Node {
 
 export interface EdgeData extends Edge {
   // Additional edge properties can be added here
-}
-
-export interface CredentialRef {
-  id: string
-  name: string
-  provider: string
-}
-
-export type NodeType =
-  | 'manualTrigger'
-  | 'telegramSendMessage'
-  | 'emailSend'
-  | 'webhook'
-  | 'schedule'
-  | 'appEvent'
-  | 'formSubmission'
-  | 'executedByWorkflow'
-  | 'chatMessage'
-  | 'evaluation'
-  | 'other'
-
-export type ExecutionStatus = 'initial' | 'loading' | 'success' | 'error'
-
-export interface Execution {
-  id: string
-  workflowId: string
-  status: ExecutionStatus
-  startedAt: Date
-  finishedAt?: Date
-  durationMs?: number
-  summary: string
-  logs: ExecutionLog[]
-}
-
-export interface ExecutionLog {
-  id: string
-  timestamp: Date
-  nodeId: string
-  level: 'info' | 'warn' | 'error' | 'debug'
-  message: string
-  data?: any
-}
-
-export interface NodeCategory {
-  id: string
-  label: string
-  nodes: NodeTemplate[]
-}
-
-export interface NodeTemplate {
-  id: string
-  type: NodeType
-  label: string
-  description: string
-  icon: string
-  category: string
-  defaultConfig: Record<string, any>
-  requiredCredentials?: string[]
 }

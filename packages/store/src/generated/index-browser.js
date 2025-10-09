@@ -131,8 +131,8 @@ exports.Prisma.UserScalarFieldEnum = {
 
 exports.Prisma.WorkflowScalarFieldEnum = {
   id: 'id',
-  title: 'title',
-  enabled: 'enabled',
+  name: 'name',
+  active: 'active',
   nodes: 'nodes',
   connections: 'connections',
   userId: 'userId',

@@ -2329,8 +2329,8 @@ export namespace Prisma {
 
   export type WorkflowMinAggregateOutputType = {
     id: string | null
-    title: string | null
-    enabled: boolean | null
+    name: string | null
+    active: boolean | null
     userId: string | null
     archived: boolean | null
     createdAt: Date | null
@@ -2339,8 +2339,8 @@ export namespace Prisma {
 
   export type WorkflowMaxAggregateOutputType = {
     id: string | null
-    title: string | null
-    enabled: boolean | null
+    name: string | null
+    active: boolean | null
     userId: string | null
     archived: boolean | null
     createdAt: Date | null
@@ -2349,8 +2349,8 @@ export namespace Prisma {
 
   export type WorkflowCountAggregateOutputType = {
     id: number
-    title: number
-    enabled: number
+    name: number
+    active: number
     nodes: number
     connections: number
     userId: number
@@ -2363,8 +2363,8 @@ export namespace Prisma {
 
   export type WorkflowMinAggregateInputType = {
     id?: true
-    title?: true
-    enabled?: true
+    name?: true
+    active?: true
     userId?: true
     archived?: true
     createdAt?: true
@@ -2373,8 +2373,8 @@ export namespace Prisma {
 
   export type WorkflowMaxAggregateInputType = {
     id?: true
-    title?: true
-    enabled?: true
+    name?: true
+    active?: true
     userId?: true
     archived?: true
     createdAt?: true
@@ -2383,8 +2383,8 @@ export namespace Prisma {
 
   export type WorkflowCountAggregateInputType = {
     id?: true
-    title?: true
-    enabled?: true
+    name?: true
+    active?: true
     nodes?: true
     connections?: true
     userId?: true
@@ -2468,8 +2468,8 @@ export namespace Prisma {
 
   export type WorkflowGroupByOutputType = {
     id: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes: JsonValue[]
     connections: JsonValue[]
     userId: string
@@ -2497,8 +2497,8 @@ export namespace Prisma {
 
   export type WorkflowSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    title?: boolean
-    enabled?: boolean
+    name?: boolean
+    active?: boolean
     nodes?: boolean
     connections?: boolean
     userId?: boolean
@@ -2510,8 +2510,8 @@ export namespace Prisma {
 
   export type WorkflowSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    title?: boolean
-    enabled?: boolean
+    name?: boolean
+    active?: boolean
     nodes?: boolean
     connections?: boolean
     userId?: boolean
@@ -2523,8 +2523,8 @@ export namespace Prisma {
 
   export type WorkflowSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
-    title?: boolean
-    enabled?: boolean
+    name?: boolean
+    active?: boolean
     nodes?: boolean
     connections?: boolean
     userId?: boolean
@@ -2536,8 +2536,8 @@ export namespace Prisma {
 
   export type WorkflowSelectScalar = {
     id?: boolean
-    title?: boolean
-    enabled?: boolean
+    name?: boolean
+    active?: boolean
     nodes?: boolean
     connections?: boolean
     userId?: boolean
@@ -2546,7 +2546,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "enabled" | "nodes" | "connections" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "active" | "nodes" | "connections" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
   export type WorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2564,8 +2564,8 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
-      title: string
-      enabled: boolean
+      name: string
+      active: boolean
       nodes: Prisma.JsonValue[]
       connections: Prisma.JsonValue[]
       userId: string
@@ -2997,8 +2997,8 @@ export namespace Prisma {
    */
   interface WorkflowFieldRefs {
     readonly id: FieldRef<"Workflow", 'String'>
-    readonly title: FieldRef<"Workflow", 'String'>
-    readonly enabled: FieldRef<"Workflow", 'Boolean'>
+    readonly name: FieldRef<"Workflow", 'String'>
+    readonly active: FieldRef<"Workflow", 'Boolean'>
     readonly nodes: FieldRef<"Workflow", 'Json[]'>
     readonly connections: FieldRef<"Workflow", 'Json[]'>
     readonly userId: FieldRef<"Workflow", 'String'>
@@ -5561,8 +5561,8 @@ export namespace Prisma {
 
   export const WorkflowScalarFieldEnum: {
     id: 'id',
-    title: 'title',
-    enabled: 'enabled',
+    name: 'name',
+    active: 'active',
     nodes: 'nodes',
     connections: 'connections',
     userId: 'userId',
@@ -5807,8 +5807,8 @@ export namespace Prisma {
     OR?: WorkflowWhereInput[]
     NOT?: WorkflowWhereInput | WorkflowWhereInput[]
     id?: StringFilter<"Workflow"> | string
-    title?: StringFilter<"Workflow"> | string
-    enabled?: BoolFilter<"Workflow"> | boolean
+    name?: StringFilter<"Workflow"> | string
+    active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
@@ -5820,8 +5820,8 @@ export namespace Prisma {
 
   export type WorkflowOrderByWithRelationInput = {
     id?: SortOrder
-    title?: SortOrder
-    enabled?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
@@ -5836,8 +5836,8 @@ export namespace Prisma {
     AND?: WorkflowWhereInput | WorkflowWhereInput[]
     OR?: WorkflowWhereInput[]
     NOT?: WorkflowWhereInput | WorkflowWhereInput[]
-    title?: StringFilter<"Workflow"> | string
-    enabled?: BoolFilter<"Workflow"> | boolean
+    name?: StringFilter<"Workflow"> | string
+    active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
@@ -5849,8 +5849,8 @@ export namespace Prisma {
 
   export type WorkflowOrderByWithAggregationInput = {
     id?: SortOrder
-    title?: SortOrder
-    enabled?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
@@ -5867,8 +5867,8 @@ export namespace Prisma {
     OR?: WorkflowScalarWhereWithAggregatesInput[]
     NOT?: WorkflowScalarWhereWithAggregatesInput | WorkflowScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Workflow"> | string
-    title?: StringWithAggregatesFilter<"Workflow"> | string
-    enabled?: BoolWithAggregatesFilter<"Workflow"> | boolean
+    name?: StringWithAggregatesFilter<"Workflow"> | string
+    active?: BoolWithAggregatesFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringWithAggregatesFilter<"Workflow"> | string
@@ -6083,8 +6083,8 @@ export namespace Prisma {
 
   export type WorkflowCreateInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     archived?: boolean
@@ -6095,8 +6095,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedCreateInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
@@ -6107,8 +6107,8 @@ export namespace Prisma {
 
   export type WorkflowUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
@@ -6119,8 +6119,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
@@ -6131,8 +6131,8 @@ export namespace Prisma {
 
   export type WorkflowCreateManyInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     userId: string
@@ -6143,8 +6143,8 @@ export namespace Prisma {
 
   export type WorkflowUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
@@ -6154,8 +6154,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
@@ -6441,8 +6441,8 @@ export namespace Prisma {
 
   export type WorkflowCountOrderByAggregateInput = {
     id?: SortOrder
-    title?: SortOrder
-    enabled?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
     nodes?: SortOrder
     connections?: SortOrder
     userId?: SortOrder
@@ -6453,8 +6453,8 @@ export namespace Prisma {
 
   export type WorkflowMaxOrderByAggregateInput = {
     id?: SortOrder
-    title?: SortOrder
-    enabled?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
     createdAt?: SortOrder
@@ -6463,8 +6463,8 @@ export namespace Prisma {
 
   export type WorkflowMinOrderByAggregateInput = {
     id?: SortOrder
-    title?: SortOrder
-    enabled?: SortOrder
+    name?: SortOrder
+    active?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
     createdAt?: SortOrder
@@ -6947,8 +6947,8 @@ export namespace Prisma {
 
   export type WorkflowCreateWithoutUserInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     archived?: boolean
@@ -6958,8 +6958,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedCreateWithoutUserInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     archived?: boolean
@@ -7028,8 +7028,8 @@ export namespace Prisma {
     OR?: WorkflowScalarWhereInput[]
     NOT?: WorkflowScalarWhereInput | WorkflowScalarWhereInput[]
     id?: StringFilter<"Workflow"> | string
-    title?: StringFilter<"Workflow"> | string
-    enabled?: BoolFilter<"Workflow"> | boolean
+    name?: StringFilter<"Workflow"> | string
+    active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
     connections?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
@@ -7162,8 +7162,8 @@ export namespace Prisma {
 
   export type WorkflowCreateManyUserInput = {
     id?: string
-    title: string
-    enabled: boolean
+    name: string
+    active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
     archived?: boolean
@@ -7203,8 +7203,8 @@ export namespace Prisma {
 
   export type WorkflowUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
@@ -7214,8 +7214,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
@@ -7225,8 +7225,8 @@ export namespace Prisma {
 
   export type WorkflowUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    title?: StringFieldUpdateOperationsInput | string
-    enabled?: BoolFieldUpdateOperationsInput | boolean
+    name?: StringFieldUpdateOperationsInput | string
+    active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean

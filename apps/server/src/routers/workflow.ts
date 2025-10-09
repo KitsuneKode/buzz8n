@@ -1,12 +1,34 @@
+import { Router, type Request, type Response } from 'express'
+import { workflowSchema } from '@buzz8n/common/types'
 import { auth } from '@/middlewares/auth-middleware'
-import { Router, type Request } from 'express'
 import { logger } from '@/utils/logger'
-
+import { prisma } from '@buzz8n/store'
 const router = Router()
 
 router.use('/workflow', auth)
 
-router.post('/workflow/:workflowId', async (req: Request, res) => {
+router.get('/', async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.userId
+
+    const workflowList = await prisma.workflow.findMany({
+      where: {
+        archived: false,
+        userId,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        active: true,
+        name: true,
+        updatedAt: true,
+        userId: true,
+      },
+    })
+  } catch (error) {}
+})
+
+router.post('/:workflowId', async (req: Request, res: Response) => {
   const workflowId = req.params.workflowId as string
 
   const isParsed = workflowSchema.safeParse(req.body)
