@@ -1,4 +1,3 @@
-// Re-export types from common package for backward compatibility
 import { CredentialRef, ExecutionStatus, NodeType, Workflow } from '@buzz8n/common/types/workflow'
 import { Node, Edge } from '@xyflow/react'
 export type {

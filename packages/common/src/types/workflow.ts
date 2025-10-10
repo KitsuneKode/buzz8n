@@ -17,8 +17,8 @@ export const workflowSchema = z.object({
 export const createWorkflowSchema = z.object({
   name: z.string().min(1, 'Workflow name is required'),
   active: z.boolean().default(false),
-  nodes: z.array(z.record(z.string(), z.any())).default([]),
-  edges: z.array(z.record(z.string(), z.any())).default([]),
+  // nodes: z.array(z.record(z.string(), z.any())).default([]),
+  // edges: z.array(z.record(z.string(), z.any())).default([]),
 })
 
 // Workflow update schema (partial)

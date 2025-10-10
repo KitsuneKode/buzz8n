@@ -134,7 +134,7 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   name: 'name',
   active: 'active',
   nodes: 'nodes',
-  connections: 'connections',
+  edges: 'edges',
   userId: 'userId',
   archived: 'archived',
   createdAt: 'createdAt',

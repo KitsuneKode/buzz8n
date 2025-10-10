@@ -38,14 +38,12 @@ export function WorkflowModal({ open, onOpenChange }: WorkflowModalProps) {
         await createWorkflowMutation.mutateAsync({
           name,
           active: false,
-          nodes: [],
-          edges: [],
         })
 
         // Reset form
         setWorkflowName('')
         onOpenChange(false)
-      } catch (error) {
+      } catch {
         toast.error('Failed to create workflow')
         // Error handling is done in the mutation
       }

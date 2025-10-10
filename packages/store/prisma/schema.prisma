@@ -32,11 +32,11 @@ model User {
 }
 
 model Workflow {
-  id          String  @id @default(cuid())
-  name        String
-  active      Boolean
-  nodes       Json[]
-  connections Json[]
+  id     String  @id @default(cuid())
+  name   String
+  active Boolean
+  nodes  Json[]
+  edges  Json[]
 
   userId   String
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)

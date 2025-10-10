@@ -104,11 +104,14 @@ const DashboardPage = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold">Your Workflows</h2>
-                {workflows && workflows.length > 0 && (
-                  <span className="text-sm text-muted-foreground">
-                    {workflows.length} workflow{workflows.length !== 1 ? 's' : ''}
-                  </span>
-                )}
+
+                <>
+                  {workflows && workflows.length > 0 && (
+                    <span className="text-sm text-muted-foreground" suppressHydrationWarning>
+                      {workflows.length} workflow{workflows.length !== 1 && 's'}
+                    </span>
+                  )}
+                </>
               </div>
 
               {workflowsLoading ? (

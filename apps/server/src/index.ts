@@ -3,6 +3,7 @@ import express from 'express'
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { credentialRouter } from '@/routers/credential'
+import { workflowRouter } from '@/routers/workflow'
 import { corsConfig } from '@/utils/cors-config'
 import { config, PORT } from '@/utils/config'
 import { authRouter } from '@/routers/auth'
@@ -23,11 +24,12 @@ app.get('/healthcheck', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter, credentialRouter]
+const routers = [authRouter, credentialRouter, workflowRouter]
 
 routers.forEach((router) => app.use('/api/v1', router))
 
 app.use('{/*splat}', timingMiddleware, (req, res) => {
+  logger.info(`[404] ${req.originalUrl} ${req.method}  was called`)
   res.status(404).send('Page not Found')
 })
 

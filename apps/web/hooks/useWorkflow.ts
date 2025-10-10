@@ -17,8 +17,8 @@ import {
   UseMutationResult,
 } from '@tanstack/react-query'
 import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
+import { notFound, redirect, useRouter } from 'next/navigation'
 import { toast } from '@buzz8n/ui/components/sonner'
-import { useRouter } from 'next/navigation'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
 import { useTransition } from 'react'
@@ -55,6 +55,7 @@ const transformWorkflowListItem = (response: WorkflowListItem): WorkflowListData
     name: response.name,
     active: response.active,
     userId: response.userId,
+
     createdAt: new Date(response.createdAt),
     updatedAt: new Date(response.updatedAt),
   }
@@ -245,9 +246,10 @@ export async function prefetchWorkflow(
     return transformWorkflowResponse(response.data)
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
-      return null
+      notFound()
     }
-    throw error
+    notFound()
+    return null
   }
 }
 

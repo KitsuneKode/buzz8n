@@ -2352,7 +2352,7 @@ export namespace Prisma {
     name: number
     active: number
     nodes: number
-    connections: number
+    edges: number
     userId: number
     archived: number
     createdAt: number
@@ -2386,7 +2386,7 @@ export namespace Prisma {
     name?: true
     active?: true
     nodes?: true
-    connections?: true
+    edges?: true
     userId?: true
     archived?: true
     createdAt?: true
@@ -2471,7 +2471,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes: JsonValue[]
-    connections: JsonValue[]
+    edges: JsonValue[]
     userId: string
     archived: boolean
     createdAt: Date
@@ -2500,7 +2500,7 @@ export namespace Prisma {
     name?: boolean
     active?: boolean
     nodes?: boolean
-    connections?: boolean
+    edges?: boolean
     userId?: boolean
     archived?: boolean
     createdAt?: boolean
@@ -2513,7 +2513,7 @@ export namespace Prisma {
     name?: boolean
     active?: boolean
     nodes?: boolean
-    connections?: boolean
+    edges?: boolean
     userId?: boolean
     archived?: boolean
     createdAt?: boolean
@@ -2526,7 +2526,7 @@ export namespace Prisma {
     name?: boolean
     active?: boolean
     nodes?: boolean
-    connections?: boolean
+    edges?: boolean
     userId?: boolean
     archived?: boolean
     createdAt?: boolean
@@ -2539,14 +2539,14 @@ export namespace Prisma {
     name?: boolean
     active?: boolean
     nodes?: boolean
-    connections?: boolean
+    edges?: boolean
     userId?: boolean
     archived?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "active" | "nodes" | "connections" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "active" | "nodes" | "edges" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
   export type WorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -2567,7 +2567,7 @@ export namespace Prisma {
       name: string
       active: boolean
       nodes: Prisma.JsonValue[]
-      connections: Prisma.JsonValue[]
+      edges: Prisma.JsonValue[]
       userId: string
       archived: boolean
       createdAt: Date
@@ -3000,7 +3000,7 @@ export namespace Prisma {
     readonly name: FieldRef<"Workflow", 'String'>
     readonly active: FieldRef<"Workflow", 'Boolean'>
     readonly nodes: FieldRef<"Workflow", 'Json[]'>
-    readonly connections: FieldRef<"Workflow", 'Json[]'>
+    readonly edges: FieldRef<"Workflow", 'Json[]'>
     readonly userId: FieldRef<"Workflow", 'String'>
     readonly archived: FieldRef<"Workflow", 'Boolean'>
     readonly createdAt: FieldRef<"Workflow", 'DateTime'>
@@ -5564,7 +5564,7 @@ export namespace Prisma {
     name: 'name',
     active: 'active',
     nodes: 'nodes',
-    connections: 'connections',
+    edges: 'edges',
     userId: 'userId',
     archived: 'archived',
     createdAt: 'createdAt',
@@ -5810,7 +5810,7 @@ export namespace Prisma {
     name?: StringFilter<"Workflow"> | string
     active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
-    connections?: JsonNullableListFilter<"Workflow">
+    edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
@@ -5823,7 +5823,7 @@ export namespace Prisma {
     name?: SortOrder
     active?: SortOrder
     nodes?: SortOrder
-    connections?: SortOrder
+    edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
     createdAt?: SortOrder
@@ -5839,7 +5839,7 @@ export namespace Prisma {
     name?: StringFilter<"Workflow"> | string
     active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
-    connections?: JsonNullableListFilter<"Workflow">
+    edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
@@ -5852,7 +5852,7 @@ export namespace Prisma {
     name?: SortOrder
     active?: SortOrder
     nodes?: SortOrder
-    connections?: SortOrder
+    edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
     createdAt?: SortOrder
@@ -5870,7 +5870,7 @@ export namespace Prisma {
     name?: StringWithAggregatesFilter<"Workflow"> | string
     active?: BoolWithAggregatesFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
-    connections?: JsonNullableListFilter<"Workflow">
+    edges?: JsonNullableListFilter<"Workflow">
     userId?: StringWithAggregatesFilter<"Workflow"> | string
     archived?: BoolWithAggregatesFilter<"Workflow"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
@@ -6086,7 +6086,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6098,7 +6098,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
     createdAt?: Date | string
@@ -6110,7 +6110,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6122,7 +6122,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6134,7 +6134,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
     createdAt?: Date | string
@@ -6146,7 +6146,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6157,7 +6157,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6444,7 +6444,7 @@ export namespace Prisma {
     name?: SortOrder
     active?: SortOrder
     nodes?: SortOrder
-    connections?: SortOrder
+    edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
     createdAt?: SortOrder
@@ -6724,7 +6724,7 @@ export namespace Prisma {
     set: InputJsonValue[]
   }
 
-  export type WorkflowCreateconnectionsInput = {
+  export type WorkflowCreateedgesInput = {
     set: InputJsonValue[]
   }
 
@@ -6743,7 +6743,7 @@ export namespace Prisma {
     push?: InputJsonValue | InputJsonValue[]
   }
 
-  export type WorkflowUpdateconnectionsInput = {
+  export type WorkflowUpdateedgesInput = {
     set?: InputJsonValue[]
     push?: InputJsonValue | InputJsonValue[]
   }
@@ -6950,7 +6950,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6961,7 +6961,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7031,7 +7031,7 @@ export namespace Prisma {
     name?: StringFilter<"Workflow"> | string
     active?: BoolFilter<"Workflow"> | boolean
     nodes?: JsonNullableListFilter<"Workflow">
-    connections?: JsonNullableListFilter<"Workflow">
+    edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
@@ -7165,7 +7165,7 @@ export namespace Prisma {
     name: string
     active: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
-    connections?: WorkflowCreateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7206,7 +7206,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7217,7 +7217,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7228,7 +7228,7 @@ export namespace Prisma {
     name?: StringFieldUpdateOperationsInput | string
     active?: BoolFieldUpdateOperationsInput | boolean
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
-    connections?: WorkflowUpdateconnectionsInput | InputJsonValue[]
+    edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
