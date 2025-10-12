@@ -1,17 +1,18 @@
 import express from 'express'
 
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
+import { backendConfig } from '@buzz8n/common/utils/config-loader'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { credentialRouter } from '@/routers/credential'
 import { workflowRouter } from '@/routers/workflow'
 import { corsConfig } from '@/utils/cors-config'
-import { config, PORT } from '@/utils/config'
 import { authRouter } from '@/routers/auth'
 import cookieParser from 'cookie-parser'
 import { logger } from '@/utils/logger'
+import { PORT } from '@/utils/config'
 import cors from 'cors'
 
-config.validate(['environment', 'port', 'jwtSecret'])
+backendConfig.validateAll()
 
 const app = express()
 

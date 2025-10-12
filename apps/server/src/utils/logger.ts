@@ -1,3 +1,1 @@
-import { createLogger } from '@buzz8n/common/logger'
-
-export const logger = createLogger('buzz8n-server')
+export { backendLogger as logger } from '@buzz8n/common/logger'

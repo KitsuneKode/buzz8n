@@ -30,17 +30,17 @@ const baseFormat = printf((info) => {
 
 function formatTimestamp(timestamp: string) {
   const date = parseISO(timestamp)
-  return dateFormat(date, 'yyyy-MM-dd HH:mm:ss.SSS a')
+  return dateFormat(date, 'yyyy-MM-dd HH:mm:ss.SSS')
 }
 
 /**
  * Create a new logger instance tagged with `serviceName`
  */
-export function createLogger(serviceName: string) {
+function createLogger(serviceName: string) {
   const logger = winstonCreateLogger({
     defaultMeta: { service: serviceName },
     format: combine(
-      timestamp({ format: 'YYYY-MM-DD hh:mm:ss.SSS' }),
+      timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' }),
       errors({ stack: true }),
       align(),
       splat(),
@@ -79,3 +79,6 @@ export function createLogger(serviceName: string) {
 // logger.info("Hello there. How are you?");
 //
 // logger.info("Logger initialized", { payload });
+
+export const backendLogger = createLogger('buzz8n-server')
+export const workerLogger = createLogger('buzz8n-worker')

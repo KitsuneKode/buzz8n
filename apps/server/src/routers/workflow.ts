@@ -36,6 +36,38 @@ router.get('/workflow', async (req: Request, res: Response, next: NextFunction) 
   }
 })
 
+router.put('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    //TODO: Fix
+    const id = req.params.id
+    const { active, name } = req.body
+
+    if (!id) {
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    const workflow = await prisma.workflow.update({
+      where: {
+        id,
+      },
+      data: {
+        active,
+        name,
+      },
+    })
+
+    if (!workflow) {
+      res.status(404).send('Workflow not found')
+      return
+    }
+
+    res.status(200).json(workflow)
+  } catch (error) {
+    next(error)
+  }
+})
+
 router.get('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id

@@ -41,6 +41,7 @@
     "@types/react-dom": "^19.1.7",
     "@buzz8n/eslint-config": "*",
     "@buzz8n/typescript-config": "*",
+    "eslint": "^9.34.0",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.9.2"
   },

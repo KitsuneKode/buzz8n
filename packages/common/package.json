@@ -5,7 +5,7 @@
   "private": true,
   "exports": {
     "./types": "./src/types/index.ts",
-    ".": "./src/index.ts",
+    "./redis": "./src/redis/index.ts",
     "./config": "./src/utils/config-loader.ts",
     "./logger": "./src/utils/logger.ts"
   },
@@ -18,6 +18,7 @@
   "dependencies": {
     "@buzz8n/typescript-config": "*",
     "date-fns": "^4.1.0",
+    "redis": "^5.8.3",
     "winston": "^3.17.0",
     "zod": "^4.1.11"
   }
