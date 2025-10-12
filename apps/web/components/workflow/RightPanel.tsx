@@ -7,16 +7,15 @@ import { NodePalette } from './NodePalette'
 import { X } from 'lucide-react'
 
 export function RightPanel() {
-  const { isNodePaletteOpen, selectedNodeId, closeRightPanel } = useWorkflowEditorStore()
-
-  if (!isNodePaletteOpen && !selectedNodeId) {
+  const { isNodePaletteOpen, selectedNodeId, closeRightPanel, nodes } = useWorkflowEditorStore()
+  const selectedNode = nodes.find((node) => node.id === selectedNodeId)
+  if (!isNodePaletteOpen && !selectedNode) {
     return null
   }
-
   const showingPalette = isNodePaletteOpen
 
   return (
-    <div className="w-80 bg-card border-l border-border flex flex-col">
+    <div className="w-90 bg-card border-l border-border flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border">
         <h3 className="font-semibold">

@@ -1,21 +1,30 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
 import { Tabs, TabsList, TabsTrigger } from '@buzz8n/ui/components/tabs'
-import { Badge } from '@buzz8n/ui/components/badge'
-import { Switch } from '@buzz8n/ui/components/switch'
-import { Label } from '@buzz8n/ui/components/label'
-import { Share, Save, Circle } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { Spinner } from '@buzz8n/ui/components/spinner'
+import { useUpdateWorkflow } from '@/hooks/useWorkflow'
+import { Switch } from '@buzz8n/ui/components/switch'
+import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
+import { Label } from '@buzz8n/ui/components/label'
+import { Badge } from '@buzz8n/ui/components/badge'
+import { WorkflowData } from '@/lib/types/workflow'
+import { Share, Save, Circle } from 'lucide-react'
 
-export function TopBar() {
+export function TopBar({ id }: { id: string }) {
   const {
     workflow,
+    edges,
+    nodes,
+    startSaving,
     activeTab,
+    isSaving,
     isDirty,
     setActiveTab,
     saveWorkflow,
   } = useWorkflowEditorStore()
+  const { mutateAsync: saveWorkflowAsync } = useUpdateWorkflow(id)
 
   const handleToggleActive = () => {
     // Toggle workflow active state
@@ -24,6 +33,29 @@ export function TopBar() {
 
   const handleShare = () => {
     console.log('Share workflow')
+  }
+
+  const handleSave = async () => {
+    if (!workflow) return
+
+    try {
+      startSaving()
+      const { updatedAt } = await saveWorkflowAsync({
+        nodes,
+        edges,
+        active: workflow.active,
+      })
+
+      const updatedWorkflow: WorkflowData = {
+        ...workflow,
+        nodes,
+        edges,
+        updatedAt: new Date(updatedAt),
+      }
+      saveWorkflow(updatedWorkflow)
+    } catch {
+      toast.error('Failed to save workflow')
+    }
   }
 
   if (!workflow) return null
@@ -43,7 +75,7 @@ export function TopBar() {
               </div>
             </div>
           </div>
-          
+
           <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
             <TabsList className="bg-muted">
               <TabsTrigger value="editor">Editor</TabsTrigger>
@@ -74,19 +106,26 @@ export function TopBar() {
           </Button>
 
           {/* Save button */}
-          <Button 
-            variant={isDirty ? "default" : "outline"} 
-            size="sm" 
-            onClick={saveWorkflow}
+          <Button
+            variant={isSaving ? 'outline' : isDirty ? 'default' : 'outline'}
+            size="sm"
+            onClick={handleSave}
             className="relative"
+            disabled={isSaving}
           >
-            <Save className="w-4 h-4 mr-2" />
-            Save
-            {isDirty && (
-              <Badge 
-                variant="destructive" 
-                className="absolute -top-1 -right-1 w-2 h-2 p-0 rounded-full"
-              />
+            {isSaving ? (
+              <Spinner />
+            ) : (
+              <>
+                <Save className="w-4 h-4 mr-2" />
+                Save
+                {isDirty && (
+                  <Badge
+                    variant="destructive"
+                    className="absolute -top-1 -right-1 w-2 h-2 p-0 rounded-full"
+                  />
+                )}
+              </>
             )}
           </Button>
         </div>

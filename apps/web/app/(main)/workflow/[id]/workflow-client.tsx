@@ -14,6 +14,9 @@ export function WorkflowClient() {
   const { data: workflow, error } = useSuspenseQuery({
     queryKey: ['workflows', 'detail', params.id],
     queryFn: () => prefetchWorkflow(params.id as string),
+    refetchOnMount: false,
+    retryOnMount: false,
+    retry: 0,
   })
 
   const { setWorkflow } = useWorkflowEditorStore()
@@ -29,7 +32,7 @@ export function WorkflowClient() {
 
   return (
     <div className="pt-16">
-      <WorkflowEditor />
+      <WorkflowEditor id={params.id as string} />
     </div>
   )
 }

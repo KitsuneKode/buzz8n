@@ -2,6 +2,9 @@ import { Credential } from '@/lib/types/credentials'
 import { create } from 'zustand'
 
 export type TabType = 'workflows' | 'credentials' | 'executions' | 'settings'
+export const isTabType = (tab: string) => {
+  return ['workflows', 'credentials', 'executions', 'settings'].includes(tab)
+}
 
 export type Execution = {
   id: string

@@ -22,10 +22,10 @@ const toolbarButtons = [
 ]
 
 export function FloatingToolbar() {
-  const { toggleNodePalette, selectedNodes, isNodePaletteOpen, selectedNodeId } =
+  const { toggleNodePalette, nodes, selectedNodes, isNodePaletteOpen, selectedNodeId } =
     useWorkflowEditorStore()
-
-  const isPanelOpen = selectedNodeId || isNodePaletteOpen
+  const selectedNode = nodes.find((node) => node.id === selectedNodeId)
+  const isPanelOpen = selectedNode || isNodePaletteOpen
   const handleAction = (action: string) => {
     switch (action) {
       case 'toggleNodePalette':

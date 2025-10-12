@@ -1,6 +1,10 @@
 'use client'
 
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import CredentialModal from '../credentials/CredentialModal'
+import { useUpdateWorkflow } from '@/hooks/useWorkflow'
+import { toast } from '@buzz8n/ui/components/sonner'
+import { WorkflowData } from '@/lib/types/workflow'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
 import { RightPanel } from './RightPanel'
@@ -10,19 +14,26 @@ import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
 import { useEffect } from 'react'
 
-export function WorkflowEditor() {
+export function WorkflowEditor({ id }: { id: string }) {
   const {
+    nodes,
+    edges,
     workflow,
     activeTab,
     isLogsDrawerOpen,
+    startSaving,
     deleteSelectedNodes,
     saveWorkflow,
     executeWorkflow,
   } = useWorkflowEditorStore()
 
+  const { mutateAsync: updateWorkflowAsync } = useUpdateWorkflow(id)
   // Keyboard shortcuts
   useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
+    const handleKeyDown = async (event: KeyboardEvent) => {
+      if (!workflow || !workflow.id || !nodes || !edges) {
+        return
+      }
       // Delete selected nodes (Delete/Backspace)
       if (event.key === 'Backspace' || event.key === 'Delete') {
         if (event.target === document.body) {
@@ -34,7 +45,24 @@ export function WorkflowEditor() {
       // Save workflow (Cmd/Ctrl + S)
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault()
-        saveWorkflow()
+        try {
+          startSaving()
+          const { updatedAt } = await updateWorkflowAsync({
+            edges,
+            nodes,
+            active: workflow.active,
+          })
+
+          const updatedWorkflow: WorkflowData = {
+            ...workflow,
+            nodes,
+            edges,
+            updatedAt: new Date(updatedAt),
+          }
+          saveWorkflow(updatedWorkflow)
+        } catch {
+          toast.error('Failed to save workflow')
+        }
       }
 
       // Execute workflow (Cmd/Ctrl + Enter)
@@ -45,8 +73,19 @@ export function WorkflowEditor() {
     }
 
     document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [saveWorkflow, executeWorkflow, deleteSelectedNodes])
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [
+    saveWorkflow,
+    executeWorkflow,
+    deleteSelectedNodes,
+    updateWorkflowAsync,
+    startSaving,
+    nodes,
+    workflow,
+    edges,
+  ])
 
   if (!workflow) {
     return (
@@ -60,7 +99,7 @@ export function WorkflowEditor() {
     <ReactFlowProvider>
       <div className="h-[calc(100vh-4rem)] flex flex-col bg-background">
         {/* Top Bar */}
-        <TopBar />
+        <TopBar id={id} />
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}
@@ -95,6 +134,7 @@ export function WorkflowEditor() {
           </div>
 
           {/* Right Panel */}
+          <CredentialModal />
           <RightPanel />
         </div>
 

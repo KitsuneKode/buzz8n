@@ -16,14 +16,13 @@ import {
   NodeTemplate,
   CredentialRef,
 } from '@/lib/types/workflow'
-
 import { create } from 'zustand'
 
 interface WorkflowEditorState {
   // Current workflow
   workflow: WorkflowData | null
   isDirty: boolean
-
+  isSaving: boolean
   // Canvas state
   nodes: NodeData[]
   edges: EdgeData[]
@@ -44,6 +43,7 @@ interface WorkflowEditorState {
   executionHistory: Execution[]
 
   // Actions
+  startSaving: () => void
   setWorkflow: (workflow: WorkflowData) => void
   setActiveTab: (tab: 'editor' | 'executions' | 'evaluations') => void
 
@@ -73,7 +73,7 @@ interface WorkflowEditorState {
   closeRightPanel: () => void
 
   // Workflow actions
-  saveWorkflow: () => void
+  saveWorkflow: (updatedWorkflow: WorkflowData) => void
   executeWorkflow: () => void
   stopExecution: () => void
 
@@ -126,6 +126,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   // Initial state
   workflow: null,
   isDirty: false,
+  isSaving: false,
   nodes: [],
   edges: [],
   selectedNodes: [],
@@ -277,30 +278,20 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
   clearPendingConnect: () => set({ pendingConnectFromNodeId: null }),
 
+  startSaving: () => set({ isSaving: true }),
+
   closeRightPanel: () =>
     set({
       isNodePaletteOpen: false,
       selectedNodeId: null,
-      pendingConnectFromNodeId: null,
+      // pendingConnectFromNodeId: null,
     }),
 
   // Workflow actions
-  saveWorkflow: () => {
-    const { workflow, nodes, edges } = get()
-    if (!workflow) return
-
-    const updatedWorkflow: WorkflowData = {
-      ...workflow,
-      nodes,
-      edges,
-      updatedAt: new Date(),
-    }
-
-    // Here you would typically save to a backend
-    console.log('Saving workflow:', updatedWorkflow)
-
+  saveWorkflow: (updatedWorkflow) => {
     set({
       workflow: updatedWorkflow,
+      isSaving: false,
       isDirty: false,
     })
   },

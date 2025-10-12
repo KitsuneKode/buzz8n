@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { string, z } from 'zod'
 
 // Base workflow schema matching Prisma model
 export const workflowSchema = z.object({

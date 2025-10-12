@@ -103,7 +103,12 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             >
               {data.status}
             </div>
-            <BaseNodeContent className="flex items-center justify-center gap-3 p-6">
+            <BaseNodeContent
+              className={cn(
+                'flex items-center justify-center gap-3 p-6',
+                !data.credentials && 'ring-2 rounded-xl ring-red-500',
+              )}
+            >
               {/* Input Handle */}
               {!isFirstNode && (
                 <BaseHandle

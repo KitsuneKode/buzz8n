@@ -3,16 +3,20 @@
 import CredentialModal from '@/components/credentials/CredentialModal'
 import { WorkflowModal } from '@/components/workflow/WorkflowModal'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
+import { TabType, useDashboardStore } from '@/stores/dashboard'
 import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
 import ExecutionsTable from '@/components/ExecutionsTable'
 import CredentialsList from '@/components/CredentialsList'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
+import { useSearchParams } from 'next/navigation'
 import HeaderNav from '@/components/HeaderNav'
-import { useState } from 'react'
+import { isTabType } from '@/stores/dashboard'
+import { useEffect, useState } from 'react'
 
 const DashboardPage = () => {
+  const searchParams = useSearchParams()
+
   const { activeTab, setActiveTab, credentials, executions, openCredentialModal } =
     useDashboardStore()
 
@@ -26,6 +30,18 @@ const DashboardPage = () => {
         limit: 20,
       }),
   })
+
+  const create = searchParams.get('create')
+  const tab = searchParams.get('tab')
+
+  useEffect(() => {
+    if (tab && isTabType(tab as string)) {
+      setActiveTab(tab as TabType)
+    }
+    if (create && create !== undefined && create === 'true') {
+      setShowWorkflowModal(true)
+    }
+  }, [tab, create, setActiveTab])
 
   const onCreateWorkflow = () => {
     setShowWorkflowModal(true)

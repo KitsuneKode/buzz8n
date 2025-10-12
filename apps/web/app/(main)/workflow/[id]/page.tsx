@@ -1,8 +1,11 @@
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import { prefetchWorkflow } from '@/hooks/useWorkflow'
+import { notFound, redirect } from 'next/navigation'
 import { WorkflowClient } from './workflow-client'
+import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
+import axios from 'axios'
 
 interface WorkflowPageProps {
   params: Promise<{ id: string }>
@@ -11,6 +14,14 @@ interface WorkflowPageProps {
 export default async function WorkflowPage({ params }: WorkflowPageProps) {
   const { id } = await params
 
+  if (!id) {
+    notFound()
+  }
+
+  if (id === 'new') {
+    redirect('/dashboard?create=true')
+  }
+
   const queryClient = getQueryClient()
   const cookieHeader = (await cookies()).toString()
 
@@ -18,6 +29,7 @@ export default async function WorkflowPage({ params }: WorkflowPageProps) {
     queryKey: ['workflows', 'detail', id],
     queryFn: () => prefetchWorkflow(id, cookieHeader),
   })
+
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <WorkflowClient />

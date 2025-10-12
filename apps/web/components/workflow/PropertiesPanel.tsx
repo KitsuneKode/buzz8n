@@ -10,11 +10,11 @@ import {
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
-import React from 'react'
-import { toast } from '@buzz8n/ui/components/sonner'
+import React, { useEffect } from 'react'
 
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { AlertCircle, Settings, Trash2 } from 'lucide-react'
@@ -30,7 +30,7 @@ export function PropertiesPanel() {
     openNodePaletteFor,
     resendEmail,
   } = useWorkflowEditorStore()
-  const { credentials } = useDashboardStore()
+  const { credentials, openCredentialModal } = useDashboardStore()
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
@@ -55,18 +55,12 @@ export function PropertiesPanel() {
   }
 
   const handleSave = () => {
-    // Node config & credentials are already updated live via onChange handlers.
-    // Provide user feedback without saving the whole workflow.
-    toast.success('Node settings saved')
-  }
-
-  const handleContinue = () => {
     if (!selectedNodeId) return
-    openNodePaletteFor(selectedNodeId)
+    // Save logic here
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full px-2">
       {/* Node Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-2">
@@ -86,7 +80,7 @@ export function PropertiesPanel() {
       </div>
 
       {/* Properties Form */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-6">
+      <div className="flex-1 overflow-y-auto p z-60-4 space-y-6">
         {/* Credentials Section */}
 
         {requiredCredentials.length > 0 && (
@@ -95,10 +89,18 @@ export function PropertiesPanel() {
             <Select
               defaultValue={selectedNode.data.credentials?.id || ''}
               onValueChange={(id) => {
-                if (id === 'create-new') return // handled elsewhere
+                if (id === 'create-new') {
+                  setSelectedNodeCredentialRef(null)
+                  openCredentialModal()
+                  return
+                } // handled elsewhere
                 const cred = credentials.find((c) => c.id === id)
                 if (cred) {
-                  setSelectedNodeCredentialRef({ id: cred.id, name: cred.name, provider: cred.provider })
+                  setSelectedNodeCredentialRef({
+                    id: cred.id,
+                    name: cred.name,
+                    provider: cred.provider,
+                  })
                 }
               }}
             >
@@ -297,18 +299,8 @@ export function PropertiesPanel() {
       {/* Footer Actions */}
       <div className="p-4 border-t border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={handleSave}>Save</Button>
-          <Button variant="default" onClick={handleContinue}>Continue</Button>
+          <Button onClick={handleSave}>Save</Button>
         </div>
-        {selectedNode.data.type === 'emailSend' && (
-          <Button
-            variant="ghost"
-            className="text-primary"
-            onClick={() => selectedNodeId && resendEmail(selectedNodeId)}
-          >
-            Resend Email
-          </Button>
-        )}
       </div>
     </div>
   )
