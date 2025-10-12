@@ -1,2 +1,2 @@
-export { workerConfig } from '@buzz8n/common/config'
-export { workerLogger as logger } from '@buzz8n/common/logger'
+export { workerConfig } from '@buzz8n/backend-common/config'
+export { workerLogger as logger } from '@buzz8n/backend-common/logger'

@@ -1,8 +1,8 @@
 import express from 'express'
 
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
-import { backendConfig } from '@buzz8n/common/utils/config-loader'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
+import { backendConfig } from '@buzz8n/backend-common/config'
 import { credentialRouter } from '@/routers/credential'
 import { workflowRouter } from '@/routers/workflow'
 import { corsConfig } from '@/utils/cors-config'

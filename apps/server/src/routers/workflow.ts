@@ -1,5 +1,5 @@
+import { createWorkflowSchema, updateWorkflowSchema, workflowSchema } from '@buzz8n/common/types'
 import { Router, type Request, type Response, type NextFunction } from 'express'
-import { createWorkflowSchema, workflowSchema } from '@buzz8n/common/types'
 import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { auth } from '@/middlewares/auth-middleware'
 import { logger } from '@/utils/logger'
@@ -10,12 +10,13 @@ router.use('/workflow', auth)
 
 router.get('/workflow', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const limit = req.query.limit
+    const limit = parseInt((req.query.limit as string) || '20')
     const cursor = req.query.cursor
 
     const userId = req.user!.userId
 
     const workflowList = await prisma.workflow.findMany({
+      take: limit,
       where: {
         archived: false,
         userId,
@@ -31,38 +32,6 @@ router.get('/workflow', async (req: Request, res: Response, next: NextFunction) 
     })
 
     res.status(200).json({ workflows: workflowList })
-  } catch (error) {
-    next(error)
-  }
-})
-
-router.put('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    //TODO: Fix
-    const id = req.params.id
-    const { active, name } = req.body
-
-    if (!id) {
-      res.status(422).send('Invalid Data')
-      return
-    }
-
-    const workflow = await prisma.workflow.update({
-      where: {
-        id,
-      },
-      data: {
-        active,
-        name,
-      },
-    })
-
-    if (!workflow) {
-      res.status(404).send('Workflow not found')
-      return
-    }
-
-    res.status(200).json(workflow)
   } catch (error) {
     next(error)
   }
@@ -87,12 +56,10 @@ router.get('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
     })
 
     if (!workflow) {
-      console.log('not found id')
       res.status(404).send('Page not found')
       return
     }
 
-    console.log('workflow')
     res.status(200).json(workflow)
   } catch (error) {
     next(error)
@@ -133,6 +100,41 @@ router.post('/workflow', async (req: Request, res: Response, next: NextFunction)
       }
     }
 
+    next(error)
+  }
+})
+
+router.put('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id
+    const { success, data } = updateWorkflowSchema.safeParse(req.body)
+    const userId = req.user!.userId
+    if (!id || !success) {
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    const { active, nodes, edges } = data
+
+    const workflow = await prisma.workflow.update({
+      where: {
+        id,
+        userId,
+      },
+      data: {
+        active,
+        nodes,
+        edges,
+      },
+    })
+
+    if (!workflow) {
+      res.status(404).send('Workflow not found')
+      return
+    }
+
+    res.status(200).json(workflow)
+  } catch (error) {
     next(error)
   }
 })

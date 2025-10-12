@@ -1,6 +1,6 @@
-import { backendLogger, clientLogger, type LoggerType } from './logger'
+import { clientLogger, type LoggerType } from './client-logger'
 
-class ConfigLoader<T extends Record<string, any>> {
+export class ConfigLoader<T extends Record<string, any>> {
   private static instanceMap = new Map<string, ConfigLoader<any>>()
   private config: T
   private logger: LoggerType
@@ -61,20 +61,4 @@ const clientConfigSchema = {
   nodeEnv: () => process.env.NODE_ENV || 'development',
 }
 
-const backendConfigSchema = {
-  environment: () => process.env.NODE_ENV,
-  dbUrl: () => process.env.DATABASE_URL,
-  port: () => process.env.PORT,
-  jwtSecret: () => process.env.JWT_SECRET,
-  allowedOrigins: () => process.env.ALLOWED_ORIGINS,
-  redisUrl: () => process.env.REDIS_URL,
-}
-const workerSchema = {
-  environment: () => process.env.NODE_ENV,
-  dbUrl: () => process.env.DATABASE_URL,
-  redisUrl: () => process.env.REDIS_URL,
-}
-
 export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)
-export const backendConfig = ConfigLoader.getInstance(backendConfigSchema, 'server', backendLogger)
-export const workerConfig = ConfigLoader.getInstance(workerSchema, 'worker', backendLogger)

@@ -1,2 +1,2 @@
-import { redisClient } from '@buzz8n/common/redis'
+import { redisClient } from '@buzz8n/backend-common/redis'
 export const redis = redisClient('server')

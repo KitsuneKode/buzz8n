@@ -1,4 +1,4 @@
-import { backendConfig, workerConfig } from '../utils/config-loader'
+import { backendConfig, workerConfig } from '../utils/config'
 import { createClient } from 'redis'
 
 type ServiceType = 'server' | 'worker'
