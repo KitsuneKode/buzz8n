@@ -1,5 +1,5 @@
-import { redis } from '@buzz8n/common/redis'
 import { logger } from '@/utils/logger'
+import { redis } from '@/redis'
 
 await redis.connect()
 redis.on('error', (err) => console.log('Redis Client Error', err))

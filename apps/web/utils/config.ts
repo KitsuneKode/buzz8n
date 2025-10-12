@@ -1,4 +1,4 @@
 import { clientConfig as config } from '@buzz8n/common/utils/config-loader'
 
 export { config }
-export const API_URL = config.getConfig('apiUrl')
+export const API_URL = config.getConfig('apiBaseUrl')

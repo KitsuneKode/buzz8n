@@ -1,6 +1,17 @@
-import { backendConfig } from '../utils/config-loader'
+import { backendConfig, workerConfig } from '../utils/config-loader'
 import { createClient } from 'redis'
 
-const REDIS_URL = backendConfig.getConfig('redisUrl')
+type ServiceType = 'server' | 'worker'
 
-export const redis = createClient({ url: REDIS_URL })
+const getEnvironment = (service: ServiceType) => {
+  if (service == 'worker') {
+    return workerConfig.getConfig('redisUrl')
+  } else {
+    return backendConfig.getConfig('redisUrl')
+  }
+}
+
+export const redisClient = (service: ServiceType) => {
+  const REDIS_URL = getEnvironment(service)
+  return createClient({ url: REDIS_URL })
+}

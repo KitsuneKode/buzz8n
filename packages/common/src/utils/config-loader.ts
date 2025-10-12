@@ -1,23 +1,27 @@
-import { backendLogger } from './logger'
+import { backendLogger, clientLogger, type LoggerType } from './logger'
 
 class ConfigLoader<T extends Record<string, any>> {
   private static instanceMap = new Map<string, ConfigLoader<any>>()
   private config: T
+  private logger: LoggerType
 
-  private constructor(schema: { [K in keyof T]: () => T[K] }) {
+  private constructor(schema: { [K in keyof T]: () => T[K] }, logger: LoggerType) {
     this.config = Object.keys(schema).reduce((acc, key) => {
       acc[key as keyof T] = schema[key as keyof T]()
       return acc
     }, {} as T)
+    this.logger = logger
   }
 
   public static getInstance<T extends Record<string, any>>(
     schema: { [K in keyof T]: () => T[K] },
     key: string = 'default', // optional identifier for multi-config support
+    logger: LoggerType,
   ): ConfigLoader<T> {
     if (!ConfigLoader.instanceMap.has(key)) {
-      ConfigLoader.instanceMap.set(key, new ConfigLoader(schema))
+      ConfigLoader.instanceMap.set(key, new ConfigLoader(schema, logger))
     }
+
     return ConfigLoader.instanceMap.get(key) as ConfigLoader<T>
   }
 
@@ -36,9 +40,8 @@ class ConfigLoader<T extends Record<string, any>> {
     if (errors.length > 0) {
       const notAvailableENVs = errors.reduce((prev, curr) => (prev = `${prev} \n ${curr}`), '')
 
-      backendLogger.error(
-        `Configuration validation failed:\n Configuration keys ${notAvailableENVs}`,
-      )
+      this.logger.error(`Configuration validation failed:\n Configuration keys ${notAvailableENVs}`)
+
       process.exit(1)
     }
   }
@@ -52,6 +55,12 @@ class ConfigLoader<T extends Record<string, any>> {
   }
 }
 
+const clientConfigSchema = {
+  appUrl: () => process.env.NEXT_PUBLIC_APP_URL,
+  apiBaseUrl: () => process.env.NEXT_PUBLIC_API_URL,
+  nodeEnv: () => process.env.NODE_ENV || 'development',
+}
+
 const backendConfigSchema = {
   environment: () => process.env.NODE_ENV,
   dbUrl: () => process.env.DATABASE_URL,
@@ -60,12 +69,12 @@ const backendConfigSchema = {
   allowedOrigins: () => process.env.ALLOWED_ORIGINS,
   redisUrl: () => process.env.REDIS_URL,
 }
-
-export const backendConfig = ConfigLoader.getInstance(backendConfigSchema, 'server')
-
-const clientConfigSchema = {
-  apiUrl: () => process.env.NEXT_PUBLIC_API_URL,
+const workerSchema = {
   environment: () => process.env.NODE_ENV,
+  dbUrl: () => process.env.DATABASE_URL,
+  redisUrl: () => process.env.REDIS_URL,
 }
 
-export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client')
+export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)
+export const backendConfig = ConfigLoader.getInstance(backendConfigSchema, 'server', backendLogger)
+export const workerConfig = ConfigLoader.getInstance(workerSchema, 'worker', backendLogger)
