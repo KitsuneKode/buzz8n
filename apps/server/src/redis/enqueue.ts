@@ -4,6 +4,10 @@ import { redis } from '@/redis'
 await redis.connect()
 redis.on('error', (err) => console.log('Redis Client Error', err))
 
+const ENQUEUE_EXECUTION_QUEUE = 'workflow:execution'
+const ENQUEUE_EXECUTION_QUEUE_MAX_LENGTH = 10000
+const LOG_GROUP = '[REDIS]'
+
 interface EnqueueExecutionPayload {
   executionId: string
   workflowId: string
@@ -17,7 +21,7 @@ export const enqueueExecution = async ({
 }: EnqueueExecutionPayload) => {
   try {
     await redis.xAdd(
-      'workflow:execution',
+      ENQUEUE_EXECUTION_QUEUE,
       '*',
       {
         executionId,
@@ -28,13 +32,13 @@ export const enqueueExecution = async ({
         TRIM: {
           strategy: 'MAXLEN',
           strategyModifier: '~',
-          threshold: 10000,
+          threshold: ENQUEUE_EXECUTION_QUEUE_MAX_LENGTH,
         },
       },
     )
 
-    logger.info('Execution is queued', { executionId, workflowId })
+    logger.info(`${LOG_GROUP} Execution is queued`, { executionId, workflowId })
   } catch (error) {
-    logger.error('Error queuing execution', { executionId, workflowId, error })
+    logger.error(`${LOG_GROUP} Error queuing execution`, { executionId, workflowId, error })
   }
 }

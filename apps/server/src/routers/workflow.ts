@@ -139,4 +139,32 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
   }
 })
 
+router.delete('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const id = req.params.id
+    const userId = req.user!.userId
+    if (!id) {
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    await prisma.workflow.delete({
+      where: {
+        id,
+        userId,
+      },
+    })
+
+    res.status(200).send('Workflow deleted successfully')
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === 'P2025') {
+        res.status(404).send('Workflow with that id does not exists')
+        return
+      }
+    }
+    next(error)
+  }
+})
+
 export { router as workflowRouter }
