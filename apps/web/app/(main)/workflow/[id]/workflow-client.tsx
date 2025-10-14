@@ -24,6 +24,9 @@ export function WorkflowClient() {
   useEffect(() => {
     if (workflow) {
       setWorkflow(workflow)
+      useWorkflowEditorStore.setState({
+        isFitView: workflow.nodes.length > 3,
+      })
     }
     if (error) {
       router.back()

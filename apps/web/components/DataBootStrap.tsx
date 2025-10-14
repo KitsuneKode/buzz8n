@@ -20,7 +20,6 @@ export default function DataBootstrap() {
         withCredentials: true,
       })
 
-      console.log(response.data.credentials)
       return response.data.credentials
     },
   })

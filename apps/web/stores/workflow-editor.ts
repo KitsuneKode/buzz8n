@@ -23,6 +23,7 @@ interface WorkflowEditorState {
   workflow: WorkflowData | null
   isDirty: boolean
   isSaving: boolean
+  isFitView: boolean
   // Canvas state
   nodes: NodeData[]
   edges: EdgeData[]
@@ -36,6 +37,7 @@ interface WorkflowEditorState {
   isLogsDrawerOpen: boolean
   isPropertiesPanelOpen: boolean
   selectedNodeId: string | null
+  handleId: string | null
 
   // Execution state
   isExecuting: boolean
@@ -56,6 +58,7 @@ interface WorkflowEditorState {
     prevNodeId: string,
     template: NodeTemplate,
     position: { x: number; y: number },
+    handleId: string | null,
   ) => void
   deleteSelectedNodes: () => void
   selectNode: (nodeId: string | null) => void
@@ -68,7 +71,7 @@ interface WorkflowEditorState {
   toggleNodePalette: () => void
   toggleLogsDrawer: () => void
   togglePropertiesPanel: () => void
-  openNodePaletteFor: (nodeId: string) => void
+  openNodePaletteFor: (nodeId: string, handleId?: string) => void
   clearPendingConnect: () => void
   closeRightPanel: () => void
 
@@ -132,6 +135,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   selectedNodes: [],
   selectedEdges: [],
   activeTab: 'editor',
+  handleId: null,
   isNodePaletteOpen: true,
   isLogsDrawerOpen: false,
   isPropertiesPanelOpen: false,
@@ -140,6 +144,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   currentExecution: null,
   executionHistory: [],
   pendingConnectFromNodeId: null,
+  isFitView: false,
 
   // Workflow actions
   setWorkflow: (workflow) =>
@@ -174,7 +179,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     }))
   },
 
-  addNodeWithEdge: (prevNodeId, template, position) => {
+  addNodeWithEdge: (prevNodeId, template, position, handleId) => {
     const newNode: NodeData = {
       id: `node_${Date.now()}`,
       type: template.type,
@@ -192,6 +197,9 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       id: `${prevNodeId}-${newNode.id}`,
       source: prevNodeId,
       target: newNode.id,
+    }
+    if (handleId && handleId !== '') {
+      newEdge.sourceHandle = handleId
     }
 
     set((state) => ({
@@ -272,10 +280,23 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       isPropertiesPanelOpen: !state.isPropertiesPanelOpen,
     })),
 
-  openNodePaletteFor: (
-    nodeId: string, // NEW
-  ) => set({ isNodePaletteOpen: true, pendingConnectFromNodeId: nodeId, selectedNodeId: nodeId }),
-
+  openNodePaletteFor: (nodeId, handleId) => {
+    if (handleId && handleId !== '') {
+      set({
+        isNodePaletteOpen: true,
+        pendingConnectFromNodeId: nodeId,
+        selectedNodeId: nodeId,
+        handleId,
+      })
+    } else {
+      set({
+        isNodePaletteOpen: true,
+        pendingConnectFromNodeId: nodeId,
+        selectedNodeId: nodeId,
+        handleId: null,
+      })
+    }
+  },
   clearPendingConnect: () => set({ pendingConnectFromNodeId: null }),
 
   startSaving: () => set({ isSaving: true }),
@@ -284,6 +305,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     set({
       isNodePaletteOpen: false,
       selectedNodeId: null,
+      handleId: null,
       // pendingConnectFromNodeId: null,
     }),
 

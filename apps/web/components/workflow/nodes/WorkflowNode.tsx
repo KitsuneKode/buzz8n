@@ -17,8 +17,8 @@ import {
   NodeTooltipTrigger,
 } from '@/components/nodes/node-tooltip'
 import { BaseNode, BaseNodeContent, BaseNodeDescription } from '@/components/nodes/base-node'
+import { IconBrandTelegram, IconMail, IconRobotFace, IconWebhook } from '@tabler/icons-react'
 import { NodeStatusIndicator } from '@/components/nodes/node-status-indicator'
-import { IconBrandTelegram, IconMail, IconWebhook } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { ButtonHandle } from '@/components/nodes/button-handle'
 import { BaseHandle } from '@/components/nodes/base-handle'
@@ -46,6 +46,8 @@ const getNodeIcon = (type: NodeType) => {
       return <FileText size={48} />
     case 'executedByWorkflow':
       return <GitBranch size={48} />
+    case 'aiAgent':
+      return <IconRobotFace size={48} />
     case 'chatMessage':
       return <MessageSquare size={48} />
     case 'evaluation':
@@ -74,7 +76,11 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
   const { edges, nodes, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
 
   const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
-  const hasOutgoing = edges.some((e) => e.source === id)
+  const hasOutgoing = edges.some(
+    (e) =>
+      e.source === id &&
+      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-handle`),
+  )
 
   const handleClick = () => {
     selectNode(id)
@@ -93,6 +99,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-200',
               selected && 'ring-2 ring-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
+              data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
             )}
           >
             <div
@@ -131,7 +138,6 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
                   <Button
                     onClick={(e) => {
                       e.stopPropagation()
-                      console.log(id, 'clickedhere')
                       openNodePaletteFor(id)
                     }}
                     size="sm"
@@ -144,9 +150,30 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               ) : (
                 <BaseHandle
                   type="source"
-                  position={Position.Right}
+                  position={Position.Right || Position.Bottom}
                   className="bg-muted-foreground border-2 border-background"
                 ></BaseHandle>
+              )}
+
+              {data.type === 'aiAgent' && (
+                <ButtonHandle
+                  id={`${id as string}-add-agent-bottom-handle`}
+                  type="source"
+                  position={Position.Bottom}
+                  className="bg-muted-foreground border-2 border-background"
+                >
+                  <Button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      openNodePaletteFor(id, `${id as string}-add-agent-bottom-handle`)
+                    }}
+                    size="sm"
+                    variant="secondary"
+                    className="rounded-sm border"
+                  >
+                    <Plus size={10} />
+                  </Button>
+                </ButtonHandle>
               )}
             </BaseNodeContent>
             <BaseNodeDescription className="text-xs font-medium text-center text-foreground text-nowrap -bottom-12">

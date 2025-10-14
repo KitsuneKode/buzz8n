@@ -8,6 +8,7 @@ import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
 import ExecutionsTable from '@/components/ExecutionsTable'
 import CredentialsList from '@/components/CredentialsList'
 import { useSuspenseQuery } from '@tanstack/react-query'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { useSearchParams } from 'next/navigation'
 import HeaderNav from '@/components/HeaderNav'
@@ -21,7 +22,7 @@ const DashboardPage = () => {
     useDashboardStore()
 
   const [showWorkflowModal, setShowWorkflowModal] = useState(false)
-
+  const [isClient, setIsClient] = useState(false)
   // Fetch workflows list
   const { data: workflows, isLoading: workflowsLoading } = useSuspenseQuery({
     queryKey: ['workflows', 'list', { filters: { limit: 20 } }],
@@ -33,6 +34,10 @@ const DashboardPage = () => {
 
   const create = searchParams.get('create')
   const tab = searchParams.get('tab')
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     if (tab && isTabType(tab as string)) {
@@ -48,6 +53,10 @@ const DashboardPage = () => {
   }
 
   const hasCredentials = credentials.length > 0
+
+  if (!isClient) {
+    return null
+  }
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -122,10 +131,15 @@ const DashboardPage = () => {
                 <h2 className="text-xl font-semibold">Your Workflows</h2>
 
                 <>
-                  {workflows && workflows.length > 0 && (
-                    <span className="text-sm text-muted-foreground" suppressHydrationWarning>
-                      {workflows.length} workflow{workflows.length !== 1 && 's'}
-                    </span>
+                  {workflowsLoading ? (
+                    <Spinner />
+                  ) : (
+                    workflows &&
+                    workflows.length > 0 && (
+                      <span className="text-sm text-muted-foreground">
+                        {workflows.length} workflow{workflows.length !== 1 && 's'}
+                      </span>
+                    )
                   )}
                 </>
               </div>

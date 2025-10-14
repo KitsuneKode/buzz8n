@@ -36,6 +36,7 @@ export const nodeTypeSchema = z.enum([
   'emailSend',
   'webhook',
   'schedule',
+  'aiAgent',
   'appEvent',
   'formSubmission',
   'executedByWorkflow',

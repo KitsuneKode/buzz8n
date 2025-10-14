@@ -11,23 +11,14 @@ import {
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { Fullscreen, Minus, Plus } from 'lucide-react'
 import { Button } from '@buzz8n/ui/components/button'
+import { nodeTypeSchema } from '@buzz8n/common/types'
 import { WorkflowNode } from './nodes/WorkflowNode'
 import { useCallback, useRef } from 'react'
 import '@xyflow/react/dist/style.css'
 
-const nodeTypes = {
-  manualTrigger: WorkflowNode,
-  telegramSendMessage: WorkflowNode,
-  emailSend: WorkflowNode,
-  webhook: WorkflowNode,
-  schedule: WorkflowNode,
-  appEvent: WorkflowNode,
-  formSubmission: WorkflowNode,
-  executedByWorkflow: WorkflowNode,
-  chatMessage: WorkflowNode,
-  evaluation: WorkflowNode,
-  other: WorkflowNode,
-}
+const nodeTypes = Object.fromEntries(
+  Object.values(nodeTypeSchema.enum).map((type) => [type, WorkflowNode]),
+)
 
 export function Canvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
@@ -37,8 +28,16 @@ export function Canvas() {
     fitView({ padding: 0.2 })
   }, [fitView])
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, toggleNodePalette, addNode } =
-    useWorkflowEditorStore()
+  const {
+    nodes,
+    edges,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    toggleNodePalette,
+    addNode,
+    isFitView,
+  } = useWorkflowEditorStore()
 
   const onDragOver = useCallback((event: React.DragEvent) => {
     event.preventDefault()
@@ -77,8 +76,8 @@ export function Canvas() {
         onConnect={onConnect}
         onDrop={onDrop}
         onDragOver={onDragOver}
+        fitView={isFitView}
         nodeTypes={nodeTypes}
-        // fitView
         snapToGrid
         snapGrid={[15, 15]}
         connectionLineType={ConnectionLineType.Bezier}

@@ -17,9 +17,10 @@ import {
   Users,
   Plus,
 } from 'lucide-react'
+import { IconBrandTelegram, IconRobotFace } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeTemplate, NodeType } from '@/lib/types/workflow'
-import { IconBrandTelegram } from '@tabler/icons-react'
+import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
@@ -31,11 +32,11 @@ const nodeCategories = [
     label: 'AI',
     nodes: [
       {
-        id: 'ai-agent',
-        type: 'other' as NodeType,
-        label: 'Build autonomous agents, summarise or search documents, etc.',
+        id: `ai-agent-${Date.now()}`,
+        type: 'aiAgent' as NodeType,
+        label: 'AI Agent',
         description: 'AI-powered automation and intelligence',
-        icon: 'sparkles',
+        icon: 'ai-agent',
         category: 'ai',
         defaultConfig: {},
       },
@@ -46,7 +47,7 @@ const nodeCategories = [
     label: 'Action in an app',
     nodes: [
       {
-        id: 'telegram-send-message',
+        id: `telegram-send-message-${Date.now()}`,
         type: 'telegramSendMessage' as NodeType,
         label: 'Telegram Send Message',
         description: 'Send a message to a Telegram chat',
@@ -55,7 +56,7 @@ const nodeCategories = [
         defaultConfig: { chatId: '' },
       },
       {
-        id: 'resend-send-email',
+        id: `resend-send-email-${Date.now()}`,
         type: 'emailSend' as NodeType,
         label: 'Send an email',
         description: 'Send an email via Resend Email credentials',
@@ -65,6 +66,32 @@ const nodeCategories = [
       },
     ],
   },
+
+  {
+    id: 'triggers',
+    label: 'Triggers',
+    nodes: [
+      {
+        id: `manual-trigger-${Date.now()}`,
+        type: 'manualTrigger' as NodeType,
+        label: 'Manual Trigger',
+        description: 'Start your workflow manually. Can have multiple triggers.',
+        icon: 'play',
+        category: 'triggers',
+        defaultConfig: {},
+      },
+      {
+        id: `webhook-${Date.now()}`,
+        type: 'webhook' as NodeType,
+        label: 'Webhook',
+        description: 'Start your workflow via a webhook.',
+        icon: 'webhook',
+        category: 'triggers',
+        defaultConfig: {},
+      },
+    ],
+  },
+
   // {
   //   id: 'data-transformation',
   //   label: 'Data transformation',
@@ -148,6 +175,8 @@ const getNodeIcon = (iconType: string) => {
       return <Play className="w-5 h-5" />
     case 'telegram':
       return <IconBrandTelegram size={20} />
+    case 'ai-agent':
+      return <IconRobotFace size={20} />
     case 'email':
       return <Mail className="w-5 h-5" />
     case 'webhook':
@@ -179,7 +208,8 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge } = useWorkflowEditorStore()
+  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId } =
+    useWorkflowEditorStore()
 
   const filteredCategories = nodeCategories
     .map((category) => ({
@@ -197,8 +227,8 @@ export function NodePalette() {
   const existingNodesOffset =
     nodes.length > 0
       ? {
-          x: Math.random() * 300 + 100,
-          y: Math.random() * 200 + 100,
+          x: Math.random() * 400 + 100,
+          y: Math.random() * 400 + 100,
         }
       : {
           x: 100,
@@ -207,13 +237,25 @@ export function NodePalette() {
 
   const handleNodeClick = (template: NodeTemplate) => {
     if (pendingConnectFromNodeId) {
-      console.log('in herer')
       const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
+
+      if (anchor && anchor.data.type === 'aiAgent') {
+        if (!handleId) {
+          OFFSET.x += 200
+          // OFFSET(Math.random() - 0.5) * 300 + 100
+        } else {
+          OFFSET.y += (Math.random() - 0.5) * 200 + 340
+          OFFSET.x = (Math.random() - 0.5) * 300
+        }
+      }
+
       const pos = anchor
         ? { x: anchor.position.x + OFFSET.x, y: anchor.position.y + OFFSET.y }
         : { x: 100, y: 100 }
 
-      addNodeWithEdge(pendingConnectFromNodeId, template, pos)
+      console.log(pos)
+
+      addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)
       // If addNodeWithEdge already closes palette and clears pending state, no need to also do:
       // clearPendingConnect(); toggleNodePalette();
     } else {
@@ -249,7 +291,7 @@ export function NodePalette() {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {filteredCategories.map((category) => (
           <div key={category.id}>
-            <h4 className="text-sm font-medium text-foreground mb-3 flex items-center">
+            <h4 className="text-sm font-medium text-primary flex items-center px-3 pb-3 rounded-lg border-secondary">
               {category.label}
               {category.id === 'triggers' && (
                 <Badge variant="outline" className="ml-2 text-xs">
@@ -257,6 +299,7 @@ export function NodePalette() {
                 </Badge>
               )}
             </h4>
+
             <div className="space-y-2">
               {category.nodes.map((node) => (
                 <Button
@@ -280,6 +323,7 @@ export function NodePalette() {
                   </div>
                 </Button>
               ))}
+              <Separator className="w-full bg-secondary" orientation="horizontal" />
             </div>
           </div>
         ))}
