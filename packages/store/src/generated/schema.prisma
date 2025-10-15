@@ -17,12 +17,14 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
+  id            String @id @default(cuid())
   name          String
-  email         String       @unique()
+  email         String @unique()
   password_hash String
-  credentials   Credential[]
-  workflows     Workflow[]
+
+  credentials Credential[]
+  workflows   Workflow[]
+  executions  Execution[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -42,6 +44,9 @@ model Workflow {
   user     User    @relation(fields: [userId], references: [id], onDelete: Cascade)
   archived Boolean @default(false)
 
+  webhook    Webhook?
+  executions Execution[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -49,17 +54,18 @@ model Workflow {
 }
 
 model Webhook {
-  id     String  @id @default(cuid())
-  title  String
-  method Methods
-  path   String
-
+  id       String  @id @default(cuid())
+  method   Methods
+  path     String
   archived Boolean @default(false)
+
+  workflowId String   @unique
+  workflow   Workflow @relation(fields: [workflowId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([method, path])
+  // @@unique([method, path])
   @@map("webhook")
 }
 
@@ -78,6 +84,21 @@ model Credential {
 
   @@index(title)
   @@map("credential")
+}
+
+model Execution {
+  id String @id @default(cuid())
+
+  workflowId String
+  workflow   Workflow @relation(fields: [workflowId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("execution")
 }
 
 enum Methods {

@@ -1,8 +1,12 @@
 import { memo } from 'react'
 
-import { BaseNode, BaseNodeContent, BaseNodeDescription } from '@/components/nodes/base-node'
+import {
+  BaseNode,
+  BaseNodeContent,
+  BaseNodeDescription,
+} from '@/components/react-flow/nodes/base-node'
+import { NodeStatusIndicator } from '@/components/react-flow/nodes/node-status-indicator'
 import { NodeTooltip, NodeTooltipContent, NodeTooltipTrigger } from './node-tooltip'
-import { NodeStatusIndicator } from '@/components/nodes/node-status-indicator'
 import { type NodeProps, Position, useReactFlow } from '@xyflow/react'
 import { Button } from '@buzz8n/ui/components/button'
 import { IconWebhook } from '@tabler/icons-react'

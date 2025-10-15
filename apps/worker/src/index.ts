@@ -1,10 +1,11 @@
 import { logger } from '@/utils'
+import { redis } from './redis'
 
-while (true) {
-  try {
-    logger.info('worker started')
-    await new Promise(() => setTimeout(() => logger.info('10 seconds have passed'), 10000))
-  } catch (error) {
-    logger.error('worker failed', error)
-  }
+redis.on('error', (error) => logger.error(`[REDIS]`, error))
+
+async function main() {
+  redis.connect()
+  logger.info('Worker Started! Beginning processing')
 }
+
+main()

@@ -10,14 +10,13 @@ import {
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
-import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
-import React, { useEffect } from 'react'
+import React, { useState } from 'react'
 
+import { AlertCircle, Check, Copy, Settings, Trash2 } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard'
 
 export function PropertiesPanel() {
@@ -27,10 +26,10 @@ export function PropertiesPanel() {
     updateSelectedNodeConfig,
     setSelectedNodeCredentialRef,
     deleteNode,
-    openNodePaletteFor,
-    resendEmail,
   } = useWorkflowEditorStore()
   const { credentials, openCredentialModal } = useDashboardStore()
+
+  const [copied, setCopied] = useState(false)
 
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
@@ -38,6 +37,7 @@ export function PropertiesPanel() {
     return <div className="p-4 text-center text-muted-foreground">No node selected</div>
   }
   const nodeConfig = selectedNode.data.config || {}
+
   const requiredCredentials =
     selectedNode.data.type === 'telegramSendMessage'
       ? ['telegram']
@@ -53,14 +53,20 @@ export function PropertiesPanel() {
     if (!selectedNodeId) return
     deleteNode(selectedNodeId)
   }
-
-  const handleSave = () => {
-    if (!selectedNodeId) return
-    // Save logic here
+  const handleCopy = () => {
+    const content = `https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`
+    navigator.clipboard.writeText(content)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
+  // const handleSave = () => {
+  //   if (!selectedNodeId) return
+  //   // Save logic here
+  // }
+
   return (
-    <div className="flex flex-col h-full px-2">
+    <div className="flex flex-col h-full ">
       {/* Node Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-2">
@@ -80,7 +86,7 @@ export function PropertiesPanel() {
       </div>
 
       {/* Properties Form */}
-      <div className="flex-1 overflow-y-auto p z-60-4 space-y-6">
+      <div className="flex-1 overflow-y-auto px-2 z-60-4 space-y-6">
         {/* Credentials Section */}
 
         {requiredCredentials.length > 0 && (
@@ -234,15 +240,27 @@ export function PropertiesPanel() {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="path">Path</Label>
-              <Input
+              <Label htmlFor="path">Webhook URL</Label>
+              <Textarea
                 id="path"
-                placeholder="/webhook"
-                value={nodeConfig.path || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                rows={4}
+                placeholder="https://buzz8n.kitsulabs.xyz/webhook/:handler"
+                value={`https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
                   handleConfigChange('path', e.target.value)
                 }
+                readOnly
+                className="caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none"
               />
+
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-4 -translate-y-12 z-30 "
+                onClick={handleCopy}
+              >
+                {copied ? <Check className="text-primary h-5 w-5" /> : <Copy className="h-5 w-5" />}
+              </Button>
             </div>
           </div>
         )}
@@ -296,12 +314,12 @@ export function PropertiesPanel() {
         </div>
       </div>
 
-      {/* Footer Actions */}
+      {/* Footer Actions
       <div className="p-4 border-t border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button onClick={handleSave}>Save</Button>
         </div>
-      </div>
+      </div> */}
     </div>
   )
 }

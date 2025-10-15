@@ -19,8 +19,7 @@ description: Prefer shadcn/ui components; don’t duplicate components that alre
 Run these from the `apps/web` directory:
 
 ```bash
-cd apps/web
-bunx --bun shadcn@latest add <component-name>
+bunx --bun shadcn@latest add <component-name> -c apps/web
 ```
 
 If shadcn hasn’t been initialized yet, initialize first (non-interactive):

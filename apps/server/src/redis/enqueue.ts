@@ -8,7 +8,7 @@ const ENQUEUE_EXECUTION_QUEUE = 'workflow:execution'
 const ENQUEUE_EXECUTION_QUEUE_MAX_LENGTH = 10000
 const LOG_GROUP = '[REDIS]'
 
-interface EnqueueExecutionPayload {
+export interface EnqueueExecutionPayload {
   executionId: string
   workflowId: string
   payload: unknown
@@ -40,5 +40,6 @@ export const enqueueExecution = async ({
     logger.info(`${LOG_GROUP} Execution is queued`, { executionId, workflowId })
   } catch (error) {
     logger.error(`${LOG_GROUP} Error queuing execution`, { executionId, workflowId, error })
+    throw new Error(`${LOG_GROUP} Error queuing execution: ${executionId} , ${workflowId} ${error}`)
   }
 }

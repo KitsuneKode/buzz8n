@@ -1,7 +1,9 @@
 import { createWorkflowSchema, updateWorkflowSchema, workflowSchema } from '@buzz8n/common/types'
+import { enqueueExecution, type EnqueueExecutionPayload } from '@/redis/enqueue'
 import { Router, type Request, type Response, type NextFunction } from 'express'
-import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
+import { Methods, PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { auth } from '@/middlewares/auth-middleware'
+import type { JSONSchema } from 'zod/v4/core'
 import { logger } from '@/utils/logger'
 
 const router = Router()
@@ -104,9 +106,69 @@ router.post('/workflow', async (req: Request, res: Response, next: NextFunction)
   }
 })
 
+router.post('/workflow/:id/execute', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const workflowId = req.params.id
+
+    if (!workflowId) {
+      logger.error('not parsed')
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    const userId = req.user!.userId
+
+    const workflow = await prisma.workflow.findUnique({
+      where: {
+        id: workflowId,
+        userId,
+      },
+    })
+
+    if (!workflow) {
+      res.status(404).send('Workflow not found')
+      return
+    }
+
+    const execution = await prisma.execution.create({
+      data: {
+        workflowId,
+        userId,
+      },
+    })
+
+    if (!execution) {
+      throw new Error('Failed to create workflow')
+    }
+
+    const queuePayload: EnqueueExecutionPayload = {
+      executionId: execution.id,
+      workflowId: workflowId,
+      payload: {},
+    }
+
+    await enqueueExecution(queuePayload)
+
+    res.status(200).json({
+      message: 'Execution started',
+      payload: queuePayload,
+    })
+  } catch (error) {
+    // if (error instanceof PrismaClientKnownRequestError) {
+    //   if (error.code === 'P2002') {
+    //     res.status(409).send('Execution with id already exists')
+    //     return
+    //   }
+    // }
+    next(error)
+  }
+})
+
 router.put('/workflow/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const id = req.params.id
+    // const nodesdata = req.body.nodes
+    // console.log(nodesdata)
     const { success, data } = updateWorkflowSchema.safeParse(req.body)
     const userId = req.user!.userId
     if (!id || !success) {
@@ -116,18 +178,116 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
 
     const { active, nodes, edges } = data
 
-    const workflow = await prisma.workflow.update({
+    let workflow = null
+
+    workflow = await prisma.workflow.findUnique({
       where: {
         id,
         userId,
       },
-      data: {
-        active,
-        nodes,
-        edges,
+      select: {
+        id: true,
+        webhook: {
+          select: {
+            id: true,
+            path: true,
+            method: true,
+          },
+        },
       },
     })
 
+    if (!workflow) {
+      res.status(404).send('Workflow not found')
+      return
+    }
+
+    const existingWebhookPath = workflow.webhook?.path
+    let newWebhook = null
+    let deletedWebhook = false
+    if (nodes && nodes.length > 0) {
+      newWebhook = nodes.find(
+        (node) =>
+          node.data.type === 'webhook' &&
+          !(node.data.config.path === existingWebhookPath && existingWebhookPath),
+      )
+
+      deletedWebhook = !!(
+        !newWebhook &&
+        existingWebhookPath &&
+        !nodes.some((node) => node.data.type === 'webhook')
+      )
+    } else {
+      deletedWebhook = !!existingWebhookPath
+    }
+
+    // console.log(existingWebhookPath)
+    // console.log(newWebhook)
+    // console.log(deletedWebhook)
+    // // return res.status(404).send('not found')
+
+    if (newWebhook) {
+      const webhookData = {
+        method: Methods.POST,
+        path: newWebhook.data.config.path as string,
+      }
+
+      workflow = await prisma.workflow.update({
+        where: {
+          id,
+          userId,
+        },
+        data: {
+          active,
+          nodes,
+          edges,
+          webhook: {
+            upsert: {
+              where: {
+                path: existingWebhookPath,
+              },
+              update: {
+                method: webhookData.method,
+                path: webhookData.path,
+              },
+              create: {
+                method: webhookData.method,
+                path: webhookData.path,
+              },
+            },
+          },
+        },
+      })
+    } else {
+      if (deletedWebhook) {
+        workflow = await prisma.workflow.update({
+          where: {
+            id,
+            userId,
+          },
+          data: {
+            active,
+            nodes,
+            edges,
+            webhook: {
+              delete: true,
+            },
+          },
+        })
+      } else {
+        workflow = await prisma.workflow.update({
+          where: {
+            id,
+            userId,
+          },
+          data: {
+            active,
+            nodes,
+            edges,
+          },
+        })
+      }
+    }
     if (!workflow) {
       res.status(404).send('Workflow not found')
       return

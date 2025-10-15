@@ -1,5 +1,5 @@
 import { CredentialRef, ExecutionStatus, NodeType, Workflow } from '@buzz8n/common/types/workflow'
-import { Node, Edge } from '@xyflow/react'
+import type { Node, Edge } from '@xyflow/react'
 export type {
   CredentialRef,
   NodeType,

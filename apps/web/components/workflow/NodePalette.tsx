@@ -208,16 +208,26 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId } =
-    useWorkflowEditorStore()
+  const {
+    addNode,
+    pendingConnectFromNodeId,
+    selectNode,
+    nodes,
+    addNodeWithEdge,
+    handleId,
+    updateSelectedNodeConfig,
+  } = useWorkflowEditorStore()
+
+  const existingWebhook = nodes.some((n) => n.data.type === 'webhook')
 
   const filteredCategories = nodeCategories
     .map((category) => ({
       ...category,
       nodes: category.nodes.filter(
         (node) =>
-          node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          node.description.toLowerCase().includes(searchQuery.toLowerCase()),
+          (node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            node.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
+          !(existingWebhook && node.type === 'webhook'),
       ),
     }))
     .filter((category) => category.nodes.length > 0)
@@ -236,6 +246,7 @@ export function NodePalette() {
         }
 
   const handleNodeClick = (template: NodeTemplate) => {
+    selectNode(template.id)
     if (pendingConnectFromNodeId) {
       const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
 
@@ -253,14 +264,15 @@ export function NodePalette() {
         ? { x: anchor.position.x + OFFSET.x, y: anchor.position.y + OFFSET.y }
         : { x: 100, y: 100 }
 
-      console.log(pos)
-
       addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)
-      // If addNodeWithEdge already closes palette and clears pending state, no need to also do:
-      // clearPendingConnect(); toggleNodePalette();
     } else {
       // Fallback add (e.g., when palette opened from toolbar)
       addNode(template, existingNodesOffset)
+    }
+    if (template.type === 'webhook') {
+      const uniquePath = crypto.randomUUID()
+
+      updateSelectedNodeConfig({ path: uniquePath })
     }
   }
 

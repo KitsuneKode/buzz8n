@@ -1,13 +1,17 @@
 import { memo } from 'react'
 
-import { BaseNode, BaseNodeContent, BaseNodeDescription } from '@/components/nodes/base-node'
+import {
+  BaseNode,
+  BaseNodeContent,
+  BaseNodeDescription,
+} from '@/components/react-flow/nodes/base-node'
+import { NodeStatusIndicator } from '@/components/react-flow/nodes/node-status-indicator'
 import { NodeTooltip, NodeTooltipContent, NodeTooltipTrigger } from './node-tooltip'
-import { NodeStatusIndicator } from '@/components/nodes/node-status-indicator'
-import { type NodeProps, Position } from '@xyflow/react'
-import { IconMail } from '@tabler/icons-react'
+import { IconBrandTelegram } from '@tabler/icons-react'
+import { NodeProps, Position } from '@xyflow/react'
 import { BaseHandle } from './base-handle'
 
-const EmailNode = ({ id, data }: NodeProps) => {
+const TelegramNode = ({ id, data }: NodeProps) => {
   return (
     <NodeTooltip>
       <NodeTooltipContent position={Position.Top} className="text-white">
@@ -23,7 +27,7 @@ const EmailNode = ({ id, data }: NodeProps) => {
                 position={Position.Left}
                 className="p-1"
               />
-              <IconMail size={48} />
+              <IconBrandTelegram size={48} />
               <BaseHandle
                 id={`${id as string}-out`}
                 type="source"
@@ -39,4 +43,4 @@ const EmailNode = ({ id, data }: NodeProps) => {
   )
 }
 
-export default memo(EmailNode)
+export default memo(TelegramNode)

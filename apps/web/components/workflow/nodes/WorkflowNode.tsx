@@ -2,7 +2,9 @@
 
 import {
   BarChart3,
+  CheckIcon,
   Clock,
+  CrossIcon,
   FileText,
   GitBranch,
   MessageSquare,
@@ -15,14 +17,19 @@ import {
   NodeTooltip,
   NodeTooltipContent,
   NodeTooltipTrigger,
-} from '@/components/nodes/node-tooltip'
-import { BaseNode, BaseNodeContent, BaseNodeDescription } from '@/components/nodes/base-node'
+} from '@/components/react-flow/nodes/node-tooltip'
+import {
+  BaseNode,
+  BaseNodeContent,
+  BaseNodeDescription,
+} from '@/components/react-flow/nodes/base-node'
 import { IconBrandTelegram, IconMail, IconRobotFace, IconWebhook } from '@tabler/icons-react'
-import { NodeStatusIndicator } from '@/components/nodes/node-status-indicator'
+import { NodeStatusIndicator } from '@/components/react-flow/nodes/node-status-indicator'
+import { ButtonHandle } from '@/components/react-flow/nodes/button-handle'
+import { BaseHandle } from '@/components/react-flow/nodes/base-handle'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { ButtonHandle } from '@/components/nodes/button-handle'
-import { BaseHandle } from '@/components/nodes/base-handle'
 import { NodeData, NodeType } from '@/lib/types/workflow'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { NodeProps, Position } from '@xyflow/react'
 import { cn } from '@buzz8n/ui/lib/utils'
@@ -59,16 +66,26 @@ const getNodeIcon = (type: NodeType) => {
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case 'running':
-      return 'bg-yellow-500 '
+    case 'loading':
+      return 'text-yellow-500 '
     case 'success':
-      return 'bg-green-500 '
-    case 'failed':
-      return 'bg-red-500 '
-    case 'queued':
-      return 'bg-blue-500 '
+      return 'text-green-500 '
+    case 'error':
+      return 'text-red-500 '
     default:
       return 'bg-gray-500 '
+  }
+}
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'loading':
+      return <Spinner className={`size-4 ${getStatusColor(status)}`} />
+    case 'success':
+      return <CheckIcon className={`size-4 ${getStatusColor(status)}`} />
+    case 'error':
+      return <CrossIcon className={`size-4 ${getStatusColor(status)}`} />
+    default:
+      return <></>
   }
 }
 
@@ -92,7 +109,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
         {data?.description}
       </NodeTooltipContent>
       <NodeTooltipTrigger>
-        <NodeStatusIndicator status={data.status || 'initial'} variant="border">
+        <NodeStatusIndicator status={data.status} variant="border">
           <BaseNode
             onClick={handleClick}
             className={cn(
@@ -104,20 +121,19 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
           >
             <div
               className={`
-              rounded-full p-1 text-xs absolute text-black top-2 right-2
-              ${getStatusColor(data.status || 'initial')}
+              rounded-full text-xs absolute top-2  right-1
             `}
             >
-              {data.status}
+              {data.status && getStatusIcon(data.status)}
             </div>
             <BaseNodeContent
               className={cn(
                 'flex items-center justify-center gap-3 p-6',
-                !data.credentials && 'ring-2 rounded-xl ring-red-500',
+                // !data.credentials && 'ring-2 rounded-xl ring-red-500',
               )}
             >
               {/* Input Handle */}
-              {!isFirstNode && (
+              {!isFirstNode && !(data.type === 'webhook' || data.type === 'manualTrigger') && (
                 <BaseHandle
                   type="target"
                   position={Position.Left}

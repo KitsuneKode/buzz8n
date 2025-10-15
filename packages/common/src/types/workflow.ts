@@ -1,4 +1,4 @@
-import { string, z } from 'zod'
+import { z, looseObject } from 'zod'
 
 // Base workflow schema matching Prisma model
 export const workflowSchema = z.object({
@@ -21,14 +21,6 @@ export const createWorkflowSchema = z.object({
   // edges: z.array(z.record(z.string(), z.any())).default([]),
 })
 
-// Workflow update schema (partial)
-export const updateWorkflowSchema = z.object({
-  name: z.string().min(1).optional(),
-  active: z.boolean().optional(),
-  nodes: z.array(z.record(z.string(), z.any())).optional(),
-  edges: z.array(z.record(z.string(), z.any())).optional(),
-})
-
 // Node types enum
 export const nodeTypeSchema = z.enum([
   'manualTrigger',
@@ -49,20 +41,23 @@ export const nodeTypeSchema = z.enum([
 export const executionStatusSchema = z.enum(['initial', 'loading', 'success', 'error'])
 
 // Node data schema
-export const nodeDataSchema = z.object({
-  label: z.string(),
-  type: nodeTypeSchema,
-  description: z.string().optional(),
-  config: z.record(z.string(), z.any()),
-  credentials: z
-    .object({
-      id: z.string(),
-      name: z.string(),
-      provider: z.string(),
-    })
-    .optional(),
-  status: executionStatusSchema.optional(),
-})
+export const nodeDataSchema = z
+  .object({
+    label: z.string(),
+    type: nodeTypeSchema,
+    description: z.string().optional(),
+    config: z.record(z.string(), z.any()),
+    credentials: z
+      .looseObject({
+        id: z.string(),
+        name: z.string(),
+        provider: z.string(),
+      })
+      .optional(),
+
+    status: executionStatusSchema.optional(),
+  })
+  .catchall(z.any())
 
 // Edge data schema
 export const edgeDataSchema = z.object({
@@ -104,6 +99,22 @@ export const executionSchema = z.object({
       data: z.any().optional(),
     }),
   ),
+})
+
+// Workflow update schema (partial)
+export const updateWorkflowSchema = z.object({
+  name: z.string().min(1).optional(),
+  active: z.boolean().optional(),
+  nodes: z
+    .array(
+      z
+        .object({
+          data: nodeDataSchema,
+        })
+        .catchall(z.any()),
+    )
+    .optional(),
+  edges: z.array(z.record(z.string(), z.any())).optional(),
 })
 
 // API Response schemas

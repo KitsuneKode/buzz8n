@@ -17,7 +17,8 @@ import {
   UseMutationResult,
 } from '@tanstack/react-query'
 import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
-import { notFound, redirect, useRouter } from 'next/navigation'
+import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { notFound, useRouter } from 'next/navigation'
 import { toast } from '@buzz8n/ui/components/sonner'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
@@ -142,6 +143,7 @@ export function useUpdateWorkflow(
   id: string,
 ): UseMutationResult<WorkflowData, Error, UpdateWorkflow, unknown> {
   const queryClient = useQueryClient()
+  const { saveWorkflow } = useWorkflowEditorStore()
 
   return useMutation({
     mutationFn: async (data: UpdateWorkflow): Promise<WorkflowData> => {
@@ -152,15 +154,19 @@ export function useUpdateWorkflow(
     },
     onSuccess: (workflow) => {
       // Update cache
+
+      console.log(workflow.id)
       queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(id), workflow)
 
       // Invalidate workflows list
       queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
 
+      saveWorkflow(workflow)
       toast.success('Workflow updated successfully')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Failed to update workflow'
+
       toast.error(errorMessage)
     },
   })

@@ -6,25 +6,13 @@ import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useUpdateWorkflow } from '@/hooks/useWorkflow'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
-import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { WorkflowData } from '@/lib/types/workflow'
 import { Share, Save, Circle } from 'lucide-react'
 
 export function TopBar({ id }: { id: string }) {
-  const {
-    workflow,
-    edges,
-    nodes,
-    startSaving,
-    activeTab,
-    isSaving,
-    isDirty,
-    setActiveTab,
-    saveWorkflow,
-  } = useWorkflowEditorStore()
-  const { mutateAsync: saveWorkflowAsync } = useUpdateWorkflow(id)
+  const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
+  const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow(id)
 
   const handleToggleActive = () => {
     // Toggle workflow active state
@@ -38,24 +26,15 @@ export function TopBar({ id }: { id: string }) {
   const handleSave = async () => {
     if (!workflow) return
 
-    try {
-      startSaving()
-      const { updatedAt } = await saveWorkflowAsync({
-        nodes,
-        edges,
-        active: workflow.active,
-      })
+    const webhookNode = nodes.find((node) => node.data.type === 'webhook')
 
-      const updatedWorkflow: WorkflowData = {
-        ...workflow,
-        nodes,
-        edges,
-        updatedAt: new Date(updatedAt),
-      }
-      saveWorkflow(updatedWorkflow)
-    } catch {
-      toast.error('Failed to save workflow')
-    }
+    console.log(webhookNode)
+
+    saveWorkflowMutate({
+      nodes,
+      edges,
+      active: workflow.active,
+    })
   }
 
   if (!workflow) return null
@@ -111,7 +90,7 @@ export function TopBar({ id }: { id: string }) {
             size="sm"
             onClick={handleSave}
             className="relative"
-            disabled={isSaving}
+            disabled={isSaving || !isDirty}
           >
             {isSaving ? (
               <Spinner />

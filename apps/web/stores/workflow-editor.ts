@@ -22,7 +22,6 @@ interface WorkflowEditorState {
   // Current workflow
   workflow: WorkflowData | null
   isDirty: boolean
-  isSaving: boolean
   isFitView: boolean
   // Canvas state
   nodes: NodeData[]
@@ -45,7 +44,6 @@ interface WorkflowEditorState {
   executionHistory: Execution[]
 
   // Actions
-  startSaving: () => void
   setWorkflow: (workflow: WorkflowData) => void
   setActiveTab: (tab: 'editor' | 'executions' | 'evaluations') => void
 
@@ -299,8 +297,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
   clearPendingConnect: () => set({ pendingConnectFromNodeId: null }),
 
-  startSaving: () => set({ isSaving: true }),
-
   closeRightPanel: () =>
     set({
       isNodePaletteOpen: false,
@@ -313,7 +309,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   saveWorkflow: (updatedWorkflow) => {
     set({
       workflow: updatedWorkflow,
-      isSaving: false,
       isDirty: false,
     })
   },

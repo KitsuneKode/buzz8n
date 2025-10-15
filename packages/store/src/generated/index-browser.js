@@ -143,10 +143,10 @@ exports.Prisma.WorkflowScalarFieldEnum = {
 
 exports.Prisma.WebhookScalarFieldEnum = {
   id: 'id',
-  title: 'title',
   method: 'method',
   path: 'path',
   archived: 'archived',
+  workflowId: 'workflowId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -158,6 +158,14 @@ exports.Prisma.CredentialScalarFieldEnum = {
   data: 'data',
   userId: 'userId',
   archived: 'archived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ExecutionScalarFieldEnum = {
+  id: 'id',
+  workflowId: 'workflowId',
+  userId: 'userId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -200,7 +208,8 @@ exports.Prisma.ModelName = {
   User: 'User',
   Workflow: 'Workflow',
   Webhook: 'Webhook',
-  Credential: 'Credential'
+  Credential: 'Credential',
+  Execution: 'Execution'
 };
 
 /**
