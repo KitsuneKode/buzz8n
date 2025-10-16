@@ -4,14 +4,16 @@
   "description": "",
   "main": "./src/index.ts",
   "private": true,
+  "scripts": {
+    "redis:migrate": "bun run ./src/redis/migrate.ts"
+  },
   "exports": {
     ".": "./src/index.ts",
     "./redis": "./src/redis/index.ts",
+    "./redis/migrate": "./src/redis/migrate.ts",
     "./logger": "./src/utils/logger.ts",
-    "./config": "./src/utils/config.ts"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "./config": "./src/utils/config.ts",
+    "./types": "./src/types/index.ts"
   },
   "keywords": [],
   "author": "",

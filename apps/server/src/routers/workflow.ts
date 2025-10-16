@@ -1,9 +1,9 @@
 import { createWorkflowSchema, updateWorkflowSchema, workflowSchema } from '@buzz8n/common/types'
-import { enqueueExecution, type EnqueueExecutionPayload } from '@/redis/enqueue'
 import { Router, type Request, type Response, type NextFunction } from 'express'
 import { Methods, PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
+import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { auth } from '@/middlewares/auth-middleware'
-import type { JSONSchema } from 'zod/v4/core'
+import { enqueueExecution } from '@/redis/enqueue'
 import { logger } from '@/utils/logger'
 
 const router = Router()
@@ -130,6 +130,10 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
       return
     }
 
+    // if(workflow.active){
+    //   throw new Error('Workflow already executing', {cause: 'rate-limit'})
+    // }
+
     const execution = await prisma.execution.create({
       data: {
         workflowId,
@@ -153,12 +157,10 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
       message: 'Execution started',
       payload: queuePayload,
     })
-  } catch (error) {
-    // if (error instanceof PrismaClientKnownRequestError) {
-    //   if (error.code === 'P2002') {
-    //     res.status(409).send('Execution with id already exists')
-    //     return
-    //   }
+  } catch (error: unknown) {
+    // if (error instanceof Error && error.cause === 'rate-limit') {
+    //   res.status(409).send('Execution with id already exists')
+    //   return
     // }
     next(error)
   }

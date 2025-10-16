@@ -87,13 +87,14 @@ model Credential {
 }
 
 model Execution {
-  id String @id @default(cuid())
+  id     String  @id @default(cuid())
+  secret String?
 
   workflowId String
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

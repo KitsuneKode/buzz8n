@@ -22,6 +22,7 @@
     "db:migrate": "turbo run db:migrate",
     "db:reset": "turbo run db:reset",
     "db:studio": "turbo run db:studio",
+    "redis:migrate": "turbo run redis:migrate",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "preinstall": "bunx only-allow bun",
