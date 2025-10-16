@@ -101,10 +101,11 @@
     "packages/common": {
       "name": "@buzz8n/common",
       "dependencies": {
-        "@buzz8n/typescript-config": "*",
+        "@buzz8n/store": "*",
         "zod": "^4.1.11",
       },
       "devDependencies": {
+        "@buzz8n/typescript-config": "*",
         "@types/bun": "latest",
       },
       "peerDependencies": {

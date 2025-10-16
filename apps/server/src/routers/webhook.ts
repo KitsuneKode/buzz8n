@@ -1,7 +1,8 @@
+import { supportedMethodsSchema, type SupportedMethods } from '@buzz8n/common/types'
 import { Router, type Request, type Response, type NextFunction } from 'express'
-import { Methods, prisma, PrismaClientKnownRequestError } from '@buzz8n/store'
 import { auth } from '@/middlewares/auth-middleware'
 import { enqueueExecution } from '@/redis/enqueue'
+import { Methods, prisma } from '@buzz8n/store'
 import { logger } from '@/utils/logger'
 
 const router = Router()
@@ -14,9 +15,7 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     const authorization = req.headers.authorization
     const secret_token = authorization?.trim().split(/\s+/).at(1)
 
-    //TODO:Add types/schema for methods
-
-    const { success, data: method } = methodsSchema.safeParse(req.method)
+    const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
 
     if (!webhookId || !success) {
       logger.error('not parsed')

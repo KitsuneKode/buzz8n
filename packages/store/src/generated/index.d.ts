@@ -3645,6 +3645,7 @@ export namespace Prisma {
     id: string | null
     method: $Enums.Methods | null
     path: string | null
+    secret: string | null
     archived: boolean | null
     workflowId: string | null
     createdAt: Date | null
@@ -3655,6 +3656,7 @@ export namespace Prisma {
     id: string | null
     method: $Enums.Methods | null
     path: string | null
+    secret: string | null
     archived: boolean | null
     workflowId: string | null
     createdAt: Date | null
@@ -3665,6 +3667,7 @@ export namespace Prisma {
     id: number
     method: number
     path: number
+    secret: number
     archived: number
     workflowId: number
     createdAt: number
@@ -3677,6 +3680,7 @@ export namespace Prisma {
     id?: true
     method?: true
     path?: true
+    secret?: true
     archived?: true
     workflowId?: true
     createdAt?: true
@@ -3687,6 +3691,7 @@ export namespace Prisma {
     id?: true
     method?: true
     path?: true
+    secret?: true
     archived?: true
     workflowId?: true
     createdAt?: true
@@ -3697,6 +3702,7 @@ export namespace Prisma {
     id?: true
     method?: true
     path?: true
+    secret?: true
     archived?: true
     workflowId?: true
     createdAt?: true
@@ -3780,6 +3786,7 @@ export namespace Prisma {
     id: string
     method: $Enums.Methods
     path: string
+    secret: string | null
     archived: boolean
     workflowId: string
     createdAt: Date
@@ -3807,6 +3814,7 @@ export namespace Prisma {
     id?: boolean
     method?: boolean
     path?: boolean
+    secret?: boolean
     archived?: boolean
     workflowId?: boolean
     createdAt?: boolean
@@ -3818,6 +3826,7 @@ export namespace Prisma {
     id?: boolean
     method?: boolean
     path?: boolean
+    secret?: boolean
     archived?: boolean
     workflowId?: boolean
     createdAt?: boolean
@@ -3829,6 +3838,7 @@ export namespace Prisma {
     id?: boolean
     method?: boolean
     path?: boolean
+    secret?: boolean
     archived?: boolean
     workflowId?: boolean
     createdAt?: boolean
@@ -3840,13 +3850,14 @@ export namespace Prisma {
     id?: boolean
     method?: boolean
     path?: boolean
+    secret?: boolean
     archived?: boolean
     workflowId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "method" | "path" | "archived" | "workflowId" | "createdAt" | "updatedAt", ExtArgs["result"]["webhook"]>
+  export type WebhookOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "method" | "path" | "secret" | "archived" | "workflowId" | "createdAt" | "updatedAt", ExtArgs["result"]["webhook"]>
   export type WebhookInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
   }
@@ -3866,6 +3877,7 @@ export namespace Prisma {
       id: string
       method: $Enums.Methods
       path: string
+      secret: string | null
       archived: boolean
       workflowId: string
       createdAt: Date
@@ -4297,6 +4309,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Webhook", 'String'>
     readonly method: FieldRef<"Webhook", 'Methods'>
     readonly path: FieldRef<"Webhook", 'String'>
+    readonly secret: FieldRef<"Webhook", 'String'>
     readonly archived: FieldRef<"Webhook", 'Boolean'>
     readonly workflowId: FieldRef<"Webhook", 'String'>
     readonly createdAt: FieldRef<"Webhook", 'DateTime'>
@@ -5973,7 +5986,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["execution"]>
 
   export type ExecutionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5983,7 +5996,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["execution"]>
 
   export type ExecutionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -5993,7 +6006,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["execution"]>
 
   export type ExecutionSelectScalar = {
@@ -6007,22 +6020,22 @@ export namespace Prisma {
   export type ExecutionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workflowId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["execution"]>
   export type ExecutionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type ExecutionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }
   export type ExecutionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
-    user?: boolean | UserDefaultArgs<ExtArgs>
+    User?: boolean | UserDefaultArgs<ExtArgs>
   }
 
   export type $ExecutionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Execution"
     objects: {
       workflow: Prisma.$WorkflowPayload<ExtArgs>
-      user: Prisma.$UserPayload<ExtArgs>
+      User: Prisma.$UserPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -6425,7 +6438,7 @@ export namespace Prisma {
   export interface Prisma__ExecutionClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     workflow<T extends WorkflowDefaultArgs<ExtArgs> = {}>(args?: Subset<T, WorkflowDefaultArgs<ExtArgs>>): Prisma__WorkflowClient<$Result.GetResult<Prisma.$WorkflowPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-    user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    User<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6919,6 +6932,7 @@ export namespace Prisma {
     id: 'id',
     method: 'method',
     path: 'path',
+    secret: 'secret',
     archived: 'archived',
     workflowId: 'workflowId',
     createdAt: 'createdAt',
@@ -6974,6 +6988,14 @@ export namespace Prisma {
   };
 
   export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+  export const NullsOrder: {
+    first: 'first',
+    last: 'last'
+  };
+
+  export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
   export const JsonNullValueFilter: {
@@ -7245,6 +7267,7 @@ export namespace Prisma {
     id?: StringFilter<"Webhook"> | string
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
     path?: StringFilter<"Webhook"> | string
+    secret?: StringNullableFilter<"Webhook"> | string | null
     archived?: BoolFilter<"Webhook"> | boolean
     workflowId?: StringFilter<"Webhook"> | string
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
@@ -7256,6 +7279,7 @@ export namespace Prisma {
     id?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    secret?: SortOrderInput | SortOrder
     archived?: SortOrder
     workflowId?: SortOrder
     createdAt?: SortOrder
@@ -7265,22 +7289,24 @@ export namespace Prisma {
 
   export type WebhookWhereUniqueInput = Prisma.AtLeast<{
     id?: string
+    path?: string
     workflowId?: string
     AND?: WebhookWhereInput | WebhookWhereInput[]
     OR?: WebhookWhereInput[]
     NOT?: WebhookWhereInput | WebhookWhereInput[]
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
-    path?: StringFilter<"Webhook"> | string
+    secret?: StringNullableFilter<"Webhook"> | string | null
     archived?: BoolFilter<"Webhook"> | boolean
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeFilter<"Webhook"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
-  }, "id" | "workflowId">
+  }, "id" | "path" | "workflowId">
 
   export type WebhookOrderByWithAggregationInput = {
     id?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    secret?: SortOrderInput | SortOrder
     archived?: SortOrder
     workflowId?: SortOrder
     createdAt?: SortOrder
@@ -7297,6 +7323,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Webhook"> | string
     method?: EnumMethodsWithAggregatesFilter<"Webhook"> | $Enums.Methods
     path?: StringWithAggregatesFilter<"Webhook"> | string
+    secret?: StringNullableWithAggregatesFilter<"Webhook"> | string | null
     archived?: BoolWithAggregatesFilter<"Webhook"> | boolean
     workflowId?: StringWithAggregatesFilter<"Webhook"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Webhook"> | Date | string
@@ -7383,7 +7410,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Execution"> | Date | string
     updatedAt?: DateTimeFilter<"Execution"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    User?: XOR<UserScalarRelationFilter, UserWhereInput>
   }
 
   export type ExecutionOrderByWithRelationInput = {
@@ -7393,7 +7420,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     workflow?: WorkflowOrderByWithRelationInput
-    user?: UserOrderByWithRelationInput
+    User?: UserOrderByWithRelationInput
   }
 
   export type ExecutionWhereUniqueInput = Prisma.AtLeast<{
@@ -7406,7 +7433,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Execution"> | Date | string
     updatedAt?: DateTimeFilter<"Execution"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
-    user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    User?: XOR<UserScalarRelationFilter, UserWhereInput>
   }, "id">
 
   export type ExecutionOrderByWithAggregationInput = {
@@ -7601,6 +7628,7 @@ export namespace Prisma {
     id?: string
     method: $Enums.Methods
     path: string
+    secret?: string | null
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7611,6 +7639,7 @@ export namespace Prisma {
     id?: string
     method: $Enums.Methods
     path: string
+    secret?: string | null
     archived?: boolean
     workflowId: string
     createdAt?: Date | string
@@ -7621,6 +7650,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7631,6 +7661,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     workflowId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7641,6 +7672,7 @@ export namespace Prisma {
     id?: string
     method: $Enums.Methods
     path: string
+    secret?: string | null
     archived?: boolean
     workflowId: string
     createdAt?: Date | string
@@ -7651,6 +7683,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7660,6 +7693,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     workflowId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7747,7 +7781,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     workflow: WorkflowCreateNestedOneWithoutExecutionsInput
-    user: UserCreateNestedOneWithoutExecutionsInput
+    User: UserCreateNestedOneWithoutExecutionsInput
   }
 
   export type ExecutionUncheckedCreateInput = {
@@ -7763,7 +7797,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflow?: WorkflowUpdateOneRequiredWithoutExecutionsNestedInput
-    user?: UserUpdateOneRequiredWithoutExecutionsNestedInput
+    User?: UserUpdateOneRequiredWithoutExecutionsNestedInput
   }
 
   export type ExecutionUncheckedUpdateInput = {
@@ -7987,15 +8021,36 @@ export namespace Prisma {
     not?: NestedEnumMethodsFilter<$PrismaModel> | $Enums.Methods
   }
 
+  export type StringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type WorkflowScalarRelationFilter = {
     is?: WorkflowWhereInput
     isNot?: WorkflowWhereInput
+  }
+
+  export type SortOrderInput = {
+    sort: SortOrder
+    nulls?: NullsOrder
   }
 
   export type WebhookCountOrderByAggregateInput = {
     id?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    secret?: SortOrder
     archived?: SortOrder
     workflowId?: SortOrder
     createdAt?: SortOrder
@@ -8006,6 +8061,7 @@ export namespace Prisma {
     id?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    secret?: SortOrder
     archived?: SortOrder
     workflowId?: SortOrder
     createdAt?: SortOrder
@@ -8016,6 +8072,7 @@ export namespace Prisma {
     id?: SortOrder
     method?: SortOrder
     path?: SortOrder
+    secret?: SortOrder
     archived?: SortOrder
     workflowId?: SortOrder
     createdAt?: SortOrder
@@ -8030,6 +8087,24 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMethodsFilter<$PrismaModel>
     _max?: NestedEnumMethodsFilter<$PrismaModel>
+  }
+
+  export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    mode?: QueryMode
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
   }
 
   export type EnumSupportedPlatformsFilter<$PrismaModel = never> = {
@@ -8407,6 +8482,10 @@ export namespace Prisma {
     set?: $Enums.Methods
   }
 
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
   export type WorkflowUpdateOneRequiredWithoutWebhookNestedInput = {
     create?: XOR<WorkflowCreateWithoutWebhookInput, WorkflowUncheckedCreateWithoutWebhookInput>
     connectOrCreate?: WorkflowCreateOrConnectWithoutWebhookInput
@@ -8548,6 +8627,20 @@ export namespace Prisma {
     not?: NestedEnumMethodsFilter<$PrismaModel> | $Enums.Methods
   }
 
+  export type NestedStringNullableFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableFilter<$PrismaModel> | string | null
+  }
+
   export type NestedEnumMethodsWithAggregatesFilter<$PrismaModel = never> = {
     equals?: $Enums.Methods | EnumMethodsFieldRefInput<$PrismaModel>
     in?: $Enums.Methods[] | ListEnumMethodsFieldRefInput<$PrismaModel>
@@ -8556,6 +8649,34 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedEnumMethodsFilter<$PrismaModel>
     _max?: NestedEnumMethodsFilter<$PrismaModel>
+  }
+
+  export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: string | StringFieldRefInput<$PrismaModel> | null
+    in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    lt?: string | StringFieldRefInput<$PrismaModel>
+    lte?: string | StringFieldRefInput<$PrismaModel>
+    gt?: string | StringFieldRefInput<$PrismaModel>
+    gte?: string | StringFieldRefInput<$PrismaModel>
+    contains?: string | StringFieldRefInput<$PrismaModel>
+    startsWith?: string | StringFieldRefInput<$PrismaModel>
+    endsWith?: string | StringFieldRefInput<$PrismaModel>
+    not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedStringNullableFilter<$PrismaModel>
+    _max?: NestedStringNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedEnumSupportedPlatformsFilter<$PrismaModel = never> = {
@@ -8807,6 +8928,7 @@ export namespace Prisma {
     id?: string
     method: $Enums.Methods
     path: string
+    secret?: string | null
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8816,6 +8938,7 @@ export namespace Prisma {
     id?: string
     method: $Enums.Methods
     path: string
+    secret?: string | null
     archived?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -8830,7 +8953,7 @@ export namespace Prisma {
     id?: string
     createdAt?: Date | string
     updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutExecutionsInput
+    User: UserCreateNestedOneWithoutExecutionsInput
   }
 
   export type ExecutionUncheckedCreateWithoutWorkflowInput = {
@@ -8898,6 +9021,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -8907,6 +9031,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     method?: EnumMethodsFieldUpdateOperationsInput | $Enums.Methods
     path?: StringFieldUpdateOperationsInput | string
+    secret?: NullableStringFieldUpdateOperationsInput | string | null
     archived?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -9311,7 +9436,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutExecutionsNestedInput
+    User?: UserUpdateOneRequiredWithoutExecutionsNestedInput
   }
 
   export type ExecutionUncheckedUpdateWithoutWorkflowInput = {
