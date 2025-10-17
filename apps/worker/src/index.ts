@@ -31,14 +31,24 @@ async function main() {
         continue
       }
       // console.log(response[0]?.messages[0]?.message)
-      const executionRequests = response.map((res) =>
-        res.messages.filter((msg) => {
-          if (msg.message) {
-            return typeof msg.message === 'string' ? JSON.parse(msg.message) : msg.message
-          }
-          return false
-        }),
-      )?.[0]
+      const executionRequests = response.flatMap((res) =>
+        res.messages
+          .map(({ id, message }) => {
+            try {
+              const payload =
+                typeof message === 'string'
+                  ? (JSON.parse(message) as EnqueueExecutionPayload)
+                  : (message as EnqueueExecutionPayload)
+              return { id, payload }
+            } catch {
+              logger.warn('Invalid message JSON; skipping', { message })
+              return null
+            }
+          })
+          .filter(
+            (v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null,
+          ),
+      )
 
       console.log(executionRequests)
     } catch (error) {
