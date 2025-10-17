@@ -5,6 +5,7 @@ import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { backendConfig } from '@buzz8n/backend-common/config'
 import { credentialRouter } from '@/routers/credential'
 import { workflowRouter } from '@/routers/workflow'
+import { webhookRouter } from '@/routers/webhook'
 import { corsConfig } from '@/utils/cors-config'
 import { authRouter } from '@/routers/auth'
 import cookieParser from 'cookie-parser'
@@ -25,7 +26,7 @@ app.get('/healthcheck', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter, credentialRouter, workflowRouter]
+const routers = [authRouter, credentialRouter, workflowRouter, webhookRouter]
 
 routers.forEach((router) => app.use('/api/v1', router))
 

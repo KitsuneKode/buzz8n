@@ -1,13 +1,13 @@
 import { supportedMethodsSchema, type SupportedMethods } from '@buzz8n/common/types'
 import { Router, type Request, type Response, type NextFunction } from 'express'
-import { auth } from '@/middlewares/auth-middleware'
 import { enqueueExecution } from '@/redis/enqueue'
-import { Methods, prisma } from '@buzz8n/store'
 import { logger } from '@/utils/logger'
+import { prisma } from '@buzz8n/store'
 
 const router = Router()
 
-router.use('/webhook', auth)
+//TODO:RateLimited
+// router.use('/webhook', rateLimitMiddleware)
 
 router.all('/webhook/:webhookId', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -80,3 +80,5 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     next(error)
   }
 })
+
+export { router as webhookRouter }
