@@ -5,7 +5,7 @@ import { redis } from '@/redis'
 config.validateAll()
 interface ConsumerGroupResponseMessage {
   id: string
-  message: EnqueueExecutionPayload
+  message: unknown
 }
 interface ConsumerGroupResponseType {
   name: string
