@@ -61,6 +61,7 @@ interface WorkflowEditorState {
   deleteSelectedNodes: () => void
   selectNode: (nodeId: string | null) => void
   deleteNode: (nodeId: string) => void
+  updateNodeConfig: (id: string, patch: Record<string, unknown>) => void
   updateSelectedNodeConfig: (patch: Record<string, unknown>) => void
   setSelectedNodeCredentialRef: (credential: CredentialRef | null) => void
   resendEmail: (nodeId: string) => Promise<void>
@@ -409,8 +410,15 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
         : null,
     }))
   },
-
-  updateSelectedNodeConfig: (patch: Record<string, unknown>) => {
+  updateNodeConfig: (id, patch) => {
+    set((state) => ({
+      nodes: state.nodes.map((n) =>
+        n.id === id ? { ...n, data: { ...n.data, config: { ...n.data.config, ...patch } } } : n,
+      ),
+      isDirty: true,
+    }))
+  },
+  updateSelectedNodeConfig: (patch) => {
     const { selectedNodeId } = get()
     if (!selectedNodeId) return
     set((state) => ({

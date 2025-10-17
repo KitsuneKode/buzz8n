@@ -1,16 +1,20 @@
 'use client'
 
-import { Play, Square, RotateCcw, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { Play, RotateCcw, Clock, CheckCircle, XCircle } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { useExecuteWorkflow } from '@/hooks/useWorkflow'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 
 export function ExecuteBar() {
-  const { nodes, isExecuting, currentExecution, executeWorkflow, stopExecution, toggleLogsDrawer } =
+  const { nodes, isExecuting, workflow, currentExecution, toggleLogsDrawer } =
     useWorkflowEditorStore()
 
   const canExecute = nodes.length > 0 && !isExecuting
   const hasManualTrigger = nodes.some((node) => node.data.type === 'manualTrigger')
+
+  const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
 
   const getExecutionStatusIcon = () => {
     if (!currentExecution) return null
@@ -49,15 +53,21 @@ export function ExecuteBar() {
       <div className="bg-card border border-border rounded-lg shadow-lg p-4 flex items-center space-x-4">
         {/* Execute Button */}
         <Button
-          onClick={isExecuting ? stopExecution : executeWorkflow}
+          onClick={() => {
+            if (!workflow) {
+              return
+            }
+            executeWorkflowMutate(workflow.id)
+          }}
           disabled={!canExecute && !isExecuting}
           className="flex items-center space-x-2"
           variant={isExecuting ? 'destructive' : 'default'}
         >
           {isExecuting ? (
             <>
-              <Square className="w-4 h-4" />
-              <span>Stop execution</span>
+              <Spinner className="size-4" />
+              {/* <Square className="w-4 h-4" /> */}
+              {/* <span>Stop execution</span> */}
             </>
           ) : (
             <>

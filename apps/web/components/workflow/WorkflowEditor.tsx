@@ -3,8 +3,6 @@
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CredentialModal from '../credentials/CredentialModal'
 import { useUpdateWorkflow } from '@/hooks/useWorkflow'
-import { toast } from '@buzz8n/ui/components/sonner'
-import { WorkflowData } from '@/lib/types/workflow'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
 import { RightPanel } from './RightPanel'
@@ -14,20 +12,19 @@ import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
 import { useEffect } from 'react'
 
-export function WorkflowEditor({ id }: { id: string }) {
+export function WorkflowEditor() {
   const {
     nodes,
     edges,
     workflow,
     activeTab,
     isLogsDrawerOpen,
-    startSaving,
     deleteSelectedNodes,
     saveWorkflow,
     executeWorkflow,
   } = useWorkflowEditorStore()
 
-  const { mutateAsync: updateWorkflowAsync } = useUpdateWorkflow(id)
+  const { mutate: updateWorkflowMutate } = useUpdateWorkflow()
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -45,24 +42,14 @@ export function WorkflowEditor({ id }: { id: string }) {
       // Save workflow (Cmd/Ctrl + S)
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault()
-        try {
-          startSaving()
-          const { updatedAt } = await updateWorkflowAsync({
+        updateWorkflowMutate({
+          id: workflow.id,
+          data: {
             edges,
             nodes,
             active: workflow.active,
-          })
-
-          const updatedWorkflow: WorkflowData = {
-            ...workflow,
-            nodes,
-            edges,
-            updatedAt: new Date(updatedAt),
-          }
-          saveWorkflow(updatedWorkflow)
-        } catch {
-          toast.error('Failed to save workflow')
-        }
+          },
+        })
       }
 
       // Execute workflow (Cmd/Ctrl + Enter)
@@ -80,9 +67,8 @@ export function WorkflowEditor({ id }: { id: string }) {
     saveWorkflow,
     executeWorkflow,
     deleteSelectedNodes,
-    updateWorkflowAsync,
-    startSaving,
     nodes,
+    updateWorkflowMutate,
     workflow,
     edges,
   ])
@@ -99,7 +85,7 @@ export function WorkflowEditor({ id }: { id: string }) {
     <ReactFlowProvider>
       <div className="h-[calc(100vh-4rem)] flex flex-col bg-background">
         {/* Top Bar */}
-        <TopBar id={id} />
+        <TopBar />
 
         <div className="flex flex-1 overflow-hidden">
           {/* Left Sidebar */}

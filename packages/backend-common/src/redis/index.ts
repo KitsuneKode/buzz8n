@@ -92,4 +92,7 @@ export class RedisClient {
   }) {
     return this.redisClient.xAck(streamId, consumerGroup, messageID)
   }
+  async cleanup() {
+    return this.redisClient.quit()
+  }
 }

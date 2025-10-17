@@ -21,6 +21,7 @@ export interface WorkflowData extends Workflow {
 }
 
 export interface NodeData extends Node {
+  [key: string]: any
   data: {
     label: string
     type: NodeType
