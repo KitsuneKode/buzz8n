@@ -30,14 +30,13 @@ export class RedisClient {
     const logger = getLogger(service)
     this.redisClient = createClient({ url: REDIS_URL })
     this.logger = logger
+    this.redisClient.on('error', (err) => {
+      this.logger.error(`${this.LOG_GROUP} Client error`, err)
+    })
   }
 
   async connect() {
-    await this.redisClient
-      .on('error', (err) => {
-        this.logger.error(`${this.LOG_GROUP} Client error`, err)
-      })
-      .connect()
+    await this.redisClient.connect()
   }
 
   async xAdd({

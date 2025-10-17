@@ -54,12 +54,11 @@ export function ExecuteBar() {
         {/* Execute Button */}
         <Button
           onClick={() => {
-            if (!workflow) {
-              return
-            }
+            if (!workflow || isExecuting || isPending) return
+
             executeWorkflowMutate(workflow.id)
           }}
-          disabled={!canExecute && !isExecuting}
+          disabled={!canExecute || !isExecuting || isPending}
           className="flex items-center space-x-2"
           variant={isExecuting ? 'destructive' : 'default'}
         >

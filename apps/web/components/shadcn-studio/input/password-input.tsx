@@ -2,7 +2,7 @@
 
 import { useId, useState } from 'react'
 
-import { EyeIcon, EyeOffIcon } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 
 import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
@@ -29,7 +29,7 @@ const InputPassword = ({
           type={isVisible ? 'text' : 'password'}
           placeholder="Password"
           value={defaultValue}
-          className={cn(' pr-9 h-10 row-4', className)}
+          className={cn(' pr-9 h-10', className)}
           readOnly
         />
         <Button
@@ -38,7 +38,7 @@ const InputPassword = ({
           onClick={() => setIsVisible((prevState) => !prevState)}
           className="text-muted-foreground focus-visible:ring-ring/50 absolute inset-y-0 right-0 rounded-l-none hover:bg-transparent"
         >
-          {isVisible ? <EyeOffIcon /> : <EyeIcon />}
+          {isVisible ? <EyeOff /> : <Eye />}
           <span className="sr-only">{isVisible ? 'Hide password' : 'Show password'}</span>
         </Button>
       </div>

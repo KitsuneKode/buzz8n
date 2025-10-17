@@ -1,6 +1,7 @@
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { config, logger } from '@/utils'
 import { redis } from '@/redis'
+import { sleep } from 'bun'
 
 config.validateAll()
 interface ConsumerGroupResponseMessage {
@@ -28,6 +29,7 @@ async function main() {
       })) as ConsumerGroupResponseType[] | null
 
       if (!response || response.length < 1) {
+        await sleep(200)
         continue
       }
       // console.log(response[0]?.messages[0]?.message)
@@ -56,8 +58,16 @@ async function main() {
       logger.error(`${redis.LOG_GROUP} Error reading the message`, { error })
     }
   }
-
-  await redis.cleanup()
+  process.on('SIGINT', async () => {
+    logger.info('Shutting down…')
+    await redis.cleanup()
+    process.exit(0)
+  })
+  process.on('SIGTERM', async () => {
+    logger.info('Shutting down…')
+    await redis.cleanup()
+    process.exit(0)
+  })
 }
 
 main()
