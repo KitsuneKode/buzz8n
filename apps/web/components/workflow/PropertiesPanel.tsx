@@ -15,8 +15,10 @@ import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
 import React, { useState } from 'react'
 
+import InputPassword from '@/components/shadcn-studio/input/password-input'
 import { AlertCircle, Check, Copy, Settings, Trash2 } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import CopyButton from '../shadcn-studio/button/copy-button'
 import { useDashboardStore } from '@/stores/dashboard'
 
 export function PropertiesPanel() {
@@ -28,9 +30,7 @@ export function PropertiesPanel() {
     deleteNode,
   } = useWorkflowEditorStore()
   const { credentials, openCredentialModal } = useDashboardStore()
-
   const [copied, setCopied] = useState(false)
-
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
   if (!selectedNode) {
@@ -45,7 +45,7 @@ export function PropertiesPanel() {
         ? ['email']
         : []
 
-  const handleConfigChange = (key: string, value: string | boolean) => {
+  const handleConfigChange = (key: string, value: string | unknown) => {
     updateSelectedNodeConfig({ [key]: value })
   }
 
@@ -54,8 +54,6 @@ export function PropertiesPanel() {
     deleteNode(selectedNodeId)
   }
   const handleCopy = () => {
-    const content = `https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`
-    navigator.clipboard.writeText(content)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -252,15 +250,50 @@ export function PropertiesPanel() {
                 readOnly
                 className="caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none"
               />
-
-              <Button
+              <CopyButton
+                copyContent={`https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`}
+                compact
+                className="absolute right-5 -translate-y-12 z-30 "
+              />
+              {/* <Button
                 variant="ghost"
                 size="icon"
-                className="absolute right-4 -translate-y-12 z-30 "
                 onClick={handleCopy}
-              >
-                {copied ? <Check className="text-primary h-5 w-5" /> : <Copy className="h-5 w-5" />}
-              </Button>
+                className="absolute right-4 -translate-y-12 z-30"
+              > */}
+              {/* {copied ? <Check className="text-primary h-5 w-5" /> : <Copy className="h-5 w-5" />}
+              </Button> */}
+            </div>
+            {nodeConfig.secret && (
+              <div className="space-y-2 ">
+                <InputPassword
+                  defaultValue={nodeConfig.secret}
+                  className="caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none"
+                />
+              </div>
+            )}
+            <div className="space-y-2 flex justify-between text-primary">
+              {nodeConfig.secret ? (
+                <CopyButton copyTag="Copy Secret" copyContent={nodeConfig.secret || ''} />
+              ) : (
+                <div />
+              )}
+              <div className="gap-x-4 flex">
+                <Label htmlFor="secret">Authenticated</Label>
+                <Switch
+                  id="secret"
+                  defaultChecked={!!nodeConfig.secret}
+                  onCheckedChange={(e) => {
+                    const val = e.valueOf()
+                    console.log(val)
+                    let value = null
+                    if (val) {
+                      value = crypto.randomUUID()
+                    }
+                    handleConfigChange('secret', value)
+                  }}
+                />
+              </div>
             </div>
           </div>
         )}

@@ -87,7 +87,11 @@ const nodeCategories = [
         description: 'Start your workflow via a webhook.',
         icon: 'webhook',
         category: 'triggers',
-        defaultConfig: {},
+        defaultConfig: {
+          path: crypto.randomUUID(),
+          method: 'POST',
+          secret: null,
+        },
       },
     ],
   },
@@ -208,15 +212,8 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const {
-    addNode,
-    pendingConnectFromNodeId,
-    selectNode,
-    nodes,
-    addNodeWithEdge,
-    handleId,
-    updateSelectedNodeConfig,
-  } = useWorkflowEditorStore()
+  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId, updateNodeConfig } =
+    useWorkflowEditorStore()
 
   const existingWebhook = nodes.some((n) => n.data.type === 'webhook')
 
@@ -246,7 +243,6 @@ export function NodePalette() {
         }
 
   const handleNodeClick = (template: NodeTemplate) => {
-    selectNode(template.id)
     if (pendingConnectFromNodeId) {
       const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
 
@@ -269,17 +265,26 @@ export function NodePalette() {
       // Fallback add (e.g., when palette opened from toolbar)
       addNode(template, existingNodesOffset)
     }
-    if (template.type === 'webhook') {
-      const uniquePath = crypto.randomUUID()
+    // if (template.type === 'webhook') {
+    //   const uniquePath = crypto.randomUUID()
 
-      updateSelectedNodeConfig({ path: uniquePath })
-    }
+    //   updateNodeConfig(template.id, { path: uniquePath })
+    // }
   }
 
   const onDragStart = (event: React.DragEvent, template: NodeTemplate) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(template))
     event.dataTransfer.effectAllowed = 'move'
   }
+
+  // const onDragEnd = (template: NodeTemplate) => {
+  //   console.log('first')
+  //   if (template.type === 'webhook') {
+  //     const uniquePath = crypto.randomUUID()
+
+  //     updateNodeConfig(template.id, { path: uniquePath })
+  //   }
+  // }
 
   return (
     <div className="flex flex-col h-full">
@@ -311,7 +316,6 @@ export function NodePalette() {
                 </Badge>
               )}
             </h4>
-
             <div className="space-y-2">
               {category.nodes.map((node) => (
                 <Button

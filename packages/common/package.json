@@ -5,18 +5,18 @@
   "private": true,
   "exports": {
     "./types": "./src/types/index.ts",
-    "./redis": "./src/redis/index.ts",
     "./config": "./src/utils/config-loader.ts",
     "./client-logger": "./src/utils/client-logger.ts"
   },
   "devDependencies": {
+    "@buzz8n/typescript-config": "*",
     "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
   },
   "dependencies": {
-    "@buzz8n/typescript-config": "*",
+    "@buzz8n/store": "*",
     "zod": "^4.1.11"
   }
 }

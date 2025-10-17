@@ -60,7 +60,7 @@ export const nodeDataSchema = z
   .catchall(z.any())
 
 // Edge data schema
-export const edgeDataSchema = z.object({
+export const edgeDataSchema = z.looseObject({
   id: z.string(),
   source: z.string(),
   target: z.string(),
@@ -108,7 +108,7 @@ export const updateWorkflowSchema = z.object({
   nodes: z
     .array(
       z
-        .object({
+        .looseObject({
           data: nodeDataSchema,
         })
         .catchall(z.any()),

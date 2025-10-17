@@ -20,6 +20,7 @@
   "registries": {
     "@tailark": "https://tailark.com/r/{name}.json",
     "@origin-ui": "https://originui.com/r/{name}.json",
+    "@ss-components": "https://shadcnstudio.com/r/components/{name}.json",
     "@react-flow": "https://ui.reactflow.dev/{name}"
   }
 }

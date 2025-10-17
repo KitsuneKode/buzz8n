@@ -35,7 +35,7 @@ export function WorkflowClient() {
 
   return (
     <div className="pt-16">
-      <WorkflowEditor id={params.id as string} />
+      <WorkflowEditor />
     </div>
   )
 }

@@ -1,3 +1,3 @@
-import { redisClient } from '@buzz8n/backend-common/redis'
+import { RedisClient } from '@buzz8n/backend-common/redis'
 
-export const redis = redisClient('worker')
+export const redis = new RedisClient('worker')

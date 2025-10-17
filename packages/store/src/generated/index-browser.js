@@ -145,6 +145,7 @@ exports.Prisma.WebhookScalarFieldEnum = {
   id: 'id',
   method: 'method',
   path: 'path',
+  secret: 'secret',
   archived: 'archived',
   workflowId: 'workflowId',
   createdAt: 'createdAt',
@@ -182,6 +183,11 @@ exports.Prisma.JsonNullValueInput = {
 exports.Prisma.QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
+};
+
+exports.Prisma.NullsOrder = {
+  first: 'first',
+  last: 'last'
 };
 
 exports.Prisma.JsonNullValueFilter = {

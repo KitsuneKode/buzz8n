@@ -10,9 +10,9 @@ import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
 
-export function TopBar({ id }: { id: string }) {
+export function TopBar() {
   const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
-  const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow(id)
+  const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
   const handleToggleActive = () => {
     // Toggle workflow active state
@@ -31,9 +31,12 @@ export function TopBar({ id }: { id: string }) {
     console.log(webhookNode)
 
     saveWorkflowMutate({
-      nodes,
-      edges,
-      active: workflow.active,
+      id: workflow.id,
+      data: {
+        nodes,
+        edges,
+        active: workflow.active,
+      },
     })
   }
 

@@ -7,6 +7,7 @@ import {
   CreateWorkflow,
   UpdateWorkflow,
   WorkflowListData,
+  updateWorkflowSchema,
 } from '@buzz8n/common/types'
 
 import {
@@ -138,15 +139,22 @@ export function useCreateWorkflow(): UseMutationResult<
   })
 }
 
+type UpdateWorkflowArgs = {
+  id: string
+  data: UpdateWorkflow
+}
 // Update workflow mutation
-export function useUpdateWorkflow(
-  id: string,
-): UseMutationResult<WorkflowData, Error, UpdateWorkflow, unknown> {
+export function useUpdateWorkflow(): UseMutationResult<
+  WorkflowData,
+  Error,
+  UpdateWorkflowArgs,
+  unknown
+> {
   const queryClient = useQueryClient()
   const { saveWorkflow } = useWorkflowEditorStore()
 
   return useMutation({
-    mutationFn: async (data: UpdateWorkflow): Promise<WorkflowData> => {
+    mutationFn: async ({ id, data }: UpdateWorkflowArgs): Promise<WorkflowData> => {
       const response = await axios.put<WorkflowResponse>(`${API_URL}/workflow/${id}`, data, {
         withCredentials: true,
       })
@@ -155,8 +163,7 @@ export function useUpdateWorkflow(
     onSuccess: (workflow) => {
       // Update cache
 
-      console.log(workflow.id)
-      queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(id), workflow)
+      queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(workflow.id), workflow)
 
       // Invalidate workflows list
       queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
@@ -204,11 +211,14 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
 }
 
 // Execute workflow mutation
-export function useExecuteWorkflow(
-  id: string,
-): UseMutationResult<{ executionId: string }, Error, void, unknown> {
+export function useExecuteWorkflow(): UseMutationResult<
+  { executionId: string },
+  Error,
+  string, // ✅ argument type for mutate(),
+  unknown
+> {
   return useMutation({
-    mutationFn: async (): Promise<{ executionId: string }> => {
+    mutationFn: async (id: string): Promise<{ executionId: string }> => {
       const response = await axios.post<{ executionId: string }>(
         `${API_URL}/workflow/${id}/execute`,
         {},
@@ -218,6 +228,7 @@ export function useExecuteWorkflow(
       )
       return response.data
     },
+
     onSuccess: () => {
       toast.success('Workflow execution started')
       // Could trigger a query to fetch execution status

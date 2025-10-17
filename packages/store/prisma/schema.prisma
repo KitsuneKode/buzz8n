@@ -54,9 +54,11 @@ model Workflow {
 }
 
 model Webhook {
-  id       String  @id @default(cuid())
-  method   Methods
-  path     String
+  id     String  @id @default(cuid())
+  method Methods
+  path   String  @unique
+  secret String?
+
   archived Boolean @default(false)
 
   workflowId String   @unique
@@ -93,7 +95,7 @@ model Execution {
   workflow   Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
 
   userId String
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  User   User   @relation(fields: [userId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

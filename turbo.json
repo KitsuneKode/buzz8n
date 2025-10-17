@@ -36,6 +36,10 @@
     "db:push": {
       "cache": false,
       "persistent": true
+    },
+    "redis:migrate": {
+      "cache": false,
+      "persistent": true
     }
   }
 }

@@ -12,6 +12,7 @@
   "packageManager": "bun@1.2.18",
   "private": true,
   "scripts": {
+    "test": "bun test",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:web": "turbo run -F @buzz8n/web dev",
@@ -22,6 +23,7 @@
     "db:migrate": "turbo run db:migrate",
     "db:reset": "turbo run db:reset",
     "db:studio": "turbo run db:studio",
+    "redis:migrate": "turbo run redis:migrate",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
     "preinstall": "bunx only-allow bun",
