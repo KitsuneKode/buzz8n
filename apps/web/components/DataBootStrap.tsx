@@ -26,8 +26,6 @@ export default function DataBootstrap() {
 
   useEffect(() => {
     if (initialCredentials && !isLoading && !isError) {
-      console.log('Credentials fetched successfully:', initialCredentials)
-
       const credentials: Credential[] = initialCredentials.map(
         (credential: CredentialResponse) => ({
           config: credential.data,

@@ -16,6 +16,7 @@ import {
   Database,
   Users,
   Plus,
+  Sigma,
 } from 'lucide-react'
 import { IconBrandTelegram, IconRobotFace } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
@@ -88,10 +89,34 @@ const nodeCategories = [
         icon: 'webhook',
         category: 'triggers',
         defaultConfig: {
-          path: crypto.randomUUID(),
+          path: '',
           method: 'POST',
           secret: null,
         },
+      },
+    ],
+  },
+  {
+    id: 'ai-agent-tools',
+    label: 'Agentic-Tools',
+    nodes: [
+      {
+        id: `agent-tool-sum-${Date.now()}`,
+        type: 'sumTool' as NodeType,
+        label: 'Sum Tool',
+        description: 'Do sum of two numbers',
+        icon: 'sum',
+        category: 'ai-agent-tools',
+        defaultConfig: {},
+      },
+      {
+        id: `agent-tool-multi-${Date.now()}`,
+        type: 'multiplyTool' as NodeType,
+        label: 'Multiplication Tool',
+        description: 'Do multiplication of two numbers',
+        icon: 'cross',
+        category: 'ai-agent-tools',
+        defaultConfig: {},
       },
     ],
   },
@@ -205,6 +230,10 @@ const getNodeIcon = (iconType: string) => {
       return <Users className="w-5 h-5" />
     case 'plus':
       return <Plus className="w-5 h-5" />
+    case 'cross':
+      return <Plus className="w-5 h-5 rotate-45" />
+    case 'sum':
+      return <Sigma className="w-5 h-5" />
     default:
       return <MoreHorizontal className="w-5 h-5" />
   }
@@ -212,10 +241,18 @@ const getNodeIcon = (iconType: string) => {
 
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
-  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId, updateNodeConfig } =
+  const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId } =
     useWorkflowEditorStore()
 
   const existingWebhook = nodes.some((n) => n.data.type === 'webhook')
+  const existingManualTrigger = nodes.some((n) => n.data.type === 'manualTrigger')
+
+  const aiAgentNodeId = handleId?.split('-')[0]
+  const onAiAgentAddTools = nodes.find((n) => n.id === aiAgentNodeId && n.data.type === 'aiAgent')
+
+  const existingAiAgentTools = new Set(
+    nodes.filter((n) => n.data.category === 'ai-agent-tools').map((n) => n.type),
+  )
 
   const filteredCategories = nodeCategories
     .map((category) => ({
@@ -224,10 +261,20 @@ export function NodePalette() {
         (node) =>
           (node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
             node.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
-          !(existingWebhook && node.type === 'webhook'),
+          !(
+            (existingWebhook && node.type === 'webhook') ||
+            (existingManualTrigger && node.type === 'manualTrigger')
+          ) &&
+          !existingAiAgentTools.has(node.type),
       ),
     }))
-    .filter((category) => category.nodes.length > 0)
+    .filter((category) => {
+      if (category.nodes.length === 0) return false
+
+      const isAiAgentTools = category.id === 'ai-agent-tools'
+
+      return onAiAgentAddTools ? isAiAgentTools : !isAiAgentTools
+    })
 
   const OFFSET = { x: 240, y: 0 }
 
@@ -265,26 +312,12 @@ export function NodePalette() {
       // Fallback add (e.g., when palette opened from toolbar)
       addNode(template, existingNodesOffset)
     }
-    // if (template.type === 'webhook') {
-    //   const uniquePath = crypto.randomUUID()
-
-    //   updateNodeConfig(template.id, { path: uniquePath })
-    // }
   }
 
   const onDragStart = (event: React.DragEvent, template: NodeTemplate) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(template))
     event.dataTransfer.effectAllowed = 'move'
   }
-
-  // const onDragEnd = (template: NodeTemplate) => {
-  //   console.log('first')
-  //   if (template.type === 'webhook') {
-  //     const uniquePath = crypto.randomUUID()
-
-  //     updateNodeConfig(template.id, { path: uniquePath })
-  //   }
-  // }
 
   return (
     <div className="flex flex-col h-full">
@@ -306,6 +339,17 @@ export function NodePalette() {
 
       {/* Node Categories */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {filteredCategories.length === 0 && !onAiAgentAddTools && (
+          <p className="text-center text-muted-foreground">No nodes found</p>
+        )}
+        {filteredCategories.length === 0 && onAiAgentAddTools && (
+          <>
+            <h4 className="text-sm font-medium text-primary flex items-center px-3 pb-3 rounded-lg border-secondary">
+              Agentic-Tools
+            </h4>
+            <p className="text-center text-muted-foreground">No more tools found</p>
+          </>
+        )}
         {filteredCategories.map((category) => (
           <div key={category.id}>
             <h4 className="text-sm font-medium text-primary flex items-center px-3 pb-3 rounded-lg border-secondary">

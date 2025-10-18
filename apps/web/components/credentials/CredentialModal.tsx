@@ -49,7 +49,6 @@ const CredentialModal = () => {
         data: credentialData.config,
       }
 
-      console.log(credentialData, 'data to be foning to db')
       const response = await axios.post<CredentialResponse>(`${API_URL}/credential`, payload, {
         headers: { 'Content-Type': 'application/json' },
         withCredentials: true,

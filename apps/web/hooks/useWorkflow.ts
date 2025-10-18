@@ -7,7 +7,6 @@ import {
   CreateWorkflow,
   UpdateWorkflow,
   WorkflowListData,
-  updateWorkflowSchema,
 } from '@buzz8n/common/types'
 
 import {
@@ -75,6 +74,9 @@ export function useWorkflow(id: string): UseQueryResult<WorkflowData, Error> {
     },
     enabled: !!id && id !== 'new',
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
   })
 }
 

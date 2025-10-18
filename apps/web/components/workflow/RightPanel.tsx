@@ -12,6 +12,8 @@ export function RightPanel() {
   if (!isNodePaletteOpen && !selectedNode) {
     return null
   }
+
+  console.log(isNodePaletteOpen, selectedNode)
   const showingPalette = isNodePaletteOpen
 
   return (

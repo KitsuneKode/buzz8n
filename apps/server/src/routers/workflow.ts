@@ -245,9 +245,6 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
           edges,
           webhook: {
             upsert: {
-              where: {
-                path: existingWebhookPath,
-              },
               update: {
                 method: webhookData.method,
                 path: webhookData.path,

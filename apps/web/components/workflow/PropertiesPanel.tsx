@@ -13,12 +13,12 @@ import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
-import React, { useState } from 'react'
+import React from 'react'
 
 import InputPassword from '@/components/shadcn-studio/input/password-input'
-import { AlertCircle, Check, Copy, Settings, Trash2 } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CopyButton from '../shadcn-studio/button/copy-button'
+import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard'
 
 export function PropertiesPanel() {
@@ -30,7 +30,6 @@ export function PropertiesPanel() {
     deleteNode,
   } = useWorkflowEditorStore()
   const { credentials, openCredentialModal } = useDashboardStore()
-  const [copied, setCopied] = useState(false)
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
   if (!selectedNode) {
@@ -52,10 +51,6 @@ export function PropertiesPanel() {
   const handleDeleteNode = () => {
     if (!selectedNodeId) return
     deleteNode(selectedNodeId)
-  }
-  const handleCopy = () => {
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
   }
 
   // const handleSave = () => {

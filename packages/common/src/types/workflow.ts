@@ -1,26 +1,5 @@
 import { z, looseObject } from 'zod'
 
-// Base workflow schema matching Prisma model
-export const workflowSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  active: z.boolean(),
-  nodes: z.array(z.record(z.string(), z.any())), // Json array
-  edges: z.array(z.record(z.string(), z.any())), // Json array
-  userId: z.string(),
-  archived: z.boolean().default(false),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
-
-// Workflow creation schema (without id, timestamps)
-export const createWorkflowSchema = z.object({
-  name: z.string().min(1, 'Workflow name is required'),
-  active: z.boolean().default(false),
-  // nodes: z.array(z.record(z.string(), z.any())).default([]),
-  // edges: z.array(z.record(z.string(), z.any())).default([]),
-})
-
 // Node types enum
 export const nodeTypeSchema = z.enum([
   'manualTrigger',
@@ -34,38 +13,74 @@ export const nodeTypeSchema = z.enum([
   'executedByWorkflow',
   'chatMessage',
   'evaluation',
+  'sumTool',
+  'multiplyTool',
   'other',
 ])
 
 // Execution status enum
 export const executionStatusSchema = z.enum(['initial', 'loading', 'success', 'error'])
 
+export const credentialRefSchema = z.looseObject({
+  id: z.string(),
+  name: z.string(),
+  provider: z.string(),
+})
+
 // Node data schema
+
 export const nodeDataSchema = z
   .object({
     label: z.string(),
     type: nodeTypeSchema,
     description: z.string().optional(),
+    category: z.string().optional(),
     config: z.record(z.string(), z.any()),
-    credentials: z
-      .looseObject({
-        id: z.string(),
-        name: z.string(),
-        provider: z.string(),
-      })
-      .optional(),
-
+    credentials: credentialRefSchema.optional(),
     status: executionStatusSchema.optional(),
   })
   .catchall(z.any())
 
-// Edge data schema
-export const edgeDataSchema = z.looseObject({
+// Edge schema
+export const edgeSchema = z
+  .looseObject({
+    id: z.string(),
+    source: z.string(),
+    target: z.string(),
+    sourceHandle: z.string().optional().nullish(),
+    targetHandle: z.string().optional().nullish(),
+  })
+  .catchall(z.any())
+
+//Node schema
+export const nodeSchema = z
+  .looseObject({
+    data: nodeDataSchema,
+  })
+  .catchall(z.any())
+
+export const nodesSchema = z.array(nodeSchema)
+export const edgesSchema = z.array(edgeSchema)
+
+// Base workflow schema matching Prisma model
+export const workflowSchema = z.object({
   id: z.string(),
-  source: z.string(),
-  target: z.string(),
-  sourceHandle: z.string().optional(),
-  targetHandle: z.string().optional(),
+  name: z.string(),
+  active: z.boolean(),
+  nodes: nodesSchema,
+  edges: edgesSchema, // Json array
+  userId: z.string(),
+  archived: z.boolean().default(false),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+})
+
+// Workflow creation schema (without id, timestamps)
+export const createWorkflowSchema = z.object({
+  name: z.string().min(1, 'Workflow name is required'),
+  active: z.boolean().default(false),
+  nodes: nodesSchema.default([]),
+  edges: edgesSchema.default([]),
 })
 
 // Node template schema
@@ -105,16 +120,8 @@ export const executionSchema = z.object({
 export const updateWorkflowSchema = z.object({
   name: z.string().min(1).optional(),
   active: z.boolean().optional(),
-  nodes: z
-    .array(
-      z
-        .looseObject({
-          data: nodeDataSchema,
-        })
-        .catchall(z.any()),
-    )
-    .optional(),
-  edges: z.array(z.record(z.string(), z.any())).optional(),
+  nodes: nodesSchema.optional(),
+  edges: edgesSchema.optional(),
 })
 
 // API Response schemas
@@ -122,8 +129,8 @@ export const workflowResponseSchema = z.object({
   id: z.string(),
   name: z.string(),
   active: z.boolean(),
-  nodes: z.array(z.record(z.string(), z.any())),
-  edges: z.array(z.record(z.string(), z.any())),
+  nodes: nodesSchema,
+  edges: edgesSchema,
   userId: z.string(),
   archived: z.boolean(),
   createdAt: z.string(), // ISO string from API
@@ -172,11 +179,7 @@ export interface WorkflowListData extends Omit<WorkflowListItem, 'createdAt' | '
   updatedAt: Date
 }
 
-export interface CredentialRef {
-  id: string
-  name: string
-  provider: string
-}
+export type CredentialRef = z.infer<typeof credentialRefSchema>
 
 export interface ExecutionLog {
   id: string

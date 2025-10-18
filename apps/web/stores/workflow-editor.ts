@@ -165,6 +165,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
 
   onEdgesChange: (changes) => {
+    console.log(changes)
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
       isDirty: true,
@@ -186,24 +187,39 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       data: {
         label: template.label,
         type: template.type,
+        category: template.category,
         description: template.description,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
     }
+    let newEdge: EdgeData | null = null
 
-    const newEdge: EdgeData = {
-      id: `${prevNodeId}-${newNode.id}`,
-      source: prevNodeId,
-      target: newNode.id,
+    if (!(template.type === 'webhook' || template.type === 'manualTrigger')) {
+      newEdge = {
+        id: `${prevNodeId}-${newNode.id}`,
+        source: prevNodeId,
+        target: newNode.id,
+      }
     }
-    if (handleId && handleId !== '') {
+
+    if (template.type === 'webhook') {
+      const uniquePath = crypto.randomUUID()
+      newNode.data.config.path = uniquePath
+    }
+
+    if (handleId && handleId !== '' && newEdge) {
+      if (template.category === 'ai-agent-tools') {
+        newNode.parentId = prevNodeId
+        newEdge.type = 'aiAgentTool'
+      }
+
       newEdge.sourceHandle = handleId
     }
 
     set((state) => ({
       nodes: [...state.nodes, newNode],
-      edges: [...state.edges, newEdge],
+      edges: newEdge ? [...state.edges, newEdge] : state.edges,
       isDirty: true,
       isNodePaletteOpen: false,
       pendingConnectFromNodeId: null,
@@ -218,10 +234,15 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       data: {
         label: template.label,
         type: template.type,
+        category: template.category,
         description: template.description,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
+    }
+    if (template.type === 'webhook') {
+      const uniquePath = crypto.randomUUID()
+      newNode.data.config.path = uniquePath
     }
 
     set((state) => ({

@@ -10,6 +10,7 @@ const getEnvironment = (service: ServiceType) => {
   }
   return backendConfig.getConfig('redisUrl')
 }
+
 const getLogger = (service: ServiceType) => {
   if (service === 'worker') {
     return workerLogger
@@ -80,16 +81,28 @@ export class RedisClient {
     )
   }
 
+  async incr(key: string) {
+    return this.redisClient.incr(key)
+  }
+
+  async decr(key: string) {
+    return this.redisClient.decr(key)
+  }
+
+  async expire(key: string, ttl: number) {
+    return this.redisClient.expire(key, ttl)
+  }
+
   async xAck({
-    streamId,
-    consumerGroup,
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup = this.EXECUTION_GROUP,
     messageID,
   }: {
-    streamId: string
-    consumerGroup: string
+    consumerGroup?: string
+    streamKey?: string
     messageID: string
   }) {
-    return this.redisClient.xAck(streamId, consumerGroup, messageID)
+    return this.redisClient.xAck(streamKey, consumerGroup, messageID)
   }
 
   async unsubscribe(channelName?: string[]) {
