@@ -1,129 +1,129 @@
 # Testing Guide
 
-This document provides an overview of the test suite and how to run tests for the modified files.
+This guide explains how tests are organized and how to run them in the buzz8n monorepo.
 
 ## Overview
 
-Comprehensive unit tests have been created for all files modified in the current branch, using Bun's built-in test runner (Jest-compatible API).
+We use Bun's built-in test runner across a dedicated tests app located at `tests/`. Tests are grouped by domain (apps, packages) and focus primarily on end-to-end style UI flows (e.g., the dashboard) and backend behavior with mocks for external systems.
 
-## Test Coverage
+## Quick Start
 
-### Backend Tests (TypeScript/Node.js)
+Run from the repo root:
 
-1. **packages/backend-common/src/redis/index.ts**
-   - Location: `packages/backend-common/src/redis/__tests__/index.test.ts`
-   - Coverage: RedisClient class with all methods (connect, xAdd, xReadGroup, xAck, cleanup)
-   - Tests: Constructor variants, method parameters, error handling, integration scenarios
-
-2. **packages/backend-common/src/redis/migrate.ts**
-   - Location: `packages/backend-common/src/redis/__tests__/migrate.test.ts`
-   - Coverage: Redis stream and consumer group creation
-   - Tests: Successful migration, error handling, connection management
-
-3. **packages/backend-common/src/types/queue.ts**
-   - Location: `packages/backend-common/src/types/__tests__/queue.test.ts`
-   - Coverage: EnqueueExecutionPayload type validation
-   - Tests: Type correctness with various payload types (objects, arrays, primitives, null, undefined)
-
-4. **apps/server/src/redis/enqueue.ts**
-   - Location: `apps/server/src/redis/__tests__/enqueue.test.ts`
-   - Coverage: enqueueExecution function
-   - Tests: Valid payloads, empty payloads, complex nested objects, error handling, serialization
-
-5. **apps/server/src/routers/webhook.ts**
-   - Location: `apps/server/src/routers/__tests__/webhook.test.ts`
-   - Coverage: Webhook router endpoint
-   - Tests: Missing parameters, invalid methods, authentication, authorization, successful execution, error handling
-
-### Frontend Tests (React/TypeScript)
-
-6. **apps/web/lib/utils.ts**
-   - Location: `apps/web/lib/__tests__/utils.test.ts`
-   - Coverage: cn (className utility) function
-   - Tests: Class merging, conditional classes, Tailwind class conflicts, various input types
-
-7. **apps/web/components/shadcn-studio/button/copy-button.tsx**
-   - Location: `apps/web/components/shadcn-studio/button/__tests__/copy-button.test.tsx`
-   - Coverage: CopyButton React component
-   - Tests: Rendering, clipboard operations, state management, error handling, accessibility
-
-8. **apps/web/components/shadcn-studio/input/password-input.tsx**
-   - Location: `apps/web/components/shadcn-studio/input/__tests__/password-input.test.tsx`
-   - Coverage: InputPassword React component
-   - Tests: Rendering, visibility toggle, readonly behavior, accessibility, edge cases
-
-## Running Tests
-
-### Run All Tests
 ```bash
-bun test
+bun install
+
+# Run the entire test suite (tests app)
+bun run test:all
+
+# Run only web tests
+bun run test:web
+
+# Run only server tests
+bun run test:server
+
+# Run only package tests
+bun run test:packages
+
+# CI-friendly run with coverage
+bun run test:ci
 ```
 
-### Run Specific Test File
+To run a single file with Bun directly:
+
 ```bash
-bun test packages/backend-common/src/redis/__tests__/index.test.ts
+bun test tests/apps/web/pages/dashboard.test.tsx
 ```
 
-### Run Tests in a Directory
-```bash
-bun test packages/backend-common/src/redis/__tests__/
+## Structure
+
+All tests live under the dedicated tests app:
+
+```text
+tests/
+  apps/
+    web/
+      pages/           # integration-focused UI flow tests
+      lib/             # small utility tests
+      components/      # only when necessary; prefer flows
+    server/
+      routers/         # express/router-level tests
+      redis/           # queue/enqueue behavior tests
+  packages/
+    backend-common/
+    types/
 ```
 
-### Run Tests with Coverage
-```bash
-bun test --coverage
-```
+## What we test
 
-### Run Tests in Watch Mode
-```bash
-bun test --watch
+- **Dashboard flows**: Tabs, query params, empty states, list rendering, action buttons.
+- **Backend behavior**: Redis client, queue enqueuing, webhook logic (with external systems mocked).
+- **Utilities**: Small pure functions (e.g., `cn`).
+
+We avoid deeply testing individual UI components unless a component encapsulates complex logic that cannot be validated via the flow.
+
+## Environment & Tooling
+
+- **Runner**: Bun (`bun:test` API)
+- **DOM**: `happy-dom` via `bunfig.toml` preload (`tests/setup/test-env.ts`)
+- **React testing**: `@testing-library/react`
+- **Module aliases**: configured in `tests/tsconfig.json` to mirror app aliases
+
+## Mocking Strategy
+
+- **Next.js**: mock `next/navigation` (e.g., `useSearchParams`) with `mock.module()`
+- **TanStack Query**: mock `useSuspenseQuery` to return `{ data, isLoading }` without providers
+- **Zustand stores**: mock store modules to return controlled state/actions
+- **Server deps**: mock Redis, Prisma, and loggers
+
+Example:
+
+```ts
+mock.module('next/navigation', () => ({
+  useSearchParams: () => ({ get: (k: string) => (k === 'create' ? 'true' : null) }),
+}))
+
+mock.module('@tanstack/react-query', () => ({
+  useSuspenseQuery: () => ({ data: [], isLoading: false }),
+}))
 ```
 
 ## Installing Dependencies
 
-The tests use Bun's built-in test runner, but you'll need to install testing utilities for React components:
+The tests app declares required devDependencies. From the repo root:
 
 ```bash
-# For React component testing
-bun add -d @testing-library/react @testing-library/dom @testing-library/user-event happy-dom
+bun install
 ```
 
-## Test Structure
+## Authoring Tests
 
-All tests follow this structure:
+We favor the AAA pattern and clear naming:
 
 ```typescript
 import { describe, test, expect, beforeEach, mock } from 'bun:test'
 
-describe('Component/Function Name', () => {
+describe('Dashboard flow', () => {
   beforeEach(() => {
     // Setup before each test
   })
 
   test('should do something specific', () => {
     // Arrange
-    const input = 'test'
+    const state = {}
     
     // Act
-    const result = functionUnderTest(input)
+    // render(...)
     
     // Assert
-    expect(result).toBe('expected')
+    expect(true).toBe(true)
   })
 })
 ```
 
-## Mocking Strategy
+## Examples
 
-### Backend Mocks
-- Redis client methods are mocked using `mock.module()`
-- Logger functions are mocked to avoid console noise
-- Database operations (Prisma) are mocked for isolation
-
-### Frontend Mocks
-- `navigator.clipboard` is mocked for clipboard tests
-- React Testing Library provides DOM utilities
-- Component dependencies are mocked where necessary
+See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practical mocks and patterns.
 
 ## Test Scenarios Covered
 
@@ -163,11 +163,11 @@ describe('Component/Function Name', () => {
 
 ## Continuous Integration
 
-To add tests to CI/CD pipeline, add this to your workflow:
+Add the test step to CI/CD workflows:
 
 ```yaml
 - name: Run Tests
-  run: bun test
+  run: bun run test:ci
 ```
 
 ## Troubleshooting
@@ -181,8 +181,8 @@ To add tests to CI/CD pipeline, add this to your workflow:
 - Use dynamic imports: `await import()`
 
 ### React component tests fail
-- Install @testing-library packages
-- Add happy-dom or jsdom for DOM environment
+- Ensure `happy-dom` preload is configured in `bunfig.toml`
+- Ensure `@testing-library/*` packages are installed via `bun install`
 
 ### Type errors in tests
 - Ensure @types/bun is installed
@@ -190,14 +190,13 @@ To add tests to CI/CD pipeline, add this to your workflow:
 
 ## Adding New Tests
 
-When adding new tests:
+Add tests under `tests/` mirroring the domain structure:
 
-1. Create a `__tests__` directory next to the file being tested
-2. Name the test file `<filename>.test.ts` or `<filename>.test.tsx`
-3. Import test utilities from `bun:test`
-4. Follow existing test patterns in the codebase
-5. Cover happy paths, edge cases, and error scenarios
-6. Add appropriate mocks for external dependencies
+- **Web flows**: `tests/apps/web/pages/*.test.tsx`
+- **Server behavior**: `tests/apps/server/**.test.ts`
+- **Packages**: `tests/packages/**.test.ts`
+
+Name test files as `<subject>.test.ts` or `.test.tsx`. Import from `bun:test`. Prefer flow tests over isolated component tests.
 
 ## Performance Considerations
 
@@ -210,4 +209,4 @@ When adding new tests:
 
 - [Bun Test Runner Documentation](https://bun.sh/docs/cli/test)
 - [Testing Library Documentation](https://testing-library.com/docs/react-testing-library/intro/)
-- [Jest API Reference](https://jestjs.io/docs/api) (Bun is compatible)
+- [Jest API Reference](https://jestjs.io/docs/api) (Bun-compatible)

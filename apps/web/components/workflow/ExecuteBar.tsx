@@ -58,7 +58,7 @@ export function ExecuteBar() {
 
             executeWorkflowMutate(workflow.id)
           }}
-          disabled={!canExecute || !isExecuting || isPending}
+          disabled={(!canExecute && !isExecuting) || isPending}
           className="flex items-center space-x-2"
           variant={isExecuting ? 'destructive' : 'default'}
         >

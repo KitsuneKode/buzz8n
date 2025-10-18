@@ -91,6 +91,14 @@ export class RedisClient {
   }) {
     return this.redisClient.xAck(streamId, consumerGroup, messageID)
   }
+
+  async unsubscribe(channelName?: string[]) {
+    if (channelName) {
+      return this.redisClient.unsubscribe(...channelName)
+    }
+    return this.redisClient.unsubscribe()
+  }
+
   async cleanup() {
     return this.redisClient.quit()
   }

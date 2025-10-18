@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    // Environment setup & latest features
+    "lib": ["ESNext"],
+    "target": "ESNext",
+    "module": "esnext",
+    "moduleDetection": "force",
+    "jsx": "react-jsx",
+    "allowJs": true,
+
+    // Bundler mode
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+
+    // Path aliases
+    "baseUrl": "..",
+    "paths": {
+      "@/*": ["../apps/server/src/*", "../apps/web/src/*"],
+      "@buzz8n/web/*": ["../apps/web/src/*"],
+      "@buzz8n/web/app/*": ["../apps/web/app/*"],
+      "@buzz8n/server/*": ["../apps/server/src/*"],
+      "@buzz8n/worker/*": ["../apps/worker/src/*"],
+      "@buzz8n/backend-common/*": ["../packages/backend-common/src/*"],
+      "@buzz8n/common/*": ["../packages/common/src/*"],
+      "@buzz8n/store/*": ["../packages/store/src/*"],
+      "@buzz8n/ui/*": ["../packages/ui/src/*"]
+    },
+    "types": ["bun"],
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false
+  },
+  "include": ["**/*.ts", "**/*.tsx"]
+}

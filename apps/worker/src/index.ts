@@ -13,16 +13,30 @@ interface ConsumerGroupResponseType {
   messages: ConsumerGroupResponseMessage[]
 }
 
+interface ProcessExecutionResponseType {
+  id: string
+  payload: EnqueueExecutionPayload
+}
+
 const REDIS_CONSUMER_GROUP = `worker-${process.pid}`
 
 await redis.connect()
 
-const processResponse = async (response: ConsumerGroupResponseType[]) => {}
+const controller = new AbortController()
+const { signal } = controller
 
-async function main() {
-  logger.info('Worker Started! Beginning processing,!!!!')
+const processResponse = async (responseData: ProcessExecutionResponseType[]) => {
+  responseData.forEach((res) =>
+    logger.info(
+      `Starting execution for workspace ${res.payload.workflowId} with executionID: ${res.payload.executionId}`,
+    ),
+  )
+}
 
-  while (1) {
+async function main(signal: AbortSignal) {
+  logger.info('Worker Started! Beginning processing')
+
+  while (!signal.aborted) {
     try {
       const response = (await redis.xReadGroup({
         consumerGroup: REDIS_CONSUMER_GROUP,
@@ -32,7 +46,7 @@ async function main() {
         await sleep(200)
         continue
       }
-      // console.log(response[0]?.messages[0]?.message)
+
       const executionRequests = response.flatMap((res) =>
         res.messages
           .map(({ id, message }) => {
@@ -41,33 +55,43 @@ async function main() {
                 typeof message === 'string'
                   ? (JSON.parse(message) as EnqueueExecutionPayload)
                   : (message as EnqueueExecutionPayload)
+
               return { id, payload }
             } catch {
               logger.warn('Invalid message JSON; skipping', { message })
               return null
             }
           })
-          .filter(
-            (v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null,
-          ),
+          .filter((v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null),
       )
-
-      console.log(executionRequests)
+      if (executionRequests && executionRequests.length > 0) {
+        await processResponse(executionRequests)
+      }
     } catch (error) {
+      if (signal.aborted) break
       console.error(error)
       logger.error(`${redis.LOG_GROUP} Error reading the message`, { error })
     }
   }
-  process.on('SIGINT', async () => {
-    logger.info('Shutting down…')
-    await redis.cleanup()
-    process.exit(0)
-  })
-  process.on('SIGTERM', async () => {
-    logger.info('Shutting down…')
-    await redis.cleanup()
-    process.exit(0)
-  })
+
+  await shutdown()
 }
 
-main()
+async function shutdown() {
+  logger.info('Shutting down gracefully…')
+
+  try {
+    await redis.unsubscribe()
+  } catch (err) {
+    logger.warn('Unsubscribe failed:', err)
+  }
+
+  try {
+    await redis.cleanup() // or redis.quit()
+    logger.info('Redis connection closed.')
+  } catch (err) {
+    logger.warn('Redis cleanup failed:', err)
+  }
+}
+
+main(signal)

@@ -40,6 +40,31 @@
     "redis:migrate": {
       "cache": false,
       "persistent": true
+    },
+    "test:web": {
+      "cache": true,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test:server": {
+      "cache": true,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test:worker": {
+      "cache": true,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test": {
+      "cache": true,
+      "dependsOn": [],
+      "outputs": []
+    },
+    "test:ci": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "outputs": [".coverage/**"]
     }
   }
 }
