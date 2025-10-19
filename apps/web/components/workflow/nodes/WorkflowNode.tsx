@@ -97,9 +97,11 @@ const getStatusIcon = (status: string) => {
 }
 
 const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
-  const { edges, nodes, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
 
-  const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
+  // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
+  const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
+
   const hasOutgoing = edges.some(
     (e) =>
       e.source === id &&
@@ -146,7 +148,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             </div>
             <BaseNodeContent className={cn('flex items-center justify-center gap-3 p-6')}>
               {/* Input Handle */}
-              {!isFirstNode && !(data.type === 'webhook' || data.type === 'manualTrigger') && (
+              {!isFirstNode && (
                 <BaseHandle
                   type="target"
                   position={Position.Left}

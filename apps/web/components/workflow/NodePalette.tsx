@@ -18,9 +18,9 @@ import {
   Plus,
   Sigma,
 } from 'lucide-react'
+import { NodeData, NodeTemplate, NodeType } from '@/lib/types/workflow'
 import { IconBrandTelegram, IconRobotFace } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { NodeTemplate, NodeType } from '@/lib/types/workflow'
 import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Input } from '@buzz8n/ui/components/input'
@@ -251,7 +251,9 @@ export function NodePalette() {
   const onAiAgentAddTools = nodes.find((n) => n.id === aiAgentNodeId && n.data.type === 'aiAgent')
 
   const existingAiAgentTools = new Set(
-    nodes.filter((n) => n.data.category === 'ai-agent-tools').map((n) => n.type),
+    nodes
+      .filter((n) => n.data.category === 'ai-agent-tools' && n.parentId === aiAgentNodeId)
+      .map((n) => n.type),
   )
 
   const filteredCategories = nodeCategories
@@ -298,8 +300,8 @@ export function NodePalette() {
           OFFSET.x += 200
           // OFFSET(Math.random() - 0.5) * 300 + 100
         } else {
-          OFFSET.y += (Math.random() - 0.5) * 200 + 340
-          OFFSET.x = (Math.random() - 0.5) * 300
+          OFFSET.y += (Math.random() - 0.5) * 200 + 100
+          OFFSET.x = (Math.random() - 0.5) * 200
         }
       }
 
@@ -308,6 +310,8 @@ export function NodePalette() {
         : { x: 100, y: 100 }
 
       addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)
+      OFFSET.x = 240
+      OFFSET.y = 0
     } else {
       // Fallback add (e.g., when palette opened from toolbar)
       addNode(template, existingNodesOffset)

@@ -2,14 +2,16 @@ import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
+  MarkerType,
   Position,
   getBezierPath,
   useReactFlow,
 } from '@xyflow/react'
 import { Button } from '@buzz8n/ui/components/button'
 import { X } from 'lucide-react'
+import { memo } from 'react'
 
-export default function AiAgentToolEdge({
+const AiAgentToolEdge = ({
   id,
   sourceX,
   sourceY,
@@ -18,41 +20,38 @@ export default function AiAgentToolEdge({
   sourcePosition,
   targetPosition,
   style,
-  markerEnd,
-}: EdgeProps) {
-  // You can change this to 'straight', 'bezier', or 'smoothstep'
-  // Or pass it dynamically through edge data: data?.edgeType
-  // const edgeType: EdgeType = 'smoothstep' // Change this value to switch edge types
-
+}: EdgeProps) => {
   const { setEdges } = useReactFlow()
   const onEdgeClick = () => {
     setEdges((edges) => edges.filter((edge) => edge.id !== id))
   }
+
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
     sourceY,
-    sourcePosition: sourcePosition || Position.Right,
+    sourcePosition: sourcePosition ?? Position.Right,
     targetX,
     targetY,
-    targetPosition: targetPosition || Position.Left,
+    targetPosition: targetPosition ?? Position.Left,
   })
 
-  // // Custom styling options
   const customStyle = {
-    stroke: '#64748b', // Change color here
-    strokeWidth: 2, // Change thickness here
-    strokeDasharray: '5,5', // Remove this line or set to '5,5' for dashed
+    stroke: '#64748b',
+    strokeWidth: 2,
+    strokeDasharray: '5,5',
     ...style,
   }
 
   return (
     <>
-      <BaseEdge id={id} path={edgePath} style={customStyle} markerEnd={markerEnd} />
+      <BaseEdge id={id} path={edgePath} style={customStyle} markerEnd={MarkerType.Arrow} />
       <EdgeLabelRenderer>
         <div
-          className="nodrag nopan pointer-events-auto absolute"
+          className="nodrag nopan absolute"
           style={{
-            transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+            pointerEvents: 'all',
+            zIndex: 10,
+            transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
           }}
         >
           <Button
@@ -68,3 +67,5 @@ export default function AiAgentToolEdge({
     </>
   )
 }
+
+export default memo(AiAgentToolEdge)

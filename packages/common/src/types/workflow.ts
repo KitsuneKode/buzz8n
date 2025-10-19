@@ -1,4 +1,4 @@
-import { z, looseObject } from 'zod'
+import { z } from 'zod'
 
 // Node types enum
 export const nodeTypeSchema = z.enum([
@@ -55,6 +55,7 @@ export const edgeSchema = z
 //Node schema
 export const nodeSchema = z
   .looseObject({
+    id: z.string(),
     data: nodeDataSchema,
   })
   .catchall(z.any())

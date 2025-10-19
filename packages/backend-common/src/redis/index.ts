@@ -93,6 +93,10 @@ export class RedisClient {
     return this.redisClient.expire(key, ttl)
   }
 
+  async del(keys: string | string[]) {
+    return this.redisClient.del(keys)
+  }
+
   async xAck({
     streamKey = this.EXECUTION_QUEUE_KEY,
     consumerGroup = this.EXECUTION_GROUP,
@@ -104,6 +108,10 @@ export class RedisClient {
   }) {
     return this.redisClient.xAck(streamKey, consumerGroup, messageID)
   }
+
+  async publish() {}
+
+  async subscribe() {}
 
   async unsubscribe(channelName?: string[]) {
     if (channelName) {

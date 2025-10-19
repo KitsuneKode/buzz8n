@@ -5,6 +5,7 @@ import {
   NodeChange,
   EdgeChange,
   Connection,
+  MarkerType,
 } from '@xyflow/react'
 
 import {
@@ -216,14 +217,15 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
       newEdge.sourceHandle = handleId
     }
+    console.log(handleId)
 
     set((state) => ({
       nodes: [...state.nodes, newNode],
       edges: newEdge ? [...state.edges, newEdge] : state.edges,
       isDirty: true,
-      isNodePaletteOpen: false,
+      // isNodePaletteOpen: false,
       pendingConnectFromNodeId: null,
-      selectedNodeId: newNode.id,
+      // selectedNodeId: newNode.id,
     }))
   },
   addNode: (template, position) => {
@@ -249,8 +251,8 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       nodes: [...state.nodes, newNode],
       isDirty: true,
       // When adding from the palette or toolbar, close the palette and open properties for the new node
-      isNodePaletteOpen: false,
-      selectedNodeId: newNode.id,
+      // isNodePaletteOpen: false,
+      // selectedNodeId: newNode.id,
     }))
   },
 
@@ -324,7 +326,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       isNodePaletteOpen: false,
       selectedNodeId: null,
       handleId: null,
-      // pendingConnectFromNodeId: null,
+      pendingConnectFromNodeId: null,
     }),
 
   // Workflow actions
