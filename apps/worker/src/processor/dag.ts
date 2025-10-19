@@ -27,7 +27,8 @@
  *
  */
 
-import { renderGraphAscii } from './helper'
+import { renderGraphAscii } from '@/processor/helper'
+import type { ExecContext, RunNode } from '@/nodes'
 
 /**
  * Minimal node shape the executor needs: a unique id and optional data for dispatch/config.
@@ -40,24 +41,6 @@ export type RFNode = {
  * Minimal directed edge shape: id, source, and target encode the arrow u -> v in the DAG.
  */
 export type RFEdge = { id: string; source: string; target: string } & Record<string, any>
-
-/**
- * Generic result produced by a node's execution; downstream nodes can read these via ctx.$node.
- */
-export type NodeResult = any
-
-/**
- *
- * Structured logger contract for production-grade logs.
- * Each method should accept a message and optional structured fields.
- *
- */
-export interface StructuredLogger {
-  debug?: (msg: string, fields?: Record<string, unknown>) => void
-  info?: (msg: string, fields?: Record<string, unknown>) => void
-  warn?: (msg: string, fields?: Record<string, unknown>) => void
-  error?: (msg: string, fields?: Record<string, unknown>) => void
-}
 
 /**
  * DAG lifecycle events suitable for forwarding to an external executor/telemetry.
@@ -77,31 +60,12 @@ export type DagEvent =
 
 /**
  *
- * Shared execution context:
- *  - $json.body carries the trigger payload or initial input to the workflow.
- *  - $node accumulates previous node results, addressable as $node[nodeId].
- *
- */
-export type ExecContext = {
-  $json: { body: any }
-  $node: Record<string, NodeResult>
-}
-/**
- *
  * Treat these as “do not execute”: they unlock downstream nodes but aren’t run as tasks.
  * Node types that act as triggers/entry points: auto-completed to unlock children without work.
  * This mirrors common workflow semantics where trigger nodes only inject/forward payload.
  *
  */
 const TRIGGER_TYPES = new Set(['webhook', 'manualTrigger'])
-
-/**
- *
- * Contract for executing a single node: given the node and context, return its result asynchronously.
- * Implementations may throw to signal failure, which can trigger fail-fast behavior in the scheduler.
- *
- */
-export type RunNode = (node: RFNode, ctx: ExecContext) => Promise<NodeResult>
 
 /**
  *

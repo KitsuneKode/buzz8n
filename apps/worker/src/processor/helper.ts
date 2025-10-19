@@ -25,7 +25,6 @@ export async function endExecutionSetStatus(workflowId: string): Promise<number>
   const WORKFLOW_ACTIVE_COUNT_KEY = workflowKey(workflowId)
   const count = await redis.decr(WORKFLOW_ACTIVE_COUNT_KEY) // returns new value after decrement
   await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // keep only inactive keys expiring
-  console.log('count', count)
   if (count === 0) {
     await prisma.workflow.update({ where: { id: workflowId }, data: { active: false } })
   }

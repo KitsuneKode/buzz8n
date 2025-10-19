@@ -15,11 +15,12 @@ import {
   validateDAG,
   executeGraphConcurrent,
 } from '@/processor/dag'
-import type { RFNode, RFEdge, ExecContext, RunNode } from '@/processor/dag'
+import type { RFNode, RFEdge } from '@/processor/dag'
 
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { beginExecutionSetStatus, endExecutionSetStatus } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
+import { runNode, type ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store'
 import { logger } from '@/utils'
 import { redis } from '@/redis'
@@ -103,35 +104,6 @@ export const processResponse = async ({
       const triggerPayload =
         (payload as any)?.data ?? (execution?.output as any)?.triggerPayload ?? {}
       const ctx: ExecContext = { $json: { body: triggerPayload }, $node: {} }
-
-      // Minimal per-type node runner stub; extend as you add integrations
-      const runNode: RunNode = async (node, context) => {
-        // await prisma.execution.update({ where: { id: executionId }, data: { status: 'success', output: ctx.$node } });
-
-        switch (node.data?.type) {
-          case 'telegramSendMessage':
-            console.log('telegram')
-            await sleep(5000)
-            // TODO: invoke Telegram API using node.data.config and context.$node
-            return { status: 'ok' }
-          case 'emailSend':
-            console.log('email')
-            await sleep(5000)
-            // TODO: send email using provider/credentials in node.data.config
-            return { status: 'ok' }
-          case 'aiAgent':
-            // TODO: call your model/tooling with inputs from context.$node
-            console.log('aiAgent')
-            await sleep(10000)
-            return { status: 'ok' }
-          default:
-            // Default: no-op success so downstream edges can proceed
-            await sleep(6000)
-            return { status: 'ok' }
-        }
-      }
-
-      logger.debug(webhookNodeId)
 
       // Execute the DAG with bounded concurrency (tune as needed)
       await executeGraphConcurrent(nodeMap, children, indegree, ctx, runNode, {
