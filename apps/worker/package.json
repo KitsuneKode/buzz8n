@@ -17,8 +17,9 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@buzz8n/store": "*",
+    "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
-    "@buzz8n/backend-common": "*"
+    "@buzz8n/store": "*",
+    "mustache": "^4.2.0"
   }
 }

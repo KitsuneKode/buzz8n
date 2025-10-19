@@ -122,7 +122,7 @@ export const processResponse = async ({
 
     //TODO: Publish the status of the workflow to redis to use it in fe
   } catch (err) {
-    logger.error('Error Processing Message', err)
+    logger.error(`Error executing the workflow:${workflowId}`, err)
   } finally {
     // Ensure counter/status and ACK always happen
     await redis.xAck({ messageID: id })

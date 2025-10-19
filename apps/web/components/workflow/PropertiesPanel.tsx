@@ -16,8 +16,8 @@ import { Badge } from '@buzz8n/ui/components/badge'
 import React from 'react'
 
 import InputPassword from '@/components/shadcn-studio/input/password-input'
+import CopyButton from '@/components/shadcn-studio/button/copy-button'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import CopyButton from '../shadcn-studio/button/copy-button'
 import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard'
 
@@ -88,6 +88,7 @@ export function PropertiesPanel() {
             <Select
               defaultValue={selectedNode.data.credentials?.id || ''}
               onValueChange={(id) => {
+                console.log(id)
                 if (id === 'create-new') {
                   setSelectedNodeCredentialRef(null)
                   openCredentialModal()

@@ -1,3 +1,4 @@
+import { sendTelegramMessage } from '@/nodes/telegram/send'
 import type { RFNode } from '@/processor/dag'
 import { sleep } from 'bun'
 
@@ -30,8 +31,13 @@ export const runNode: RunNode = async (node, context) => {
   switch (node.data?.type) {
     case 'telegramSendMessage':
       console.log('telegram')
+      console.log('\n\n\n')
+      console.log(' node ' + JSON.stringify(node) + ' context ' + JSON.stringify(context))
+      console.log('\n\n\n')
       await sleep(5000)
       // TODO: invoke Telegram API using node.data.config and context.$node
+
+      await sendTelegramMessage(node.data.config, node.data.config?.credentials.id, context)
       return { status: 'ok' }
     case 'emailSend':
       console.log('email')
