@@ -7,11 +7,12 @@ export const sendTelegramMessage = async (
   context: any,
 ) => {
   try {
+    console.log('credential id', credentialId)
     if (!credentialId) {
       throw new Error('Credentials to execute sendTelegram Message not provided')
     }
 
-    logger.debug('credentialId', credentialId)
+    logger.info('credentialId', credentialId)
     const credential = await prisma.credential.findUnique({
       where: {
         id: credentialId,
@@ -19,7 +20,7 @@ export const sendTelegramMessage = async (
     })
 
     // const {}= (credential?.data as ) ?? ''
-    logger.debug('crerdentials', credential)
+    // logger.info('credentials', credential)
 
     if (!credential) {
       throw new Error('Credential to execute sendTelegram Message does not exists')

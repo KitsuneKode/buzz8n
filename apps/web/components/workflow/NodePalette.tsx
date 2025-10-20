@@ -1,202 +1,77 @@
 'use client'
 
 import {
-  Search,
-  Play,
-  Mail,
-  Webhook,
+  BarChart3,
   Clock,
-  Zap,
+  Database,
   FileText,
   GitBranch,
+  Mail,
   MessageSquare,
-  BarChart3,
   MoreHorizontal,
-  Sparkles,
-  Database,
-  Users,
+  Play,
   Plus,
+  Search,
   Sigma,
+  Sparkles,
+  Users,
+  Webhook,
+  Zap,
 } from 'lucide-react'
-import { NodeData, NodeTemplate, NodeType } from '@/lib/types/workflow'
 import { IconBrandTelegram, IconRobotFace } from '@tabler/icons-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { NodeCategory } from '@buzz8n/common/types/workflow'
+import { getAllNodeTemplates } from '@/utils/node-templates'
 import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
+import { NodeTemplate } from '@/lib/types/workflow'
 import { useState } from 'react'
 
-const nodeCategories = [
-  {
-    id: 'ai',
-    label: 'AI',
-    nodes: [
-      {
-        id: `ai-agent-${Date.now()}`,
-        type: 'aiAgent' as NodeType,
-        label: 'AI Agent',
-        description: 'AI-powered automation and intelligence',
-        icon: 'ai-agent',
-        category: 'ai',
-        defaultConfig: {},
-      },
-    ],
-  },
-  {
-    id: 'app-action',
-    label: 'Action in an app',
-    nodes: [
-      {
-        id: `telegram-send-message-${Date.now()}`,
-        type: 'telegramSendMessage' as NodeType,
-        label: 'Telegram Send Message',
-        description: 'Send a message to a Telegram chat',
-        icon: 'telegram',
-        category: 'app-action',
-        defaultConfig: { chatId: '' },
-      },
-      {
-        id: `resend-send-email-${Date.now()}`,
-        type: 'emailSend' as NodeType,
-        label: 'Send an email',
-        description: 'Send an email via Resend Email credentials',
-        icon: 'email',
-        category: 'app-action',
-        defaultConfig: {},
-      },
-    ],
-  },
+// Generate node categories dynamically from centralized templates
+function generateNodeCategories(): NodeCategory[] {
+  const allTemplates = getAllNodeTemplates()
 
-  {
-    id: 'triggers',
-    label: 'Triggers',
-    nodes: [
-      {
-        id: `manual-trigger-${Date.now()}`,
-        type: 'manualTrigger' as NodeType,
-        label: 'Manual Trigger',
-        description: 'Start your workflow manually. Can have multiple triggers.',
-        icon: 'play',
-        category: 'triggers',
-        defaultConfig: {},
-      },
-      {
-        id: `webhook-${Date.now()}`,
-        type: 'webhook' as NodeType,
-        label: 'Webhook',
-        description: 'Start your workflow via a webhook.',
-        icon: 'webhook',
-        category: 'triggers',
-        defaultConfig: {
-          path: '',
-          method: 'POST',
-          secret: null,
-        },
-      },
-    ],
-  },
-  {
-    id: 'ai-agent-tools',
-    label: 'Agentic-Tools',
-    nodes: [
-      {
-        id: `agent-tool-sum-${Date.now()}`,
-        type: 'sumTool' as NodeType,
-        label: 'Sum Tool',
-        description: 'Do sum of two numbers',
-        icon: 'sum',
-        category: 'ai-agent-tools',
-        defaultConfig: {},
-      },
-      {
-        id: `agent-tool-multi-${Date.now()}`,
-        type: 'multiplyTool' as NodeType,
-        label: 'Multiplication Tool',
-        description: 'Do multiplication of two numbers',
-        icon: 'cross',
-        category: 'ai-agent-tools',
-        defaultConfig: {},
-      },
-    ],
-  },
+  // Group templates by category
+  const categoryMap = new Map<string, NodeTemplate[]>()
 
-  // {
-  //   id: 'data-transformation',
-  //   label: 'Data transformation',
-  //   nodes: [
-  //     {
-  //       id: 'data-transform',
-  //       type: 'other' as NodeType,
-  //       label: 'Manipulate, filter or convert data',
-  //       description: 'Transform and process your workflow data',
-  //       icon: 'zap',
-  //       category: 'data-transformation',
-  //       defaultConfig: {},
-  //     },
-  //   ],
-  // },
-  // {
-  //   id: 'flow',
-  //   label: 'Flow',
-  //   nodes: [
-  //     {
-  //       id: 'flow-control',
-  //       type: 'other' as NodeType,
-  //       label: 'Branch, merge or loop the flow, etc.',
-  //       description: 'Control the execution flow of your workflow',
-  //       icon: 'git-branch',
-  //       category: 'flow',
-  //       defaultConfig: {},
-  //     },
-  //   ],
-  // },
-  // {
-  //   id: 'core',
-  //   label: 'Core',
-  //   nodes: [
-  //     {
-  //       id: 'core-nodes',
-  //       type: 'other' as NodeType,
-  //       label: 'Set values, make HTTP requests, set webhooks, etc.',
-  //       description: 'Essential workflow building blocks',
-  //       icon: 'database',
-  //       category: 'core',
-  //       defaultConfig: {},
-  //     },
-  //   ],
-  // },
-  // {
-  //   id: 'human-in-loop',
-  //   label: 'Human in the loop',
-  //   nodes: [
-  //     {
-  //       id: 'human-approval',
-  //       type: 'other' as NodeType,
-  //       label: 'Wait for approval or human input before continuing',
-  //       description: 'Include human decision points in automation',
-  //       icon: 'users',
-  //       category: 'human-in-loop',
-  //       defaultConfig: {},
-  //     },
-  //   ],
-  // },
-  // {
-  //   id: 'add-trigger',
-  //   label: 'Add another trigger',
-  //   nodes: [
-  //     {
-  //       id: 'additional-trigger',
-  //       type: 'manualTrigger' as NodeType,
-  //       label: 'Triggers start your workflow. Workflows can have multiple triggers.',
-  //       description: 'Add more ways to start your workflow',
-  //       icon: 'plus',
-  //       category: 'add-trigger',
-  //       defaultConfig: {},
-  //     },
-  //   ],
-  // },
-]
+  allTemplates.forEach((template) => {
+    const categoryId = template.category || 'other'
+    if (!categoryMap.has(categoryId)) {
+      categoryMap.set(categoryId, [])
+    }
+    categoryMap.get(categoryId)!.push({
+      ...template,
+      id: `${template.id}-${Date.now()}`, // Generate unique ID for each instance
+    })
+  })
+
+  // Convert to NodeCategory format
+  return Array.from(categoryMap.entries()).map(([categoryId, nodes]) => ({
+    id: categoryId,
+    label: getCategoryLabel(categoryId),
+    nodes,
+  }))
+}
+
+// Helper function to get human-readable category labels
+function getCategoryLabel(categoryId: string): string {
+  const labelMap: Record<string, string> = {
+    ai: 'AI',
+    'app-action': 'Action in an app',
+    triggers: 'Triggers',
+    'ai-agent-tools': 'Agentic-Tools',
+    'data-transformation': 'Data transformation',
+    flow: 'Flow',
+    core: 'Core',
+    'human-in-loop': 'Human in the loop',
+    other: 'Other',
+  }
+  return labelMap[categoryId] || categoryId.charAt(0).toUpperCase() + categoryId.slice(1)
+}
+
+const nodeCategories: NodeCategory[] = generateNodeCategories()
 
 const getNodeIcon = (iconType: string) => {
   switch (iconType) {
@@ -292,6 +167,7 @@ export function NodePalette() {
         }
 
   const handleNodeClick = (template: NodeTemplate) => {
+    console.log(template)
     if (pendingConnectFromNodeId) {
       const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
 
@@ -317,7 +193,7 @@ export function NodePalette() {
       addNode(template, existingNodesOffset)
     }
   }
-
+  console.log(nodes)
   const onDragStart = (event: React.DragEvent, template: NodeTemplate) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(template))
     event.dataTransfer.effectAllowed = 'move'

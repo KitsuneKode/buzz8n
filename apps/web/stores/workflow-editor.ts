@@ -1,21 +1,20 @@
 import {
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
-  NodeChange,
-  EdgeChange,
   Connection,
-  MarkerType,
+  EdgeChange,
+  NodeChange,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
 } from '@xyflow/react'
 
 import {
-  NodeData,
+  CredentialRef,
   EdgeData,
-  WorkflowData,
   Execution,
   ExecutionLog,
+  NodeData,
   NodeTemplate,
-  CredentialRef,
+  WorkflowData,
 } from '@/lib/types/workflow'
 import { create } from 'zustand'
 
@@ -186,10 +185,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       type: template.type,
       position,
       data: {
-        label: template.label,
-        type: template.type,
-        category: template.category,
-        description: template.description,
+        ...template,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
@@ -234,10 +230,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       type: template.type,
       position,
       data: {
-        label: template.label,
-        type: template.type,
-        category: template.category,
-        description: template.description,
+        ...template,
         config: { ...template.defaultConfig },
         status: 'initial',
       },

@@ -148,7 +148,9 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
     const queuePayload: EnqueueExecutionPayload = {
       executionId: execution.id,
       workflowId: workflowId,
-      payload: {},
+      data: {
+        triggerType: 'manualTrigger',
+      },
     }
 
     await enqueueExecution(queuePayload)

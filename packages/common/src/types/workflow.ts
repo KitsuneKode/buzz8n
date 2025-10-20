@@ -38,6 +38,7 @@ export const nodeDataSchema = z
     config: z.record(z.string(), z.any()),
     credentials: credentialRefSchema.optional(),
     status: executionStatusSchema.optional(),
+    requiredCredentials: z.array(z.string()).optional(),
   })
   .catchall(z.any())
 
@@ -161,7 +162,7 @@ export type CreateWorkflow = z.infer<typeof createWorkflowSchema>
 export type UpdateWorkflow = z.infer<typeof updateWorkflowSchema>
 export type NodeType = z.infer<typeof nodeTypeSchema>
 export type ExecutionStatus = z.infer<typeof executionStatusSchema>
-// export type NodeData = z.infer<typeof nodeDataSchema>
+// export type NodeDataZodType = z.infer<typeof nodeDataSchema>
 // export type EdgeData = z.infer<typeof edgeDataSchema>
 export type NodeTemplate = z.infer<typeof nodeTemplateSchema>
 export type Execution = z.infer<typeof executionSchema>

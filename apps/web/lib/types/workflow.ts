@@ -31,6 +31,7 @@ export interface NodeData extends Node {
     credentials?: CredentialRef
     status?: ExecutionStatus
     [key: string]: any
+    requiredCredentials?: string[]
   }
 }
 

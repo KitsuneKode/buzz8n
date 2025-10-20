@@ -7,19 +7,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@buzz8n/ui/components/select'
+import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { Textarea } from '@buzz8n/ui/components/textarea'
+import { getDefaultConfig } from '@/utils/node-templates'
+import { useDashboardStore } from '@/stores/dashboard'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
-import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
+import { ConfigRenderer } from './ConfigRenderer'
 import React from 'react'
-
-import InputPassword from '@/components/shadcn-studio/input/password-input'
-import CopyButton from '@/components/shadcn-studio/button/copy-button'
-import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { AlertCircle, Settings, Trash2 } from 'lucide-react'
-import { useDashboardStore } from '@/stores/dashboard'
 
 export function PropertiesPanel() {
   const {
@@ -37,12 +35,7 @@ export function PropertiesPanel() {
   }
   const nodeConfig = selectedNode.data.config || {}
 
-  const requiredCredentials =
-    selectedNode.data.type === 'telegramSendMessage'
-      ? ['telegram']
-      : selectedNode.data.type === 'emailSend'
-        ? ['email']
-        : []
+  const requiredCredentials = selectedNode.data.requiredCredentials || []
 
   const handleConfigChange = (key: string, value: string | unknown) => {
     updateSelectedNodeConfig({ [key]: value })
@@ -84,11 +77,14 @@ export function PropertiesPanel() {
 
         {requiredCredentials.length > 0 && (
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Credential to connect with</Label>
+            <Label className="text-sm font-medium">
+              Credential to connect with
+              <span className="text-red-500 ml-1">*</span>
+            </Label>
             <Select
               defaultValue={selectedNode.data.credentials?.id || ''}
               onValueChange={(id) => {
-                console.log(id)
+                // console.log(id)
                 if (id === 'create-new') {
                   setSelectedNodeCredentialRef(null)
                   openCredentialModal()
@@ -104,7 +100,7 @@ export function PropertiesPanel() {
                 }
               }}
             >
-              <SelectTrigger>
+              <SelectTrigger className={!selectedNode.data.credentials?.id ? 'border-red-500' : ''}>
                 <SelectValue placeholder="Select a credential" />
               </SelectTrigger>
               <SelectContent>
@@ -122,6 +118,9 @@ export function PropertiesPanel() {
                 <SelectItem value="create-new">+ Create new credential</SelectItem>
               </SelectContent>
             </Select>
+            {!selectedNode.data.credentials?.id && (
+              <p className="text-xs text-red-500">Credential selection is required</p>
+            )}
             {credentials.filter((cred) =>
               requiredCredentials.length === 0
                 ? true
@@ -136,163 +135,12 @@ export function PropertiesPanel() {
         )}
 
         {/* Node-specific Configuration */}
-        {selectedNode.data.type === 'telegramSendMessage' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="chatId">Chat ID</Label>
-              <Input
-                id="chatId"
-                placeholder="Enter chat ID"
-                value={nodeConfig.chatId || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleConfigChange('chatId', e.target.value)
-                }
-              />
-            </div>
-          </div>
-        )}
-
-        {selectedNode.data.type === 'emailSend' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="to">To</Label>
-              <Input
-                id="to"
-                placeholder="recipient@example.com"
-                value={nodeConfig.to || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleConfigChange('to', e.target.value)
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Input
-                id="subject"
-                placeholder="Email subject"
-                value={nodeConfig.subject || ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  handleConfigChange('subject', e.target.value)
-                }
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="body">Body</Label>
-              <Textarea
-                id="body"
-                placeholder="Email body"
-                rows={4}
-                value={nodeConfig.body || ''}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  handleConfigChange('body', e.target.value)
-                }
-              />
-            </div>
-          </div>
-        )}
-
-        {selectedNode.data.type === 'schedule' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="interval">Interval</Label>
-              <Select
-                defaultValue={nodeConfig.interval || 'daily'}
-                onValueChange={(value) => handleConfigChange('interval', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hourly">Every hour</SelectItem>
-                  <SelectItem value="daily">Every day</SelectItem>
-                  <SelectItem value="weekly">Every week</SelectItem>
-                  <SelectItem value="monthly">Every month</SelectItem>
-                  <SelectItem value="custom">Custom</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-
-        {selectedNode.data.type === 'webhook' && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="method">HTTP Method</Label>
-              <Select
-                defaultValue={nodeConfig.method || 'POST'}
-                onValueChange={(value) => handleConfigChange('method', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="GET">GET</SelectItem>
-                  <SelectItem value="POST">POST</SelectItem>
-                  <SelectItem value="PUT">PUT</SelectItem>
-                  <SelectItem value="DELETE">DELETE</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="path">Webhook URL</Label>
-              <Textarea
-                id="path"
-                rows={4}
-                placeholder="https://buzz8n.kitsulabs.xyz/webhook/:handler"
-                value={`https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  handleConfigChange('path', e.target.value)
-                }
-                readOnly
-                className="caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none"
-              />
-              <CopyButton
-                copyContent={`https://buzz8n.kitsulabs.xyz/webhook/${nodeConfig.path}`}
-                compact
-                className="absolute right-5 -translate-y-12 z-30 "
-              />
-              {/* <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleCopy}
-                className="absolute right-4 -translate-y-12 z-30"
-              > */}
-              {/* {copied ? <Check className="text-primary h-5 w-5" /> : <Copy className="h-5 w-5" />}
-              </Button> */}
-            </div>
-            {nodeConfig.secret && (
-              <div className="space-y-2 ">
-                <InputPassword
-                  defaultValue={nodeConfig.secret}
-                  className="caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none"
-                />
-              </div>
-            )}
-            <div className="space-y-2 flex justify-between text-primary">
-              {nodeConfig.secret ? (
-                <CopyButton copyTag="Copy Secret" copyContent={nodeConfig.secret || ''} />
-              ) : (
-                <div />
-              )}
-              <div className="gap-x-4 flex">
-                <Label htmlFor="secret">Authenticated</Label>
-                <Switch
-                  id="secret"
-                  defaultChecked={!!nodeConfig.secret}
-                  onCheckedChange={(e) => {
-                    const val = e.valueOf()
-                    console.log(val)
-                    let value = null
-                    if (val) {
-                      value = crypto.randomUUID()
-                    }
-                    handleConfigChange('secret', value)
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        <ConfigRenderer
+          config={nodeConfig}
+          onConfigChange={handleConfigChange}
+          defaultConfig={getDefaultConfig(selectedNode.data.type)}
+          nodeType={selectedNode.data.type}
+        />
 
         {/* Common Settings */}
         <div className="space-y-4 pt-4 border-t border-border">
