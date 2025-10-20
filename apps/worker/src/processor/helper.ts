@@ -5,7 +5,9 @@ const INACTIVITY_TIMEOUT = 1 * 60 * 60 //1h
 const workflowKey = (id: string) => `workflow:${id}:active_count`
 
 /**
- * Increment active executions counter, refresh TTL, flip status to 'active' on first.
+ * Increment the workflow's active-execution counter, refresh its inactivity TTL, and mark the workflow active when this is the first running execution.
+ *
+ * @returns The updated active execution count for the workflow.
  */
 export async function beginExecutionSetStatus(workflowId: string): Promise<number> {
   const WORKFLOW_ACTIVE_COUNT_KEY = workflowKey(workflowId)
@@ -18,8 +20,9 @@ export async function beginExecutionSetStatus(workflowId: string): Promise<numbe
 }
 
 /**
- * Decrement counter, refresh TTL, flip status to 'inactive' when it reaches zero.
- * Cleans up if the counter somehow goes negative.
+ * Decrements the workflow's active-execution counter, refreshes its inactivity TTL, and sets the workflow inactive when the counter reaches zero; if the counter goes negative the Redis key is removed and the workflow is set inactive.
+ *
+ * @returns The current active-execution counter for the workflow after decrement.
  */
 export async function endExecutionSetStatus(workflowId: string): Promise<number> {
   const WORKFLOW_ACTIVE_COUNT_KEY = workflowKey(workflowId)
@@ -36,10 +39,16 @@ export async function endExecutionSetStatus(workflowId: string): Promise<number>
 }
 
 /**
- * Creates a simple ASCII snapshot of th
- * - sources: indegree-0 nodes
- * - layers: Kahn-style levels (waves)
- * - edges: "U -> [V1, V2]" per node
+ * Produce a compact ASCII snapshot of a directed acyclic graph.
+ *
+ * The output enumerates the total node count, source nodes (indegree = 0),
+ * Kahn-style layers (waves), and a per-node outgoing edges listing. Node
+ * labels include the node id and, if present, the node's `data.type`.
+ *
+ * @param nodeMap - Map from node id to node object (node's `data.type` is used for labels when available)
+ * @param children - Adjacency list mapping node id to its outgoing neighbor ids
+ * @param indegree - Map of node id to its indegree used to compute layers
+ * @returns An array of lines forming the ASCII snapshot: node count, sources, layer lines, an "Edges:" section with "id (type) -> [V1, V2]" lines, and two trailing newlines
  */
 export function renderGraphAscii(
   nodeMap: Map<string, any>,

@@ -101,22 +101,19 @@ export function collectReachableFrom(startId: string, edges: RFEdge[]): Set<stri
 }
 
 /**
+ * Builds graph structures (node map, forward adjacency, and indegree counts) limited to the provided allowed node ids.
  *
- *  Builds adjacency (children) and indegree maps for Kahn’s algorithm restricted to an allowed set:
- *  - nodeMap: id -> RFNode for O(1) lookup during scheduling.
- *  - children: parent id -> array of child ids (forward adjacency).
- *  - indegree: node id -> number of unmet prerequisites (incoming edges).
+ * Constructs:
+ * - nodeMap: mapping from node id to RFNode for quick lookup,
+ * - children: parent id -> array of child ids (forward adjacency),
+ * - indegree: node id -> number of incoming edges from nodes within `allowed`.
  *
- * Rationale:
- *  - Kahn’s algorithm uses indegree==0 as the readiness invariant for topological execution.
+ * This representation is intended for use with Kahn’s algorithm where nodes with indegree equal to zero are ready to run.
  *
- * Complexity: O(V + E) within the allowed set.
- *
- * @param {RFNode[]} nodes - All nodes available.
- * @param {RFEdge[]} edges - All edges available.
- * @param {Set<string>} allowed - Node ids to include (e.g., reachable from trigger).
- * @returns {{ nodeMap: Map<string, RFNode>, children: Map<string, string[]>, indegree: Map<string, number> }}
- *
+ * @param nodes - All available nodes; only nodes whose `id` is in `allowed` are included in the result
+ * @param edges - All available directed edges; only edges whose source and target are both in `allowed` are applied
+ * @param allowed - Set of node ids to include in the constructed graph
+ * @returns An object containing `nodeMap`, `children`, and `indegree` for the restricted graph
  */
 export function buildGraph(nodes: RFNode[], edges: RFEdge[], allowed: Set<string>) {
   const nodeMap = new Map(nodes.filter((n) => allowed.has(n.id)).map((n) => [n.id, n]))
@@ -140,19 +137,11 @@ export function buildGraph(nodes: RFNode[], edges: RFEdge[], allowed: Set<string
 }
 
 /**
+ * Checks that the directed graph contains no cycles by performing a dry run of Kahn's algorithm.
  *
- * Validates acyclicity (DAG property) via a dry-run of Kahn’s algorithm:
- *  - Seed a queue with indegree-0 nodes.
- *  - Repeatedly "remove" a node and decrement children’s indegrees.
- *  - If not all nodes are visited, a directed cycle exists.
- *
- * Complexity: O(V + E).
- *
- * @throws {Error} If a cycle is detected (no topological order exists).
- * @param {Map<string, string[]>} children - Adjacency list of parent -> children.
- * @param {Map<string, number>} indegree - Remaining prerequisites per node.
- * @returns {void}
- *
+ * @param children - Adjacency map from a node id to its child node ids.
+ * @param indegree - Map of node id to its incoming-edge count.
+ * @throws Error if a cycle is detected (no topological ordering exists).
  */
 export function validateDAG(children: Map<string, string[]>, indegree: Map<string, number>) {
   const copy = new Map(indegree)
@@ -172,37 +161,30 @@ export function validateDAG(children: Map<string, string[]>, indegree: Map<strin
 }
 
 /**
- * Collects node ids with indegree 0 (no unmet prerequisites) to seed the ready queue.
+ * Collects node ids that have zero remaining prerequisites to seed the ready queue.
  *
- * @param {Map<string, number>} indegree - Remaining prerequisites per node.
- * @returns {string[]} Node ids ready to start now.
+ * @param indegree - Map from node id to remaining prerequisite count.
+ * @returns An array of node ids that have zero remaining prerequisites.
  */
 function initialReady(indegree: Map<string, number>): string[] {
   return [...Array.from(indegree)].filter(([, d]) => d === 0).map(([id]) => id)
 }
 
 /**
+ * Schedule and execute nodes of a DAG in topological order using a bounded worker pool.
  *
- *  Executes the DAG with a bounded worker pool using Kahn’s indegree readiness:
- *  - Maintain a ready queue of indegree-0 nodes and a running map of in-flight tasks.
- *  - Start tasks until maxConcurrency is reached; await Promise.race to free a slot.
- *  - On completion, decrement each child’s indegree; enqueue children that reach 0.
- *  - Auto-complete trigger nodes to unlock children without executing work.
+ * Executes ready nodes (indegree 0) respecting dependencies and a concurrency cap,
+ * auto-completes trigger-type nodes to unlock their children without invoking work,
+ * and records per-node results and timing in the provided ExecContext.
  *
- * Guarantees:
- *  - Dependency correctness: no node runs before all predecessors complete (topological order).
- *  - Safe parallelism: independent branches run concurrently within the concurrency cap.
- *  - Linear-time scheduling over nodes + edges (excluding user task cost).
- *
- * @param {Map<string, RFNode>} nodeMap - id -> node for O(1) access.
- * @param {Map<string, string[]>} children - parent -> child ids adjacency.
- * @param {Map<string, number>} indegree - remaining prerequisites (mutated during execution).
- * @param {ExecContext} ctx - Shared context; results stored at ctx.$node[nodeId].
- * @param {RunNode} runNode - Async runner per node; may throw to signal failure.
- * @param {{ maxConcurrency?: number, failFast?: boolean }} [opts] - Concurrency cap (default 4) and fail-fast (default true).
- * @returns {Promise<ExecContext>} Final context with accumulated node results.
- * @throws {Error} If failFast and any node fails, or if nodes remain unreachable (cycle/unmet deps).
- *
+ * @param nodeMap - Map of node id to node; used for lookup during execution.
+ * @param children - Adjacency map from parent id to array of child ids.
+ * @param indegree - Mutable map of remaining prerequisites per node; values are decremented during execution.
+ * @param ctx - Shared execution context; per-node results are stored on ctx.$node[nodeId].
+ * @param runNode - Async function invoked to perform real work for a node (not invoked for trigger nodes).
+ * @param opts - Optional settings; notable defaults: maxConcurrency = 4, failFast = true.
+ * @returns The same ExecContext instance populated with node results and timeline information.
+ * @throws Error when failFast is enabled and any node fails, or when some nodes remain unreachable (cycle or unmet dependency).
  */
 export async function executeGraphConcurrent(
   nodeMap: Map<string, RFNode>,

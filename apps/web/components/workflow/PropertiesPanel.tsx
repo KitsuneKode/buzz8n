@@ -19,6 +19,15 @@ import { Badge } from '@buzz8n/ui/components/badge'
 import { ConfigRenderer } from './ConfigRenderer'
 import React from 'react'
 
+/**
+ * Renders the properties panel for the currently selected workflow node.
+ *
+ * The panel reads node and credential state from the editor and dashboard stores and lets the user
+ * modify the selected node's configuration, select or create credentials, update common node settings,
+ * add notes, or delete the node. If no node is selected, it renders a "No node selected" placeholder.
+ *
+ * @returns The rendered properties panel for the currently selected node
+ */
 export function PropertiesPanel() {
   const {
     nodes,

@@ -7,6 +7,13 @@ import { API_URL } from '@/utils/config'
 import { useEffect } from 'react'
 import axios from 'axios'
 
+/**
+ * Fetches credential data on the client, maps it into local `Credential` objects, and stores them in the dashboard store.
+ *
+ * On failure, logs an error to the console. This component does not render any UI.
+ *
+ * @returns `null` (renders nothing)
+ */
 export default function DataBootstrap() {
   const {
     data: initialCredentials,

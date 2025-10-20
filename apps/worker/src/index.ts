@@ -19,6 +19,13 @@ await redis.connect()
 const controller = new AbortController()
 const { signal } = controller
 
+/**
+ * Continuously reads and processes messages from the Redis consumer group until the provided AbortSignal is aborted.
+ *
+ * When the signal is aborted the function exits the processing loop and performs a graceful shutdown.
+ *
+ * @param signal - AbortSignal used to stop the worker loop and trigger graceful shutdown
+ */
 async function main(signal: AbortSignal) {
   logger.info('Worker Started! Beginning processing')
 
@@ -63,6 +70,11 @@ async function main(signal: AbortSignal) {
   await shutdown()
 }
 
+/**
+ * Perform a graceful shutdown of Redis resources used by the worker.
+ *
+ * Attempts to unsubscribe the Redis client and run its cleanup routine. Logs a success message when the Redis connection is closed and logs a warning if cleanup fails.
+ */
 async function shutdown() {
   logger.info('Shutting down gracefully…')
 

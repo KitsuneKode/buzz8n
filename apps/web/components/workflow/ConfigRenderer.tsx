@@ -135,7 +135,12 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
   },
 }
 
-// Generate field configurations from defaultConfig using FIELD_METADATA
+/**
+ * Build an ordered array of FieldConfig objects for every key in a baseline configuration.
+ *
+ * @param defaultConfig - A mapping of field keys to their default values used as the baseline for generating UI field configurations
+ * @returns An array of FieldConfig objects where each entry merges FIELD_METADATA (when present) with inferred properties (type, label, rows, placeholder, options, description, copyable, validation) for the corresponding key
+ */
 function generateFieldConfigs(defaultConfig: Record<string, unknown>): FieldConfig[] {
   return Object.keys(defaultConfig).map((key) => {
     const metadata = FIELD_METADATA[key]
@@ -160,7 +165,15 @@ function generateFieldConfigs(defaultConfig: Record<string, unknown>): FieldConf
   })
 }
 
-// Auto-detect field type based on key patterns and value types
+/**
+ * Infers the most appropriate field type for a configuration entry based on its key and value.
+ *
+ * Uses simple heuristics: certain substrings in the key map to specific UI types (e.g., message/body -> textarea, secret/password -> password, url/path -> readonly, method/interval -> select), and a boolean value maps to `switch`. Falls back to `text` when no heuristic matches.
+ *
+ * @param key - The configuration key to analyze (e.g., "webhookUrl", "messageBody")
+ * @param value - The current value for the key; used to detect boolean fields
+ * @returns One of the field type strings: 'text', 'textarea', 'select', 'switch', 'password', or 'readonly'
+ */
 function autoDetectFieldType(key: string, value: unknown): FieldConfig['type'] {
   const keyLower = key.toLowerCase()
 
@@ -187,7 +200,12 @@ function autoDetectFieldType(key: string, value: unknown): FieldConfig['type'] {
   return 'text'
 }
 
-// Format key into human-readable label
+/**
+ * Convert a camelCase or PascalCase key into a human-readable label.
+ *
+ * @param key - The identifier to format (e.g., `webhookUrl`, `requestBody`)
+ * @returns The label with spaces inserted before capital letters and the first character capitalized (e.g., `Webhook Url`, `Request Body`)
+ */
 function formatLabel(key: string): string {
   return key.charAt(0).toUpperCase() + key.slice(1).replace(/([A-Z])/g, ' $1')
 }
@@ -200,6 +218,21 @@ interface ConfigRendererProps {
   baseUrl?: string
 }
 
+/**
+ * Renders a dynamic configuration form based on a provided default configuration and current values.
+ *
+ * The component generates field metadata from `defaultConfig`, auto-detects input types when needed,
+ * and renders appropriate inputs (text, textarea, select, switch, password, readonly). It wires user
+ * interactions to `onConfigChange`, supports copy-to-clipboard for copyable fields, shows required
+ * validation hints, and displays an empty-state message when no fields are available.
+ *
+ * @param config - Current configuration values keyed by field name
+ * @param onConfigChange - Callback invoked as `onConfigChange(key, value)` when a field value changes
+ * @param defaultConfig - Baseline configuration used to derive field configs and validation rules
+ * @param nodeType - Human-readable name of the node type (used in the empty-state message)
+ * @param baseUrl - Optional base URL used to build display values for path-like readonly fields
+ * @returns The rendered configuration form as a React element
+ */
 export function ConfigRenderer({
   config,
   onConfigChange,
@@ -389,7 +422,16 @@ export function ConfigRenderer({
   return <div className="space-y-4">{fieldConfigs.map(renderField)}</div>
 }
 
-// Helper function to validate config based on field configs
+/**
+ * Validate a config object against validation rules derived from a default configuration.
+ *
+ * Derives field validation requirements from the provided default configuration and checks
+ * each corresponding value in `config` for requiredness, minimum/maximum length, and pattern.
+ *
+ * @param config - Mapping of field keys to their current values to validate
+ * @param defaultConfig - Baseline configuration used to derive field validation rules
+ * @returns An object with `isValid` (`true` if no validation errors, `false` otherwise) and `errors` (array of human-readable error messages)
+ */
 export function validateConfig(
   config: Record<string, unknown>,
   defaultConfig: Record<string, unknown>,
