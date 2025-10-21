@@ -1,7 +1,15 @@
 'use client'
 
+import {
+  CredentialData,
+  Provider,
+  TelegramFormData,
+  EmailFormData,
+  OpenAIFormData,
+  GeminiFormData,
+  AnthropicFormData,
+} from '@/lib/types/credentials'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
-import { CredentialData, Provider, TelegramFormData } from '@/lib/types/credentials'
 import { CredentialResponse } from '@buzz8n/common/types/credentials'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
@@ -12,6 +20,10 @@ import { useEffect, useState } from 'react'
 import axios, { isAxiosError } from 'axios'
 import TelegramForm from './TelegramForm'
 import { API_URL } from '@/utils/config'
+import OpenAIForm from './OpenAIForm'
+import GeminiForm from './GeminiForm'
+import ClaudeForm from './ClaudeForm'
+import EmailForm from './EmailForm'
 
 const CredentialModal = () => {
   const [step, setStep] = useState<'provider' | 'form'>('provider')
@@ -77,7 +89,14 @@ const CredentialModal = () => {
     },
   })
 
-  const handleFormSubmit = async (formData: TelegramFormData) => {
+  const handleFormSubmit = async (
+    formData:
+      | TelegramFormData
+      | EmailFormData
+      | OpenAIFormData
+      | GeminiFormData
+      | AnthropicFormData,
+  ) => {
     if (!selectedProvider) {
       toast.error('Please select a provider')
       return
@@ -103,6 +122,14 @@ const CredentialModal = () => {
     switch (selectedProvider) {
       case 'Telegram':
         return <TelegramForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
+      case 'Email':
+        return <EmailForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
+      case 'OpenAI':
+        return <OpenAIForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
+      case 'Gemini':
+        return <GeminiForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
+      case 'Anthropic':
+        return <ClaudeForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
       default:
         return (
           <div className="p-6 text-center">

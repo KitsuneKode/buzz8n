@@ -54,11 +54,10 @@ export type Methods = (typeof Methods)[keyof typeof Methods]
 
 export const SupportedPlatforms: {
   Telegram: 'Telegram',
-  Gmail: 'Gmail',
-  Slack: 'Slack',
-  Discord: 'Discord',
-  Webhook: 'Webhook',
-  Twilio: 'Twilio'
+  Email: 'Email',
+  OpenAI: 'OpenAI',
+  Gemini: 'Gemini',
+  Anthropic: 'Anthropic'
 };
 
 export type SupportedPlatforms = (typeof SupportedPlatforms)[keyof typeof SupportedPlatforms]

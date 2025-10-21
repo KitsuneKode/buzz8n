@@ -1,13 +1,8 @@
+import { Platforms } from '@buzz8n/store'
 import z from 'zod'
 
-export const SupportedPlatforms = z.enum([
-  'Telegram',
-  'Gmail',
-  'Slack',
-  'Discord',
-  'Twilio',
-  'Webhook',
-])
+// Map the database enum to our supported platforms
+export const SupportedPlatforms = z.enum(Platforms)
 
 export const credentialSchema = z.object({
   title: z.string(),
@@ -34,4 +29,27 @@ export const telegramFormSchema = z.object({
     .regex(/^\d+:[A-Za-z0-9_-]+$/, 'Invalid bot token format'),
 })
 
+export const emailFormSchema = z.object({
+  name: z.string().trim().min(1, 'Credential name is required'),
+  resendApiKey: z.string().trim().min(1, 'Resend API key is required'),
+})
+
+export const geminiFormSchema = z.object({
+  name: z.string().trim().min(1, 'Credential name is required'),
+  geminiApiKey: z.string().trim().min(1, 'Gemini API key is required'),
+})
+
+export const anthropicFormSchema = z.object({
+  name: z.string().trim().min(1, 'Credential name is required'),
+  anthropicApiKey: z.string().trim().min(1, 'Anthropic API key is required'),
+})
+
+export const openaiFormSchema = z.object({
+  name: z.string().trim().min(1, 'Credential name is required'),
+  openaiApiKey: z.string().trim().min(1, 'OpenAI API key is required'),
+})
 export type TelegramFormData = z.infer<typeof telegramFormSchema>
+export type EmailFormData = z.infer<typeof emailFormSchema>
+export type GeminiFormData = z.infer<typeof geminiFormSchema>
+export type AnthropicFormData = z.infer<typeof anthropicFormSchema>
+export type OpenAIFormData = z.infer<typeof openaiFormSchema>

@@ -72,7 +72,6 @@ export const processResponse = async ({
     const edges = (edgesAny ?? []) as RFEdge[]
 
     // Check if payload.triggerType is 'workflow' or 'manualTrigger'; only proceed if so
-
     const triggerType = ((data: any) =>
       data?.triggerType === 'webhook' || data.triggerType === 'manualTrigger'
         ? [data.triggerType]

@@ -1,6 +1,7 @@
 'use client'
 
 import { Trash2, Eye, EyeOff, Copy, Check, Loader2, ChevronDown } from 'lucide-react'
+import { getProviderIcon } from '@/components/credentials/ProviderPicker'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { CredentialResponse } from '@buzz8n/common/types'
 import { useDashboardStore } from '@/stores/dashboard'
@@ -90,25 +91,6 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(date))
-  }
-
-  const getProviderColor = (provider: string) => {
-    switch (provider) {
-      case 'Telegram':
-        return 'bg-blue-500'
-      case 'Slack':
-        return 'bg-purple-500'
-      case 'Discord':
-        return 'bg-indigo-500'
-      case 'Gmail':
-        return 'bg-red-500'
-      case 'Twilio':
-        return 'bg-orange-500'
-      case 'Webhook':
-        return 'bg-gray-500'
-      default:
-        return 'bg-gray-500'
-    }
   }
 
   const renderConfigField = (
@@ -204,15 +186,17 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
                   onClick={() => setExpandedCredential(isExpanded ? null : credential.id)}
                 >
                   {/* Provider Icon */}
-                  <div
+                  {/* <div
                     className={`w-10 h-10 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center shrink-0`}
                   >
                     <span className="text-white text-sm font-bold uppercase">
                       {credential.provider?.charAt(0).toUpperCase() +
                         credential.provider?.charAt(1).toLowerCase()}
                     </span>
+                    </div> */}
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
+                    {getProviderIcon(credential.provider)}
                   </div>
-
                   {/* Content Area */}
                   <div className="flex-1 min-w-0 flex items-center gap-4">
                     <div className="min-w-0 flex-1">
@@ -229,7 +213,6 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
                       </p>
                     </div>
                   </div>
-
                   {/* Action Buttons */}
                   <div className="flex items-center gap-1 shrink-0">
                     <Button

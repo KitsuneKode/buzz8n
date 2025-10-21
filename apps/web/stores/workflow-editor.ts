@@ -158,16 +158,32 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
   // Canvas actions
   onNodesChange: (changes) => {
+    // Filter out selection-only changes to avoid setting isDirty on node selection
+    const meaningfulChanges = changes.filter((change) => {
+      if (change.type === 'select') {
+        return false // Don't mark as dirty for selection changes
+      }
+      return true // Keep all other changes (add, remove, position, etc.)
+    })
+
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
-      isDirty: true,
+      isDirty: meaningfulChanges.length > 0 ? true : state.isDirty,
     }))
   },
 
   onEdgesChange: (changes) => {
+    // Filter out selection-only changes to avoid setting isDirty on edge selection
+    const meaningfulChanges = changes.filter((change) => {
+      if (change.type === 'select') {
+        return false // Don't mark as dirty for selection changes
+      }
+      return true // Keep all other changes (add, remove, etc.)
+    })
+
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
-      isDirty: true,
+      isDirty: meaningfulChanges.length > 0 ? true : state.isDirty,
     }))
   },
 

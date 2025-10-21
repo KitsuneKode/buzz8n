@@ -1,5 +1,6 @@
 import { nodeDataSchema, nodeSchema } from '@buzz8n/common/types'
 import { sendTelegramMessage } from '@/nodes/telegram/send'
+import { sendResendEMail } from './email/resend'
 import type { RFNode } from '@/processor/dag'
 import { logger } from '@/utils'
 import { sleep } from 'bun'
@@ -30,29 +31,23 @@ export type NodeResult = any
 export type RunNode = (node: RFNode, context: ExecContext) => Promise<NodeResult>
 
 export const runNode: RunNode = async (node, context) => {
-  switch (node.data?.type) {
+  const { success, data } = nodeDataSchema.safeParse(node.data)
+  if (!success) {
+    logger.error('Invalid node data', { nodeData: node.data })
+    throw new Error('Invalid node data')
+  }
+  switch (data.type) {
     case 'telegramSendMessage':
-      const { success, data } = nodeDataSchema.safeParse(node.data)
-
-      if (!success) {
-        logger.error('Invalid node data', { nodeData: node.data })
-        throw new Error('Invalid node data')
-      }
       return await sendTelegramMessage(data.config, data.credentials?.id, context)
 
     case 'emailSend':
-      console.log('email')
-      await sleep(5000)
-      // TODO: send email using provider/credentials in node.data.config
-      return { status: 'ok' }
+      return await sendResendEMail(data.config, data.credentials?.id, context)
     case 'aiAgent':
       // TODO: call your model/tooling with inputs from context.$node
       console.log('aiAgent')
       await sleep(5000)
       return { status: 'ok' }
     default:
-      // Default: no-op success so downstream edges can proceed
-      await sleep(5000)
-      return { status: 'ok' }
+      throw new Error(`Unsupported node type: ${data.type}`)
   }
 }

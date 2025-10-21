@@ -203,11 +203,10 @@ exports.Methods = exports.$Enums.Methods = {
 
 exports.SupportedPlatforms = exports.$Enums.SupportedPlatforms = {
   Telegram: 'Telegram',
-  Gmail: 'Gmail',
-  Slack: 'Slack',
-  Discord: 'Discord',
-  Webhook: 'Webhook',
-  Twilio: 'Twilio'
+  Email: 'Email',
+  OpenAI: 'OpenAI',
+  Gemini: 'Gemini',
+  Anthropic: 'Anthropic'
 };
 
 exports.Prisma.ModelName = {
