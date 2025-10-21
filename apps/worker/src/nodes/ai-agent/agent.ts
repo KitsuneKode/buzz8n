@@ -10,39 +10,39 @@
  */
 
 //TODO: Fix the deprecation warnings for the createReactAgent function use createAgent from langchain instead
+import { aiAgentFormSchema, type AiAgentFormData } from '@buzz8n/common/types'
+import { clientConfig } from '@buzz8n/common/utils/config-loader'
 import { createReactAgent } from '@langchain/langgraph/prebuilt'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
-import { aiAgentFormSchema } from '@buzz8n/common/types'
 import { ChatAnthropic } from '@langchain/anthropic'
 import { exponent, multiply, sum } from './tools'
+import { renderTemplate } from '@/nodes/helper'
 import { ChatOpenAI } from '@langchain/openai'
 import type { ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store/'
 import { createAgent } from 'langchain'
 import { logger } from '@/utils'
+import Mustache from 'mustache'
 
 // Initialize the model with tools
 
-const getModel = (model: string, apiKey: string) => {
-  switch (model) {
-    case 'gemini-2.5-flash' || 'gemini-2.5-flash-lite' || 'gemini-2.5-pro':
+const getModel = (model: string, data: AiAgentFormData) => {
+  switch (data.platform) {
+    case 'gemini':
       return new ChatGoogleGenerativeAI({
-        apiKey,
+        apiKey: data.geminiApiKey,
         model,
         temperature: 0,
       })
-    case 'gpt-4' || 'gpt-4o' || 'gpt-4o-mini' || 'gpt-5':
+    case 'openai':
       return new ChatOpenAI({
+        apiKey: data.openaiApiKey,
         model,
         temperature: 0,
       })
-    case 'claude-3-5-sonnet' ||
-      'claude-3-5-haiku' ||
-      'claude-3-opus' ||
-      'claude-4-sonnet' ||
-      'claude-4-haiku' ||
-      'claude-4-opus':
+    case 'anthropic':
       return new ChatAnthropic({
+        apiKey: data.anthropicApiKey,
         model,
         temperature: 0,
       })
@@ -73,24 +73,20 @@ export const runAiAgent = async (
 
     const { prompt, model } = config as { prompt: string; model: string }
 
-    console.log('data', data, prompt, model)
     if (!success || !prompt || !model) {
       throw new Error('Invalid credential data')
     }
 
-    const { platform } = data
-    let selectedModel = null
-    switch (platform) {
-      case 'gemini':
-        selectedModel = getModel(model, data.geminiApiKey)
-        break
-      case 'anthropic':
-        selectedModel = getModel(model, data.anthropicApiKey)
-        break
-      case 'openai':
-        selectedModel = getModel(model, data.openaiApiKey)
-        break
-    }
+    // Render template in prompt
+    const resolvedPrompt = renderTemplate(prompt, context)
+
+    // Log for debugging
+    logger.info('AI Agent config', {
+      raw: { prompt, model },
+      resolved: { prompt: resolvedPrompt, model },
+    })
+
+    const selectedModel = getModel(model, data)
 
     const agent = createReactAgent({
       llm: selectedModel,
@@ -101,7 +97,7 @@ export const runAiAgent = async (
       messages: [
         {
           role: 'user',
-          content: prompt,
+          content: resolvedPrompt,
         },
       ],
     })

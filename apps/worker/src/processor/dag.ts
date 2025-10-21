@@ -29,6 +29,7 @@
 
 import { renderGraphAscii } from '@/processor/helper'
 import type { ExecContext, RunNode } from '@/nodes'
+import Mustache from 'mustache'
 
 /**
  * Minimal node shape the executor needs: a unique id and optional data for dispatch/config.
@@ -254,7 +255,42 @@ export async function executeGraphConcurrent(
         ? { status: 'ok', trigger: true, payload: ctx.$json.body }
         : await runNode(node, ctx)
 
-      ctx.$node[id] = res
+      // Store both input config and output result
+      ctx.$node[id] = {
+        input: node.data?.config || {},
+        output: res,
+      }
+
+      // Also store resolved configs in $json for easy template access
+      if (node.data?.config && node.data?.type && !TRIGGER_TYPES.has(node.data.type)) {
+        const nodeType = node.data.type
+        const config = node.data.config
+
+        // Create a unique key for this node type (handle duplicates)
+        let key = nodeType
+        let counter = 1
+        while (ctx.$json[key]) {
+          key = `${nodeType}${counter}`
+          counter++
+        }
+
+        // Store resolved config values
+        ctx.$json[key] = {}
+        for (const [field, value] of Object.entries(config)) {
+          if (typeof value === 'string' && value.includes('{{')) {
+            // Resolve template in config value
+            try {
+              const resolved = Mustache.render(value, ctx)
+              ctx.$json[key][field] = resolved
+            } catch (err) {
+              // If template resolution fails, store original value
+              ctx.$json[key][field] = value
+            }
+          } else {
+            ctx.$json[key][field] = value
+          }
+        }
+      }
       completed.add(id)
 
       // Mark finish

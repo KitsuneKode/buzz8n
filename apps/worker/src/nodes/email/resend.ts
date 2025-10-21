@@ -1,4 +1,5 @@
 import { emailFormSchema } from '@buzz8n/common/types'
+import { renderTemplate } from '@/nodes/helper'
 import type { ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
@@ -28,13 +29,24 @@ export const sendResendEMail = async (
       throw new Error('Invalid credential data')
     }
 
+    // Render all template fields
+    const resolvedTo = renderTemplate(to, context)
+    const resolvedSubject = renderTemplate(subject, context)
+    const resolvedBody = renderTemplate(body, context)
+
+    // Log for debugging
+    logger.info('Email config', {
+      raw: { to, subject, body },
+      resolved: { to: resolvedTo, subject: resolvedSubject, body: resolvedBody },
+    })
+
     const resend = new Resend(data.resendApiKey)
 
     const { data: resp, error } = await resend.emails.send({
-      from: 'CU-Forum <onboarding@kitsunelabs.xyz>',
-      to,
-      subject,
-      text: body,
+      from: data.email,
+      to: resolvedTo,
+      subject: resolvedSubject,
+      text: resolvedBody,
     })
 
     if (error) {

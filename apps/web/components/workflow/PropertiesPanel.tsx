@@ -91,7 +91,7 @@ export function PropertiesPanel() {
               <span className="text-red-500 ml-1">*</span>
             </Label>
             <Select
-              defaultValue={selectedNode.data.credentials?.id || ''}
+              value={selectedNode.data.credentials?.id || ''}
               onValueChange={(id) => {
                 // console.log(id)
                 if (id === 'create-new') {
@@ -149,6 +149,7 @@ export function PropertiesPanel() {
           onConfigChange={handleConfigChange}
           defaultConfig={getDefaultConfig(selectedNode.data.type)}
           nodeType={selectedNode.data.type}
+          nodeId={selectedNode.id}
         />
 
         {/* Common Settings */}
