@@ -28,6 +28,11 @@ const edgeTypes = {
   aiAgentTool: AiAgentToolEdge,
 }
 
+/**
+ * Renders the main ReactFlow-based canvas for editing workflows, including node and edge rendering, drag-and-drop node creation, zoom and fit controls, pane interactions, and an empty-state call to add the first step.
+ *
+ * @returns The React element containing the interactive diagram editor with a dotted background, control panels (zoom/fit), node/edge handling, and an empty-state CTA when there are no nodes.
+ */
 export function Canvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow()

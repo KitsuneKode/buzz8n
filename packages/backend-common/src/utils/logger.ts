@@ -55,13 +55,22 @@ const baseFormat = printf((info) => {
   return `([${colorizer(info.level, ts)}]) [${lvl}] [${info.service}] ${msg}${additionalData}${metaData}${stack}`
 })
 
+/**
+ * Format an ISO 8601 timestamp string into a human-readable timestamp.
+ *
+ * @param timestamp - An ISO 8601 timestamp string (e.g., "2025-10-20T14:23:30.123Z")
+ * @returns The formatted timestamp as `yyyy-MM-dd HH:mm:ss.SSS a` using 24-hour hour notation
+ */
 function formatTimestamp(timestamp: string) {
   const date = parseISO(timestamp)
   return dateFormat(date, 'yyyy-MM-dd HH:mm:ss.SSS a') // Changed hh to HH for 24-hour format
 }
 
 /**
- * Create a new logger instance tagged with `serviceName`
+ * Create a Winston logger configured for a specific service.
+ *
+ * @param serviceName - Service identifier added to each log entry as default metadata (`service`)
+ * @returns A Winston logger instance that tags logs with the provided service name
  */
 export function createLogger(serviceName: string) {
   const logger = winstonCreateLogger({

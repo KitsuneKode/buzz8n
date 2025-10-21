@@ -86,17 +86,31 @@ export const NODE_TEMPLATES: Record<string, NodeTemplate> = {
   },
 }
 
-// Helper function to get defaultConfig for a node type
+/**
+ * Retrieve the default configuration for a node template.
+ *
+ * @param nodeType - The node template type identifier to look up
+ * @returns The `defaultConfig` object for the specified node type, or an empty object if the node type is not found
+ */
 export function getDefaultConfig(nodeType: string): Record<string, unknown> {
   return NODE_TEMPLATES[nodeType]?.defaultConfig || {}
 }
 
-// Helper function to get the full template for a node type
+/**
+ * Retrieve the node template for a given node type.
+ *
+ * @param nodeType - The template key identifying the node type in NODE_TEMPLATES
+ * @returns The `NodeTemplate` for `nodeType`, or `undefined` if no matching template exists
+ */
 export function getNodeTemplate(nodeType: string): NodeTemplate | undefined {
   return NODE_TEMPLATES[nodeType]
 }
 
-// Helper function to get all node templates
+/**
+ * Retrieve an array of all node template definitions.
+ *
+ * @returns An array of all NodeTemplate objects from NODE_TEMPLATES.
+ */
 export function getAllNodeTemplates(): NodeTemplate[] {
   return Object.values(NODE_TEMPLATES)
 }

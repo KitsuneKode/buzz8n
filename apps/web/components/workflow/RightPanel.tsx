@@ -6,6 +6,14 @@ import { PropertiesPanel } from './PropertiesPanel'
 import { NodePalette } from './NodePalette'
 import { X } from 'lucide-react'
 
+/**
+ * Render the workflow editor's right-side panel containing either the node palette or the properties panel.
+ *
+ * The panel is not rendered (returns `null`) when the node palette is closed and no node is selected.
+ * Header text adapts to current editor state (showing palette, selected node, and handle context).
+ *
+ * @returns The right-side panel element, or `null` when the panel is hidden.
+ */
 export function RightPanel() {
   const { isNodePaletteOpen, selectedNodeId, closeRightPanel, nodes, handleId } =
     useWorkflowEditorStore()

@@ -29,7 +29,13 @@ import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { NodeTemplate } from '@/lib/types/workflow'
 
-// Generate node categories dynamically from centralized templates
+/**
+ * Build node categories from the centralized registry of node templates.
+ *
+ * Produces category objects that group templates by their category id, assigning a human-readable label for each category and giving each template instance a unique id.
+ *
+ * @returns An array of NodeCategory objects where each item has `id`, `label`, and `nodes` (the templates for that category with unique instance ids)
+ */
 function generateNodeCategories(): NodeCategory[] {
   const allTemplates = getAllNodeTemplates()
 
@@ -55,7 +61,14 @@ function generateNodeCategories(): NodeCategory[] {
   }))
 }
 
-// Helper function to get human-readable category labels
+/**
+ * Convert a node category identifier into a human-readable label.
+ *
+ * Translates well-known category IDs (for example, `ai`, `triggers`, `ai-agent-tools`) to friendly labels; for unknown IDs returns the ID with its first letter capitalized.
+ *
+ * @param categoryId - The category identifier to convert
+ * @returns The human-readable label for the given category ID
+ */
 function getCategoryLabel(categoryId: string): string {
   const labelMap: Record<string, string> = {
     ai: 'AI',
@@ -114,6 +127,16 @@ const getNodeIcon = (iconType: string) => {
   }
 }
 
+/**
+ * Render the node palette UI for searching, previewing, dragging, and adding nodes into the workflow.
+ *
+ * The palette provides a searchable list of node categories and nodes, filters out nodes that would
+ * duplicate single-instance types (e.g., webhook, manual trigger), and conditionally shows agent-tool
+ * nodes when adding tools to an AI agent. Clicking or dragging a node will add it to the canvas or
+ * attach it to a pending connection as appropriate.
+ *
+ * @returns A JSX element that renders the interactive node palette.
+ */
 export function NodePalette() {
   const [searchQuery, setSearchQuery] = useState('')
   const { addNode, pendingConnectFromNodeId, nodes, addNodeWithEdge, handleId } =
