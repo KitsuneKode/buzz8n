@@ -8,14 +8,13 @@ import {
   SelectValue,
 } from '@buzz8n/ui/components/select'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { AlertCircle, Settings, Trash2 } from 'lucide-react'
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { getDefaultConfig } from '@/utils/node-templates'
 import { useDashboardStore } from '@/stores/dashboard'
-import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
+import { AlertCircle, Trash2 } from 'lucide-react'
 import { ConfigRenderer } from './ConfigRenderer'
 import React from 'react'
 
@@ -45,6 +44,7 @@ export function PropertiesPanel() {
   const nodeConfig = selectedNode.data.config || {}
 
   const requiredCredentials = selectedNode.data.requiredCredentials || []
+  console.log('requiredCredentials', requiredCredentials)
 
   const handleConfigChange = (key: string, value: string | unknown) => {
     updateSelectedNodeConfig({ [key]: value })
@@ -152,7 +152,7 @@ export function PropertiesPanel() {
         />
 
         {/* Common Settings */}
-        <div className="space-y-4 pt-4 border-t border-border">
+        {/* <div className="space-y-4 pt-4 border-t border-border">
           <h4 className="text-sm font-medium flex items-center">
             <Settings className="w-4 h-4 mr-2" />
             Settings
@@ -183,7 +183,7 @@ export function PropertiesPanel() {
               onCheckedChange={(checked) => handleConfigChange('alwaysOutputData', checked)}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Node Notes */}
         <div className="space-y-2">

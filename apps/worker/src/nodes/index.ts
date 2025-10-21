@@ -1,6 +1,7 @@
 import { nodeDataSchema, nodeSchema } from '@buzz8n/common/types'
 import { sendTelegramMessage } from '@/nodes/telegram/send'
 import { sendResendEMail } from './email/resend'
+import { runAiAgent } from './ai-agent/agent'
 import type { RFNode } from '@/processor/dag'
 import { logger } from '@/utils'
 import { sleep } from 'bun'
@@ -45,8 +46,13 @@ export const runNode: RunNode = async (node, context) => {
     case 'aiAgent':
       // TODO: call your model/tooling with inputs from context.$node
       console.log('aiAgent')
+      logger.info('[NODE] aiAgent', { node: node.id, nodeData: data })
       await sleep(5000)
-      return { status: 'ok' }
+      console.log('\n\n\n')
+      console.log('context', context.$json.body)
+      console.log('\n\n\n')
+      console.log(data)
+      return await runAiAgent(data.config, data.credentials?.id, context)
     default:
       throw new Error(`Unsupported node type: ${data.type}`)
   }

@@ -1,8 +1,10 @@
+import type { RFEdge, RFNode } from '@/processor/dag'
 import { prisma } from '@buzz8n/store'
 import { redis } from '@/redis'
 
 const INACTIVITY_TIMEOUT = 1 * 60 * 60 //1h
 const workflowKey = (id: string) => `workflow:${id}:active_count`
+const subGraphCategories = ['ai-agent-tools']
 
 /**
  * Increment the workflow's active-execution counter, refresh its inactivity TTL, and mark the workflow active when this is the first running execution.
@@ -36,6 +38,61 @@ export async function endExecutionSetStatus(workflowId: string): Promise<number>
     await prisma.workflow.update({ where: { id: workflowId }, data: { active: false } })
   }
   return count
+}
+
+/**
+ * Collapse non-executable “property” nodes (e.g., agent tools) into their parent node’s config.
+ * Returns:
+ *  - executableNodes: nodes that remain as DAG vertices
+ *  - filteredEdges: edges only between executable nodes
+ *  - nonExecutableIds: ids that were absorbed (for diagnostics)
+ *
+ * Convention:
+ *  - A node is considered non-executable if it has a parentId and its type matches the tool set.
+ *  - Collapsed tools are appended to parent.data.config.allowedTools as metadata for runNode.
+ */
+
+export function collapsePropertyNodes(
+  nodes: RFNode[],
+  edges: RFEdge[],
+  isProperty?: (n: RFNode) => boolean,
+) {
+  const byId = new Map(nodes.map((n) => [n.id, { ...n }]))
+  const nonExecutableIds = new Set<string>()
+  const executableNodes: RFNode[] = []
+  // Accumulate tools into parent config
+  for (const n of nodes) {
+    if (
+      isProperty?.(n) ??
+      (!!(n as any).parentId &&
+        subGraphCategories.includes(((n.data as any)?.category ?? '') as string))
+    ) {
+      nonExecutableIds.add(n.id)
+      const parentId = (n as any).parentId as string | undefined
+      if (!parentId || !byId.has(parentId)) continue
+      const parent = byId.get(parentId)!
+      parent.data = parent.data ?? {}
+      parent.data.config = parent.data.config ?? {}
+      const arr = (parent.data.config.allowedTools ??= [])
+      arr.push({
+        id: n.id,
+        type: n.data?.type,
+        label: (n.data as any)?.label,
+        config: n.data?.config ?? {},
+      })
+    }
+  }
+
+  // Keep only executable nodes
+  for (const n of nodes) {
+    if (!nonExecutableIds.has(n.id)) executableNodes.push(byId.get(n.id)!)
+  }
+
+  // Keep only edges between executable nodes
+  const execIds = new Set(executableNodes.map((n) => n.id))
+  const filteredEdges = edges.filter((e) => execIds.has(e.source) && execIds.has(e.target))
+
+  return { executableNodes, filteredEdges, nonExecutableIds }
 }
 
 /**

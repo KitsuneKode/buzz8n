@@ -204,8 +204,8 @@ const config = {
       "fromEnvVar": null
     },
     "config": {
-      "moduleFormat": "esm",
       "runtime": "bun",
+      "moduleFormat": "esm",
       "engineType": "library"
     },
     "binaryTargets": [
@@ -230,6 +230,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {

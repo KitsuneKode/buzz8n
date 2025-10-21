@@ -62,9 +62,9 @@ export const NODE_TEMPLATES: Record<string, NodeTemplate> = {
     category: 'ai',
     defaultConfig: {
       prompt: '',
-      model: 'gpt-4',
+      model: 'gemini-2.5-flash',
     },
-    requiredCredentials: ['gemini_api_key'],
+    requiredCredentials: ['gemini', 'openai', 'anthropic'],
   },
   sumTool: {
     id: 'agent-tool-sum',

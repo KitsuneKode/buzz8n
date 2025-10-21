@@ -33,6 +33,7 @@ const ClaudeForm = ({ onBack, onCancel, onSubmit }: ClaudeFormProps) => {
     defaultValues: {
       name: '',
       anthropicApiKey: '',
+      platform: 'anthropic',
     },
   })
 

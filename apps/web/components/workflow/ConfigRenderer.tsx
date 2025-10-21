@@ -22,7 +22,7 @@ export interface FieldConfig {
   label: string
   type: 'text' | 'textarea' | 'select' | 'switch' | 'password' | 'readonly' | 'url'
   placeholder?: string
-  options?: Array<{ value: string; label: string }>
+  options?: Array<{ value: string; label: string } & Record<string, string>>
   rows?: number
   description?: string
   copyable?: boolean
@@ -106,9 +106,12 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
     label: 'Model',
     type: 'select',
     options: [
-      { value: 'gpt-4', label: 'GPT-4' },
-      { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo' },
-      { value: 'claude-3', label: 'Claude 3' },
+      { value: 'gemini-2.5-flash', type: 'gemini', label: 'Gemini 2.5 Flash' },
+      { value: 'gemini-2.5-pro', type: 'gemini', label: 'Gemini 2.5 Pro' },
+      { value: 'gemini-2.5-pro-exp', type: 'gemini', label: 'Gemini 2.5 Pro Exp' },
+      { value: 'gpt-4', type: 'openai', label: 'GPT-4' },
+      { value: 'gpt-3.5-turbo', type: 'openai', label: 'GPT-3.5 Turbo' },
+      { value: 'claude-3', type: 'anthropic', label: 'Claude 3' },
     ],
   },
 

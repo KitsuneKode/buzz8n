@@ -33,6 +33,7 @@ const OpenAIForm = ({ onBack, onCancel, onSubmit }: OpenAIFormProps) => {
     defaultValues: {
       name: '',
       openaiApiKey: '',
+      platform: 'openai',
     },
   })
 

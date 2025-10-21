@@ -35,16 +35,19 @@ export const emailFormSchema = z.object({
 })
 
 export const geminiFormSchema = z.object({
+  platform: z.literal('gemini'),
   name: z.string().trim().min(1, 'Credential name is required'),
   geminiApiKey: z.string().trim().min(1, 'Gemini API key is required'),
 })
 
 export const anthropicFormSchema = z.object({
+  platform: z.literal('anthropic'),
   name: z.string().trim().min(1, 'Credential name is required'),
   anthropicApiKey: z.string().trim().min(1, 'Anthropic API key is required'),
 })
 
 export const openaiFormSchema = z.object({
+  platform: z.literal('openai'),
   name: z.string().trim().min(1, 'Credential name is required'),
   openaiApiKey: z.string().trim().min(1, 'OpenAI API key is required'),
 })
@@ -53,3 +56,10 @@ export type EmailFormData = z.infer<typeof emailFormSchema>
 export type GeminiFormData = z.infer<typeof geminiFormSchema>
 export type AnthropicFormData = z.infer<typeof anthropicFormSchema>
 export type OpenAIFormData = z.infer<typeof openaiFormSchema>
+
+export const aiAgentFormSchema = z.discriminatedUnion('platform', [
+  geminiFormSchema,
+  anthropicFormSchema,
+  openaiFormSchema,
+])
+export type AiAgentFormData = z.infer<typeof aiAgentFormSchema>

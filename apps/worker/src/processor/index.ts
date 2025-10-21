@@ -17,8 +17,8 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
+import { beginExecutionSetStatus, collapsePropertyNodes, endExecutionSetStatus } from './helper'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
-import { beginExecutionSetStatus, endExecutionSetStatus } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store'
@@ -86,7 +86,6 @@ export const processResponse = async ({
       await redis.xAck({ messageID: id })
       return
     }
-
     let began = false
     try {
       await beginExecutionSetStatus(workflowId)
@@ -99,14 +98,29 @@ export const processResponse = async ({
        * Only updates DB status to 'active' when first execution starts.
        *
        */
+      const { executableNodes, filteredEdges, nonExecutableIds } = collapsePropertyNodes(
+        nodes,
+        edges,
+      )
+      logger.debug('[DAG] collapse_properties', {
+        collapsedCount: nonExecutableIds.size,
+        collapsedIds: Array.from(nonExecutableIds),
+      })
 
       // Define the runnable subgraph from the trigger and build the DAG
-      const reachable = collectReachableFrom(triggerId, edges)
-      const { nodeMap, children, indegree } = buildGraph(nodes, edges, reachable)
+
+      const reachable = collectReachableFrom(triggerId, filteredEdges)
+      const execIdSet = new Set(executableNodes.map((n) => n.id))
+      const allowed = new Set([...reachable].filter((id) => execIdSet.has(id)))
+
+      const { nodeMap, children, indegree } = buildGraph(executableNodes, filteredEdges, allowed)
       validateDAG(children, indegree)
 
       // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-      const triggerPayload = (payload as any)?.data ?? {}
+      const triggerPayload = JSON.parse(data as unknown as string) ?? {}
+      console.log('triggerPayload', triggerPayload)
+      console.log('\n\n\n')
+      console.log('\n\n\n')
 
       const ctx: ExecContext = { $json: { body: triggerPayload }, $node: {} }
 

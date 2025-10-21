@@ -33,6 +33,7 @@ const GeminiForm = ({ onBack, onCancel, onSubmit }: GeminiFormProps) => {
     defaultValues: {
       name: '',
       geminiApiKey: '',
+      platform: 'gemini',
     },
   })
 
