@@ -77,6 +77,7 @@ export function useWorkflow(id: string): UseQueryResult<WorkflowData, Error> {
     refetchOnMount: false,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    refetchInterval: false,
   })
 }
 

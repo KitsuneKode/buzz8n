@@ -1,5 +1,7 @@
+import { nodeDataSchema, nodeSchema } from '@buzz8n/common/types'
 import { sendTelegramMessage } from '@/nodes/telegram/send'
 import type { RFNode } from '@/processor/dag'
+import { logger } from '@/utils'
 import { sleep } from 'bun'
 
 /**
@@ -30,14 +32,14 @@ export type RunNode = (node: RFNode, context: ExecContext) => Promise<NodeResult
 export const runNode: RunNode = async (node, context) => {
   switch (node.data?.type) {
     case 'telegramSendMessage':
-      console.log('telegram')
-      console.log('\n\n\n')
-      console.log(' node ' + JSON.stringify(node.data) + ' context ' + context)
-      console.log('\n\n\n')
-      // TODO: invoke Telegram API using node.data.config and context.$node
+      const { success, data } = nodeDataSchema.safeParse(node.data)
 
-      await sendTelegramMessage(node.data.config, node.data.config?.credentials.id, context)
-      return { status: 'ok' }
+      if (!success) {
+        logger.error('Invalid node data', { nodeData: node.data })
+        throw new Error('Invalid node data')
+      }
+      return await sendTelegramMessage(data.config, data.credentials?.id, context)
+
     case 'emailSend':
       console.log('email')
       await sleep(5000)

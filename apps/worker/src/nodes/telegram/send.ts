@@ -1,31 +1,44 @@
+import { telegramFormSchema } from '@buzz8n/common/types'
+import type { ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
+import axios from 'axios'
 
 export const sendTelegramMessage = async (
   config: Record<string, unknown> | undefined,
   credentialId: string | undefined,
-  context: any,
+  context: ExecContext,
 ) => {
   try {
-    console.log('credential id', credentialId)
-    if (!credentialId) {
+    if (!credentialId || typeof config !== 'object') {
       throw new Error('Credentials to execute sendTelegram Message not provided')
     }
 
-    logger.info('credentialId', credentialId)
     const credential = await prisma.credential.findUnique({
       where: {
         id: credentialId,
       },
     })
-
-    // const {}= (credential?.data as ) ?? ''
-    // logger.info('credentials', credential)
-
-    if (!credential) {
+    if (!credential || !credential.data) {
       throw new Error('Credential to execute sendTelegram Message does not exists')
     }
+    const { data, success } = telegramFormSchema.safeParse(credential.data)
+    const { message, chatId } = config
+    if (!success || !message || !chatId) {
+      throw new Error('Invalid credential data')
+    }
+
+    const { botToken } = data
+    logger.info('botToken', botToken, 'message', message, 'chatId', chatId)
+    const resp = await axios.post(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      { text: message, chat_id: chatId },
+      { headers: { 'Content-Type': 'application/json' } },
+    )
+    logger.info('Telegram message sent successfully', resp.data)
+    return { status: 'ok', data: resp.data }
   } catch (error) {
+    logger.error('Failed to send Telegram message', error)
     throw error
   }
 }

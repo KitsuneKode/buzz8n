@@ -23,11 +23,11 @@ import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeCategory } from '@buzz8n/common/types/workflow'
 import { getAllNodeTemplates } from '@/utils/node-templates'
 import { Separator } from '@buzz8n/ui/components/separator'
+import { useCallback, useMemo, useState } from 'react'
 import { Button } from '@buzz8n/ui/components/button'
 import { Input } from '@buzz8n/ui/components/input'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { NodeTemplate } from '@/lib/types/workflow'
-import { useState } from 'react'
 
 // Generate node categories dynamically from centralized templates
 function generateNodeCategories(): NodeCategory[] {
@@ -125,75 +125,73 @@ export function NodePalette() {
   const aiAgentNodeId = handleId?.split('-')[0]
   const onAiAgentAddTools = nodes.find((n) => n.id === aiAgentNodeId && n.data.type === 'aiAgent')
 
-  const existingAiAgentTools = new Set(
-    nodes
-      .filter((n) => n.data.category === 'ai-agent-tools' && n.parentId === aiAgentNodeId)
-      .map((n) => n.type),
-  )
+  const filteredCategories = useMemo(() => {
+    const existingAiAgentTools = new Set(
+      nodes
+        .filter((n) => n.data.category === 'ai-agent-tools' && n.parentId === aiAgentNodeId)
+        .map((n) => n.type),
+    )
 
-  const filteredCategories = nodeCategories
-    .map((category) => ({
-      ...category,
-      nodes: category.nodes.filter(
-        (node) =>
-          (node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            node.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
-          !(
-            (existingWebhook && node.type === 'webhook') ||
-            (existingManualTrigger && node.type === 'manualTrigger')
-          ) &&
-          !existingAiAgentTools.has(node.type),
-      ),
-    }))
-    .filter((category) => {
-      if (category.nodes.length === 0) return false
+    return nodeCategories
+      .map((category) => ({
+        ...category,
+        nodes: category.nodes.filter(
+          (node) =>
+            (node.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              node.description.toLowerCase().includes(searchQuery.toLowerCase())) &&
+            !(
+              (existingWebhook && node.type === 'webhook') ||
+              (existingManualTrigger && node.type === 'manualTrigger')
+            ) &&
+            !existingAiAgentTools.has(node.type),
+        ),
+      }))
+      .filter((category) => {
+        if (category.nodes.length === 0) return false
 
-      const isAiAgentTools = category.id === 'ai-agent-tools'
+        const isAiAgentTools = category.id === 'ai-agent-tools'
 
-      return onAiAgentAddTools ? isAiAgentTools : !isAiAgentTools
-    })
+        return onAiAgentAddTools ? isAiAgentTools : !isAiAgentTools
+      })
+  }, [searchQuery, existingWebhook, existingManualTrigger, onAiAgentAddTools, aiAgentNodeId, nodes])
 
-  const OFFSET = { x: 240, y: 0 }
+  const handleNodeClick = useCallback(
+    (template: NodeTemplate) => {
+      const OFFSET = { x: 240, y: 0 }
 
-  const existingNodesOffset =
-    nodes.length > 0
-      ? {
-          x: Math.random() * 400 + 100,
-          y: Math.random() * 400 + 100,
+      const existingNodesOffset =
+        nodes.length > 0
+          ? {
+              x: Math.random() * 400 + 100,
+              y: Math.random() * 400 + 100,
+            }
+          : {
+              x: 100,
+              y: 100,
+            }
+      if (pendingConnectFromNodeId) {
+        const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
+
+        if (anchor) {
+          if (!handleId) {
+            OFFSET.x = anchor.position.x + 300
+            OFFSET.y = anchor.position.y + 0
+          } else {
+            OFFSET.y = (Math.random() - 0.5) * 200 + 240
+            OFFSET.x = (Math.random() - 0.5) * 200
+          }
         }
-      : {
-          x: 100,
-          y: 100,
-        }
+        console.log(OFFSET)
+        const pos = anchor ? { x: OFFSET.x, y: OFFSET.y } : { x: 100, y: 100 }
 
-  const handleNodeClick = (template: NodeTemplate) => {
-    console.log(template)
-    if (pendingConnectFromNodeId) {
-      const anchor = nodes.find((n) => n.id === pendingConnectFromNodeId)
-
-      if (anchor && anchor.data.type === 'aiAgent') {
-        if (!handleId) {
-          OFFSET.x += 200
-          // OFFSET(Math.random() - 0.5) * 300 + 100
-        } else {
-          OFFSET.y += (Math.random() - 0.5) * 200 + 100
-          OFFSET.x = (Math.random() - 0.5) * 200
-        }
+        addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)
+      } else {
+        // Fallback add (e.g., when palette opened from toolbar)
+        addNode(template, existingNodesOffset)
       }
-
-      const pos = anchor
-        ? { x: anchor.position.x + OFFSET.x, y: anchor.position.y + OFFSET.y }
-        : { x: 100, y: 100 }
-
-      addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)
-      OFFSET.x = 240
-      OFFSET.y = 0
-    } else {
-      // Fallback add (e.g., when palette opened from toolbar)
-      addNode(template, existingNodesOffset)
-    }
-  }
-  console.log(nodes)
+    },
+    [addNode, addNodeWithEdge, pendingConnectFromNodeId, nodes, handleId],
+  )
   const onDragStart = (event: React.DragEvent, template: NodeTemplate) => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(template))
     event.dataTransfer.effectAllowed = 'move'

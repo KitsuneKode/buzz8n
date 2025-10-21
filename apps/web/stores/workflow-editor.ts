@@ -165,7 +165,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
 
   onEdgesChange: (changes) => {
-    console.log(changes)
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
       isDirty: true,
@@ -173,8 +172,25 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
 
   onConnect: (connection) => {
+    let type = 'deleteEdge'
+    let nodes = get().nodes
+    if (connection.sourceHandle && !connection.targetHandle) {
+      const isAgent = connection.sourceHandle.split('-')[2]
+
+      if (isAgent) {
+        type = 'aiAgentTool'
+        const parentId = connection.sourceHandle.split('-')[0]
+
+        const node = nodes.find((n) => n.id === connection.target)
+        if (node) {
+          node.parentId = parentId
+          nodes = [...nodes, node]
+        }
+      }
+    }
     set((state) => ({
-      edges: addEdge(connection, state.edges),
+      edges: addEdge({ ...connection, type }, state.edges),
+      nodes: [...nodes],
       isDirty: true,
     }))
   },

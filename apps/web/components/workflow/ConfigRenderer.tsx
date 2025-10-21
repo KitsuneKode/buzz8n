@@ -80,7 +80,7 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
       { value: 'GET', label: 'GET' },
       { value: 'POST', label: 'POST' },
       { value: 'PUT', label: 'PUT' },
-      { value: 'DELETE', label: 'DELETE' },
+      // { value: 'DELETE', label: 'DELETE' },
     ],
   },
   path: {
