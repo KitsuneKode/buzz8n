@@ -38,7 +38,6 @@ const EmailForm = ({ onBack, onCancel, onSubmit }: EmailFormProps) => {
   })
 
   const onFormSubmit = (data: EmailFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 

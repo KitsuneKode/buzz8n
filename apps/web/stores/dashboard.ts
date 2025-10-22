@@ -106,7 +106,6 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   },
   // Action handlers
   createWorkflow: () => {
-    console.log('Creating workflow...')
     // Navigate to workflow editor
     // if (typeof window !== 'undefined') {
     //   window.location.href = '/workflow/new'

@@ -8,21 +8,17 @@
  * @param context - The context of the AI Agent node.
  * @returns The response from the AI Agent node.
  */
-
-//TODO: Fix the deprecation warnings for the createReactAgent function use createAgent from langchain instead
 import { aiAgentFormSchema, type AiAgentFormData } from '@buzz8n/common/types'
-import { clientConfig } from '@buzz8n/common/utils/config-loader'
-import { createReactAgent } from '@langchain/langgraph/prebuilt'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
+import { HumanMessage, createAgent } from 'langchain'
 import { ChatAnthropic } from '@langchain/anthropic'
-import { exponent, multiply, sum } from './tools'
+import { availableTools, toolNames } from './tools'
 import { renderTemplate } from '@/nodes/helper'
 import { ChatOpenAI } from '@langchain/openai'
 import type { ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store/'
-import { createAgent } from 'langchain'
 import { logger } from '@/utils'
-import Mustache from 'mustache'
+import { z } from 'zod'
 
 // Initialize the model with tools
 
@@ -71,40 +67,62 @@ export const runAiAgent = async (
     }
     const { data, success } = aiAgentFormSchema.safeParse(credential.data)
 
-    const { prompt, model } = config as { prompt: string; model: string }
+    const { prompt, model, allowedTools } = config as {
+      prompt: string
+      model: string
+      allowedTools:
+        | { type: string; label: string; config: Record<string, unknown>; id: string }[]
+        | undefined
+    }
 
     if (!success || !prompt || !model) {
       throw new Error('Invalid credential data')
     }
-
     // Render template in prompt
     const resolvedPrompt = renderTemplate(prompt, context)
 
     // Log for debugging
     logger.info('AI Agent config', {
-      raw: { prompt, model },
-      resolved: { prompt: resolvedPrompt, model },
+      raw: { prompt, model, allowedTools },
+      resolved: { prompt: resolvedPrompt, model, allowedTools },
     })
-
     const selectedModel = getModel(model, data)
 
-    const agent = createReactAgent({
-      llm: selectedModel,
-      tools: [sum, multiply, exponent],
+    const responseFormat = z.object({
+      response_from_agent: z.string().describe('The response from the agent'),
     })
 
-    const { messages } = await agent.invoke({
-      messages: [
-        {
-          role: 'user',
-          content: resolvedPrompt,
-        },
-      ],
+    // Programmatically select tools based on allowedTools config
+    // If allowedTools is undefined or empty, use all available tools
+    const selectedToolNames =
+      allowedTools && allowedTools.length > 0 ? allowedTools?.map((tool) => tool.type) : undefined
+
+    const tools = selectedToolNames
+      ?.filter((toolName) => toolName in availableTools)
+      ?.map((toolName) => availableTools[toolName as keyof typeof availableTools])
+
+    const systemPrompt = `
+    You are a helpful assistant that will help the user to complete the task
+    ${tools && tools.length > 0 && 'You can use the following tools to help the user:'}
+    ${tools && tools.length > 0 && selectedToolNames?.map((tool) => `- ${tool}`).join('\n')}
+    `
+
+    console.log(systemPrompt, 'systemPrompt')
+    const agent = createAgent({
+      model: selectedModel,
+      tools: tools && tools.length > 0 ? tools : undefined,
+      responseFormat,
+      systemPrompt,
     })
 
-    // const resp = await structuredResponse.toJSON()
-    logger.info('AI Agent response', messages)
-    return { status: 'ok', data: messages }
+    const userPrompt = new HumanMessage(resolvedPrompt)
+
+    const { structuredResponse } = await agent.invoke({
+      messages: [userPrompt],
+    })
+
+    logger.info('AI Agent response', { response: structuredResponse.response_from_agent })
+    return { status: 'ok', data: { response: structuredResponse.response_from_agent } }
   } catch (error) {
     logger.error('Failed to invoke AI Agent', error)
     return { status: 'error', data: error }

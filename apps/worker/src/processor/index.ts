@@ -131,7 +131,6 @@ export const processResponse = async ({
     } finally {
       if (began) {
         // persist final state/results/telemetry here
-        console.log('here')
         await endExecutionSetStatus(workflowId) // DECR + TTL + status flip on zero
       }
     }

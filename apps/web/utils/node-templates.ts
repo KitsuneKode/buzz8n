@@ -68,7 +68,7 @@ export const NODE_TEMPLATES: Record<string, NodeTemplate> = {
   },
   sumTool: {
     id: 'agent-tool-sum',
-    type: 'sumTool',
+    type: 'sum',
     label: 'Sum Tool',
     description: 'Do sum of two numbers',
     icon: 'sum',
@@ -77,7 +77,7 @@ export const NODE_TEMPLATES: Record<string, NodeTemplate> = {
   },
   multiplyTool: {
     id: 'agent-tool-multi',
-    type: 'multiplyTool',
+    type: 'multiply',
     label: 'Multiplication Tool',
     description: 'Do multiplication of two numbers',
     icon: 'cross',

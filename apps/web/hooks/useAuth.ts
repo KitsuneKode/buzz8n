@@ -82,7 +82,6 @@ export function useAuth(): UseAuthReturn {
         },
       )
 
-      console.log(response.data)
       return response.data
     },
     onSuccess: () => {

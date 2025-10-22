@@ -53,6 +53,7 @@ export const sendResendEMail = async (
       throw new Error(error.message)
     }
     logger.info('Email sent successfully', resp)
+
     return { status: 'ok', data: resp }
   } catch (error) {
     logger.error('Failed to send email', error)

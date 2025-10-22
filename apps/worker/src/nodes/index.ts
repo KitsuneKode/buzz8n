@@ -45,7 +45,7 @@ export const runNode: RunNode = async (node, context) => {
   console.log('\n\n')
   console.log('\n\n')
   console.log('\n\n')
-  console.log('context', context)
+  console.log('context', JSON.stringify(context, null, 2))
   console.log('\n\n')
   console.log('\n\n')
   console.log('\n\n')

@@ -9,7 +9,7 @@ import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
-
+//TODO:Fix the functionality of the top bar
 export function TopBar() {
   const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()

@@ -39,7 +39,6 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
   })
 
   const onFormSubmit = (data: TelegramFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 

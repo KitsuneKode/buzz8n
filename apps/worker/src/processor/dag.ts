@@ -268,7 +268,7 @@ export async function executeGraphConcurrent(
 
         // Create a unique key for this node type (handle duplicates)
         let key = nodeType
-        let counter = 1
+        let counter = 2
         while (ctx.$json[key]) {
           key = `${nodeType}${counter}`
           counter++

@@ -31,12 +31,15 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
   // Previous node input configs (resolved values)
   const getPreviousNodeInputs = (): Array<{ path: string; label: string }> => {
     const inputs: Array<{ path: string; label: string }> = []
+    const typeCounters: Map<string, number> = new Map()
+
     upstreamNodes.forEach((node) => {
       const nodeType = node.data?.type
-      if (nodeType) {
-        // Find the key used in $json for this node type
-        const existingKeys: string[] = []
-        const key = existingKeys.length > 0 ? `${nodeType}${existingKeys.length + 1}` : nodeType
+      if (nodeType && typeof nodeType === 'string') {
+        // Match backend logic: first is nodeType, then nodeType1, nodeType2, etc.
+        const count: number = typeCounters.get(nodeType) ?? 1
+        const key: string = count === 1 ? nodeType : `${nodeType}${count}`
+        typeCounters.set(nodeType, count + 1)
 
         // Add common input fields based on node type
         switch (nodeType) {
@@ -69,15 +72,18 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
   const getOutputFields = (node: any) => {
     switch (node.data?.type) {
       case 'emailSend':
-        return [{ path: 'data.output.id', label: 'Send ID' }]
+        return [
+          { path: 'data.data.id', label: 'Send ID' },
+          { path: 'status', label: 'Status' },
+        ]
       case 'telegramSendMessage':
         return [
-          { path: 'data.output.result.message_id', label: 'Message ID' },
-          { path: 'data.output.status', label: 'Status' },
+          { path: 'data.result.message_id', label: 'Message ID' },
+          { path: 'status', label: 'Status' },
         ]
       case 'aiAgent':
         return [
-          { path: 'data', label: 'AI Response' },
+          { path: 'data.response', label: 'AI Response' },
           { path: 'status', label: 'Status' },
         ]
       default:

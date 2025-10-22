@@ -116,7 +116,7 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
     options: [
       { value: 'gemini-2.5-flash', type: 'gemini', label: 'Gemini 2.5 Flash' },
       { value: 'gemini-2.5-pro', type: 'gemini', label: 'Gemini 2.5 Pro' },
-      { value: 'gemini-2.5-pro-exp', type: 'gemini', label: 'Gemini 2.5 Pro Exp' },
+      { value: 'gemini-2.0-flash', type: 'gemini', label: 'Gemini 2.0 Flash' },
       { value: 'gpt-4', type: 'openai', label: 'GPT-4' },
       { value: 'gpt-3.5-turbo', type: 'openai', label: 'GPT-3.5 Turbo' },
       { value: 'claude-3', type: 'anthropic', label: 'Claude 3' },

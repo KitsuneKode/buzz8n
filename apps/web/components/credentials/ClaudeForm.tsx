@@ -38,7 +38,6 @@ const ClaudeForm = ({ onBack, onCancel, onSubmit }: ClaudeFormProps) => {
   })
 
   const onFormSubmit = (data: AnthropicFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 

@@ -36,11 +36,9 @@ router.get('/credential', async (req, res, next: NextFunction) => {
 router.post('/credential', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const isParsed = credentialSchema.safeParse(req.body)
-    console.log(req.body.data)
 
     if (!isParsed.success) {
-      logger.error('not parsed')
-      console.log(isParsed)
+      logger.error('not parsed', { body: req.body })
 
       res.status(422).send('Invalid Data')
       return
@@ -79,7 +77,7 @@ router.delete('/credential', async (req: Request, res: Response, next: NextFunct
     const credentialId = req.body.id as string
 
     if (!credentialId) {
-      logger.error('no Id')
+      logger.error('no Id', { body: req.body })
 
       res.status(422).send('Invalid Data')
       return

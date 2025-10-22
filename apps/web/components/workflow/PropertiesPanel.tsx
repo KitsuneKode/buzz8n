@@ -44,7 +44,6 @@ export function PropertiesPanel() {
   const nodeConfig = selectedNode.data.config || {}
 
   const requiredCredentials = selectedNode.data.requiredCredentials || []
-  console.log('requiredCredentials', requiredCredentials)
 
   const handleConfigChange = (key: string, value: string | unknown) => {
     updateSelectedNodeConfig({ [key]: value })
