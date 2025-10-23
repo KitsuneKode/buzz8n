@@ -108,7 +108,7 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
         </Button>
       </div>
 
-      <ScrollArea className="h-90">
+      <ScrollArea className="h-80">
         {/* Trigger Data */}
         {/* <div className="p-3 border-b"> */}
         {/* <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Trigger Data</h4> */}
