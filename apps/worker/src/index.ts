@@ -87,4 +87,9 @@ async function shutdown() {
   }
 }
 
+// Graceful OS signal handling
+const stop = () => controller.abort()
+process.on('SIGINT', stop)
+process.on('SIGTERM', stop)
+
 main(signal)
