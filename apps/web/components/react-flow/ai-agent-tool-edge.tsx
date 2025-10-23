@@ -59,6 +59,8 @@ const AiAgentToolEdge = ({
             size="icon"
             variant="ghost"
             className="hover:text-red-600 bg-foreground/20"
+            aria-label="Remove connection"
+            title="Remove connection"
           >
             <X size={12} />
           </Button>
