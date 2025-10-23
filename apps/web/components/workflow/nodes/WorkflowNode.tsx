@@ -1,20 +1,16 @@
 'use client'
 
 import {
-  BarChart3,
   CheckIcon,
   CircleX,
-  Clock,
   CrossIcon,
   FileText,
-  GitBranch,
   MessageSquare,
   MoreHorizontal,
   Play,
   PlayCircle,
   Plus,
   Sigma,
-  Zap,
 } from 'lucide-react'
 import {
   NodeTooltip,
@@ -33,6 +29,7 @@ import { BaseHandle } from '@/components/react-flow/nodes/base-handle'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeProps, NodeToolbar, Position } from '@xyflow/react'
 import { NodeData, NodeType } from '@/lib/types/workflow'
+import { useExecuteWorkflow } from '@/hooks/useWorkflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { cn } from '@buzz8n/ui/lib/utils'
@@ -112,6 +109,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
     selectNode(id)
   }
 
+  const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
   return (
     <NodeTooltip>
       <NodeTooltipContent position={Position.Top} className="text-white">
@@ -121,11 +119,18 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
         <NodeStatusIndicator status={data.status} variant="border">
           <NodeToolbar
             className="flex flex-col items-center gap-2"
-            isVisible={selected && (data.type === 'manualTrigger' || data.type === 'webhook')}
+            isVisible={selected && data.type === 'manualTrigger'}
             position={Position.Left}
             align="center"
           >
-            <Button variant="ghost" size="icon">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
+                if (isPending) return
+                executeWorkflowMutate(id)
+              }}
+            >
               <PlayCircle className="size-6 text-primary" />
             </Button>
           </NodeToolbar>
@@ -160,37 +165,32 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               {getNodeIcon(data.type)}
 
               {/* Output Handle */}
-              {
-                data.category !== 'ai-agent-tools' &&
-                  (!hasOutgoing ? (
-                    <ButtonHandle
-                      type="source"
-                      position={Position.Right}
-                      className="bg-muted-foreground border-2 border-background"
+              {data.category !== 'ai-agent-tools' &&
+                (!hasOutgoing ? (
+                  <ButtonHandle
+                    type="source"
+                    position={Position.Right}
+                    className="bg-muted-foreground border-2 border-background"
+                  >
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openNodePaletteFor(id)
+                      }}
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-sm border"
                     >
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openNodePaletteFor(id)
-                        }}
-                        size="sm"
-                        variant="secondary"
-                        className="rounded-sm border"
-                      >
-                        <Plus size={10} />
-                      </Button>
-                    </ButtonHandle>
-                  ) : (
-                    <BaseHandle
-                      type="source"
-                      position={Position.Right}
-                      className="bg-muted-foreground border-2 border-background"
-                    ></BaseHandle>
-                  ))
-                // : (
-                //   <></>
-                // )
-              }
+                      <Plus size={10} />
+                    </Button>
+                  </ButtonHandle>
+                ) : (
+                  <BaseHandle
+                    type="source"
+                    position={Position.Right}
+                    className="bg-muted-foreground border-2 border-background"
+                  ></BaseHandle>
+                ))}
 
               {data.type === 'aiAgent' && (
                 <>

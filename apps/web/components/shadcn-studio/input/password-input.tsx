@@ -22,7 +22,7 @@ const InputPassword = ({
 
   return (
     <div className="w-full max-w-sm space-y-2">
-      <Label htmlFor={id}>Secret Key</Label>
+      {/* <Label htmlFor={id}>Secret Key</Label> */}
       <div className="relative">
         <Input
           id={id}

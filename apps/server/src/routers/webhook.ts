@@ -47,7 +47,7 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     }
 
     if (webhook.secret && webhook.secret !== secret_token) {
-      res.status(403).send('Not authorized')
+      res.status(403).send('Webhook called with invalid secret. Not authorized')
       return
     }
 

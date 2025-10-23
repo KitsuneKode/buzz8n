@@ -22,14 +22,15 @@ app.use(cookieParser())
 app.use(cors(corsConfig))
 app.use(timingMiddleware)
 
-app.get('/healthcheck', (req, res) => {
+app.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter, credentialRouter, workflowRouter, webhookRouter]
+const routers = [authRouter, credentialRouter, workflowRouter]
 
 routers.forEach((router) => app.use('/api/v1', router))
 
+app.use(webhookRouter)
 app.use('{/*splat}', timingMiddleware, (req, res) => {
   logger.info(`[404] ${req.originalUrl} ${req.method}  was called`)
   res.status(404).send('Page not Found')

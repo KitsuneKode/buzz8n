@@ -196,6 +196,7 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
             id: true,
             path: true,
             method: true,
+            secret: true,
           },
         },
       },
@@ -207,13 +208,16 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
     }
 
     const existingWebhookPath = workflow.webhook?.path
+    const existingWebhookSecret = workflow.webhook?.secret
+
     let newWebhook = null
     let deletedWebhook = false
     if (nodes && nodes.length > 0) {
       newWebhook = nodes.find(
         (node) =>
           node.data.type === 'webhook' &&
-          !(node.data.config.path === existingWebhookPath && existingWebhookPath),
+          !(node.data.config.path === existingWebhookPath && existingWebhookPath) &&
+          !(node.data.config.secret === existingWebhookSecret),
       )
 
       deletedWebhook = !!(
@@ -234,6 +238,7 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
       const webhookData = {
         method: Methods.POST,
         path: newWebhook.data.config.path as string,
+        secret: newWebhook.data.config.secret as string | undefined,
       }
 
       workflow = await prisma.workflow.update({
@@ -250,10 +255,12 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
               update: {
                 method: webhookData.method,
                 path: webhookData.path,
+                secret: webhookData.secret,
               },
               create: {
                 method: webhookData.method,
                 path: webhookData.path,
+                secret: webhookData.secret,
               },
             },
           },
