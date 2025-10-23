@@ -11,9 +11,10 @@ const wrapperClassNames: Record<Position, string> = {
 export const ButtonHandle = ({
   showButton = true,
   position = Position.Bottom,
+  subGraph = false,
   children,
   ...props
-}: HandleProps & { showButton?: boolean }) => {
+}: HandleProps & { showButton?: boolean; subGraph?: boolean }) => {
   const wrapperClassName = wrapperClassNames[position || Position.Bottom]
   const vertical = position === Position.Top || position === Position.Bottom
 
@@ -21,7 +22,14 @@ export const ButtonHandle = ({
     <BaseHandle position={position} id={props.id} {...props}>
       {showButton && (
         <div className={`absolute flex items-center ${wrapperClassName} pointer-events-none`}>
-          <div className={`bg-gray-300 ${vertical ? 'h-10 w-[1px]' : 'h-[1px] w-10'}`} />
+          {/* <div
+            className={`bg-gray-300 ${vertical ? 'h-14 w-[1px]' : 'h-[1px] w-10'} ${subGraph && 'border-dotted'}`}
+            
+          /> */}
+          <div
+            className={`${vertical ? 'h-14 w-[1px]' : 'h-[1px] w-10'} ${subGraph ? 'border border-dotted border-gray-400 ' : 'bg-gray-300'}`}
+          />
+
           <div className="nodrag nopan pointer-events-auto">{children}</div>
         </div>
       )}

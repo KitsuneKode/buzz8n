@@ -3,24 +3,26 @@
 ## Installation
 
 ```bash
-# Install testing dependencies for React components
-bun add -d @testing-library/react @testing-library/dom happy-dom
+# Install workspace deps (includes tests/ devDependencies)
+bun install
 ```
 
 ## Run Tests
 
 ```bash
-# Run all tests
-bun test
+# All tests (tests app)
+bun run test:all
 
-# Run specific test file
-bun test apps/server/src/redis/__tests__/enqueue.test.ts
+# Split targets
+bun run test:web
+bun run test:server
+bun run test:packages
 
-# Run with coverage
-bun test --coverage
+# CI-friendly run with coverage
+bun run test:ci
 
-# Watch mode
-bun test --watch
+# Run a single file (direct Bun)
+bun test tests/apps/web/pages/dashboard.test.tsx
 ```
 
 ## What's Tested
@@ -31,36 +33,35 @@ bun test --watch
 - Execution queue functionality.
 - Webhook endpoints (authentication, authorization, execution).
 
-✅ **Frontend Components**
-- Copy button (copying, clipboard operations, UI states).
-- Password input (visibility toggle, accessibility).
-- Utility functions (className merging with Tailwind).
+✅ **Frontend Flows**
+- Dashboard page (tabs, empty states, workflows list, create modal via `?create=true`).
+- Utility functions (e.g., className merging with Tailwind).
+  - Note: Unit tests for leaf UI components are de-emphasized in favor of flow tests.
 
 ✅ **Types**
 - EnqueueExecutionPayload interface validation.
 
 ## Test Files Created
 
-- `packages/backend-common/src/redis/__tests__/index.test.ts`
-- `packages/backend-common/src/redis/__tests__/migrate.test.ts`
-- `packages/backend-common/src/types/__tests__/queue.test.ts`
-- `apps/server/src/redis/__tests__/enqueue.test.ts`
-- `apps/server/src/routers/__tests__/webhook.test.ts`
-- `apps/web/lib/__tests__/utils.test.ts`
-- `apps/web/components/shadcn-studio/button/__tests__/copy-button.test.tsx`
-- `apps/web/components/shadcn-studio/input/__tests__/password-input.test.tsx`
+- `tests/apps/web/pages/dashboard.test.tsx`
+- `tests/apps/server/redis/enqueue.test.ts`
+- `tests/apps/server/routers/webhook.test.ts`
+- `tests/packages/backend-common/redis/index.test.ts`
+- `tests/packages/backend-common/redis/migrate.test.ts`
+- `tests/packages/types/queue.test.ts`
+- `tests/apps/web/lib/utils.test.ts` (utilities)
+- Component tests under `tests/apps/web/components/**` currently skipped (flow-first)
 
 ## Coverage Summary
 
 - **200+ test cases** covering happy paths, edge cases, and error scenarios.
 - **Backend**: Redis operations, API endpoints, authentication/authorization.
-- **Frontend**: React components, user interactions, accessibility.
+- **Frontend**: Dashboard flows, user interactions, accessibility.
 - **Error Handling**: Network failures, validation errors, edge cases.
 - **Integration**: Full workflow scenarios with multiple operations.
 
 ## Next Steps
 
 1. Run `bun install` to ensure all dependencies are available
-2. Install testing-library packages: `bun add -d @testing-library/react @testing-library/dom happy-dom`
-3. Run `bun test` to execute all tests
-4. Review TESTING.md for detailed documentation
+2. Run `bun run test:all` (or the split targets) to execute tests
+3. Review `TESTING.md` for detailed structure and mocking patterns

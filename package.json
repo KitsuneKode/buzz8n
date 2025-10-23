@@ -12,7 +12,12 @@
   "packageManager": "bun@1.2.18",
   "private": true,
   "scripts": {
-    "test": "bun test",
+    "test": "turbo run test -F @buzz8n/tests",
+    "test:web": "turbo run -F @buzz8n/tests test:web",
+    "test:server": "turbo run -F @buzz8n/tests test:server",
+    "test:worker": "turbo run -F @buzz8n/tests test:worker",
+    "test:packages": "turbo run -F @buzz8n/tests test:packages",
+    "test:ci": "turbo run test:ci -F @buzz8n/tests",
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:web": "turbo run -F @buzz8n/web dev",
@@ -32,6 +37,7 @@
   "workspaces": [
     "apps/*",
     "packages/*",
-    "toolings/*"
+    "toolings/*",
+    "tests/*"
   ]
 }

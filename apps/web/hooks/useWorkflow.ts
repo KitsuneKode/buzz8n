@@ -7,7 +7,6 @@ import {
   CreateWorkflow,
   UpdateWorkflow,
   WorkflowListData,
-  updateWorkflowSchema,
 } from '@buzz8n/common/types'
 
 import {
@@ -63,7 +62,12 @@ const transformWorkflowListItem = (response: WorkflowListItem): WorkflowListData
   }
 }
 
-// Fetch single workflow
+/**
+ * Loads a single workflow by its id and exposes React Query state.
+ *
+ * @param id - The workflow identifier; the query is disabled when `id` is falsy or equals `"new"`.
+ * @returns The query result whose `data` is the workflow's data when available.
+ */
 export function useWorkflow(id: string): UseQueryResult<WorkflowData, Error> {
   return useQuery({
     queryKey: WORKFLOW_QUERY_KEYS.detail(id),
@@ -75,6 +79,10 @@ export function useWorkflow(id: string): UseQueryResult<WorkflowData, Error> {
     },
     enabled: !!id && id !== 'new',
     staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnMount: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: false,
   })
 }
 

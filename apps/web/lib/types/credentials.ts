@@ -1,9 +1,19 @@
 import { SupportedPlatforms } from '@buzz8n/common/types'
-export { type TelegramFormData, telegramFormSchema } from '@buzz8n/common/types'
+export {
+  type TelegramFormData,
+  telegramFormSchema,
+  type EmailFormData,
+  emailFormSchema,
+  type OpenAIFormData,
+  openaiFormSchema,
+  type GeminiFormData,
+  geminiFormSchema,
+  type AnthropicFormData,
+  anthropicFormSchema,
+} from '@buzz8n/common/types'
 import z from 'zod'
 
-export type Provider = z.infer<typeof SupportedPlatforms>
-// export type Provider = 'telegram' | 'slack' | 'discord' | 'twilio' | 'gmail' | 'webhook'
+export type Provider = z.infer<typeof SupportedPlatforms> | 'Discord' | 'Slack'
 
 export interface CredentialData {
   provider: Provider

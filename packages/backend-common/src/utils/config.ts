@@ -13,6 +13,7 @@ const workerSchema = {
   nodeEnv: () => process.env.NODE_ENV,
   dbUrl: () => process.env.DATABASE_URL,
   redisUrl: () => process.env.REDIS_URL,
+  redisConsumerGroup: () => `worker-${process.pid}`,
 }
 
 export const backendConfig = ConfigLoader.getInstance(backendConfigSchema, 'server', backendLogger)

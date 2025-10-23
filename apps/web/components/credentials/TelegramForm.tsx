@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from '@buzz8n/ui/components/form'
 import { TelegramFormData, telegramFormSchema } from '@/lib/types/credentials'
-import { Checkbox } from '@buzz8n/ui/components/checkbox'
+// import { Checkbox } from '@buzz8n/ui/components/checkbox'
 import { Button } from '@buzz8n/ui/components/button'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@buzz8n/ui/components/input'
@@ -34,8 +34,7 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
     defaultValues: {
       name: '',
       botToken: '',
-      chatId: '',
-      sendTestMessage: false,
+      // sendTestMessage: false,
     },
   })
 
@@ -109,8 +108,8 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
             )}
           />
 
-          {/* Chat ID */}
-          <FormField
+          {/* Chat ID 
+          {/* <FormField
             control={form.control}
             name="chatId"
             render={({ field }) => (
@@ -128,9 +127,9 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
               </FormItem>
             )}
           />
-
+          */}
           {/* Send Test Message Toggle */}
-          <FormField
+          {/* <FormField
             control={form.control}
             name="sendTestMessage"
             render={({ field }) => (
@@ -143,7 +142,7 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
                 </FormLabel>
               </FormItem>
             )}
-          />
+          /> */}
         </div>
 
         {/* Form Actions */}

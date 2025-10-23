@@ -63,7 +63,9 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     await enqueueExecution({
       executionId: execution.id,
       workflowId: webhook.workflowId,
-      payload: {},
+      data: {
+        triggerType: 'webhook',
+      },
     })
 
     res.status(200).json({

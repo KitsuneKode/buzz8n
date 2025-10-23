@@ -26,10 +26,12 @@ export interface NodeData extends Node {
     label: string
     type: NodeType
     description?: string
+    category?: string
     config: Record<string, any>
     credentials?: CredentialRef
     status?: ExecutionStatus
     [key: string]: any
+    requiredCredentials?: string[]
   }
 }
 

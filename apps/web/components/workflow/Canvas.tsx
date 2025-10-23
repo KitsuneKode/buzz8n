@@ -4,10 +4,13 @@ import {
   Background,
   BackgroundVariant,
   ConnectionLineType,
+  MarkerType,
   Panel,
   ReactFlow,
   useReactFlow,
 } from '@xyflow/react'
+import DeleteButtonEdge from '@/components/react-flow/delete-button-edge'
+import AiAgentToolEdge from '@/components/react-flow/ai-agent-tool-edge'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { Fullscreen, Minus, Plus } from 'lucide-react'
 import { Button } from '@buzz8n/ui/components/button'
@@ -20,6 +23,16 @@ const nodeTypes = Object.fromEntries(
   Object.values(nodeTypeSchema.enum).map((type) => [type, WorkflowNode]),
 )
 
+const edgeTypes = {
+  deleteEdge: DeleteButtonEdge,
+  aiAgentTool: AiAgentToolEdge,
+}
+
+/**
+ * Renders the main ReactFlow-based canvas for editing workflows, including node and edge rendering, drag-and-drop node creation, zoom and fit controls, pane interactions, and an empty-state call to add the first step.
+ *
+ * @returns The React element containing the interactive diagram editor with a dotted background, control panels (zoom/fit), node/edge handling, and an empty-state CTA when there are no nodes.
+ */
 export function Canvas() {
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
   const { screenToFlowPosition, zoomIn, zoomOut, fitView } = useReactFlow()
@@ -37,6 +50,7 @@ export function Canvas() {
     toggleNodePalette,
     addNode,
     isFitView,
+    closeRightPanel,
   } = useWorkflowEditorStore()
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -66,6 +80,10 @@ export function Canvas() {
     toggleNodePalette()
   }
 
+  const handlePaneClick = () => {
+    closeRightPanel()
+  }
+
   return (
     <div className="flex-1 relative" ref={reactFlowWrapper}>
       <ReactFlow
@@ -78,14 +96,17 @@ export function Canvas() {
         onDragOver={onDragOver}
         fitView={isFitView}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         snapToGrid
         snapGrid={[15, 15]}
         connectionLineType={ConnectionLineType.Bezier}
         defaultEdgeOptions={{
-          type: ConnectionLineType.Bezier,
+          type: 'deleteEdge',
           animated: false,
+          className: 'stroke-2',
         }}
         className="bg-background"
+        onPaneClick={handlePaneClick}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="opacity-50" />
         <Panel

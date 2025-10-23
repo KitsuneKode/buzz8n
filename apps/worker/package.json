@@ -6,7 +6,7 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
     "check-types": "tsc --noEmit",
-    "dev": "bun run --hot src/index.ts",
+    "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
   },
   "devDependencies": {
@@ -17,8 +17,17 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@buzz8n/store": "*",
+    "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
-    "@buzz8n/backend-common": "*"
+    "@buzz8n/store": "*",
+    "@langchain/anthropic": "^1.0.0",
+    "@langchain/core": "^1.0.1",
+    "@langchain/google-genai": "^1.0.0",
+    "@langchain/langgraph": "^1.0.0",
+    "@langchain/openai": "^1.0.0",
+    "axios": "^1.12.2",
+    "langchain": "^1.0.1",
+    "resend": "^6.2.0",
+    "zod": "^4.1.12"
   }
 }

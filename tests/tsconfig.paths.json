@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@apps/web/*": ["apps/web/*"],
+      "@apps/server/*": ["apps/server/*"],
+      "@apps/worker/*": ["apps/worker/*"],
+      "@packages/backend-common/*": ["packages/backend-common/*"],
+      "@packages/common/*": ["packages/common/*"],
+      "@packages/store/*": ["packages/store/*"],
+      "@buzz8n/common/*": ["packages/common/src/*"],
+      "@buzz8n/backend-common/*": ["packages/backend-common/src/*"],
+      "@buzz8n/store/*": ["packages/store/src/*"],
+      "@buzz8n/ui/*": ["packages/ui/src/*"]
+    }
+  }
+}

@@ -7,14 +7,14 @@ await redis.connect()
 export const enqueueExecution = async ({
   executionId,
   workflowId,
-  payload,
+  data,
 }: EnqueueExecutionPayload) => {
   try {
     await redis.xAdd({
       payload: {
         executionId,
         workflowId,
-        data: JSON.stringify(payload),
+        data: JSON.stringify(data),
       },
     })
 

@@ -111,9 +111,8 @@ enum Methods {
 
 enum SupportedPlatforms {
   Telegram
-  Gmail
-  Slack
-  Discord
-  Webhook
-  Twilio
+  Email
+  OpenAI
+  Gemini
+  Anthropic
 }

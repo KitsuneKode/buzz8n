@@ -1,5 +1,6 @@
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
-import { config, logger } from '@/utils'
+import { REDIS_CONSUMER_GROUP, config, logger } from '@/utils'
+import { processResponse } from '@/processor'
 import { redis } from '@/redis'
 import { sleep } from 'bun'
 
@@ -13,16 +14,22 @@ interface ConsumerGroupResponseType {
   messages: ConsumerGroupResponseMessage[]
 }
 
-const REDIS_CONSUMER_GROUP = `worker-${process.pid}`
-
 await redis.connect()
 
-const processResponse = async (response: ConsumerGroupResponseType[]) => {}
+const controller = new AbortController()
+const { signal } = controller
 
-async function main() {
-  logger.info('Worker Started! Beginning processing,!!!!')
+/**
+ * Continuously reads and processes messages from the Redis consumer group until the provided AbortSignal is aborted.
+ *
+ * When the signal is aborted the function exits the processing loop and performs a graceful shutdown.
+ *
+ * @param signal - AbortSignal used to stop the worker loop and trigger graceful shutdown
+ */
+async function main(signal: AbortSignal) {
+  logger.info('Worker Started! Beginning processing')
 
-  while (1) {
+  while (!signal.aborted) {
     try {
       const response = (await redis.xReadGroup({
         consumerGroup: REDIS_CONSUMER_GROUP,
@@ -32,7 +39,7 @@ async function main() {
         await sleep(200)
         continue
       }
-      // console.log(response[0]?.messages[0]?.message)
+
       const executionRequests = response.flatMap((res) =>
         res.messages
           .map(({ id, message }) => {
@@ -41,33 +48,48 @@ async function main() {
                 typeof message === 'string'
                   ? (JSON.parse(message) as EnqueueExecutionPayload)
                   : (message as EnqueueExecutionPayload)
+
               return { id, payload }
             } catch {
               logger.warn('Invalid message JSON; skipping', { message })
               return null
             }
           })
-          .filter(
-            (v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null,
-          ),
+          .filter((v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null),
       )
-
-      console.log(executionRequests)
+      if (executionRequests && executionRequests.length > 0) {
+        await Promise.all(executionRequests.map((req) => processResponse(req)))
+      }
     } catch (error) {
+      if (signal.aborted) break
       console.error(error)
       logger.error(`${redis.LOG_GROUP} Error reading the message`, { error })
     }
   }
-  process.on('SIGINT', async () => {
-    logger.info('Shutting down…')
-    await redis.cleanup()
-    process.exit(0)
-  })
-  process.on('SIGTERM', async () => {
-    logger.info('Shutting down…')
-    await redis.cleanup()
-    process.exit(0)
-  })
+
+  await shutdown()
 }
 
-main()
+/**
+ * Perform a graceful shutdown of Redis resources used by the worker.
+ *
+ * Attempts to unsubscribe the Redis client and run its cleanup routine. Logs a success message when the Redis connection is closed and logs a warning if cleanup fails.
+ */
+async function shutdown() {
+  logger.info('Shutting down gracefully…')
+
+  try {
+    await redis.unsubscribe()
+    await redis.cleanup()
+    logger.info('Redis connection closed.')
+  } catch (err) {
+    logger.warn('Redis cleanup failed:', err)
+  }
+}
+
+// Graceful OS signal handling
+const stop = () => controller.abort()
+process.on('SIGINT', stop)
+process.on('SIGTERM', stop)
+
+main(signal)

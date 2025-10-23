@@ -3,6 +3,7 @@
 import {
   BarChart3,
   CheckIcon,
+  CircleX,
   Clock,
   CrossIcon,
   FileText,
@@ -10,7 +11,9 @@ import {
   MessageSquare,
   MoreHorizontal,
   Play,
+  PlayCircle,
   Plus,
+  Sigma,
   Zap,
 } from 'lucide-react'
 import {
@@ -28,10 +31,10 @@ import { NodeStatusIndicator } from '@/components/react-flow/nodes/node-status-i
 import { ButtonHandle } from '@/components/react-flow/nodes/button-handle'
 import { BaseHandle } from '@/components/react-flow/nodes/base-handle'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { NodeProps, NodeToolbar, Position } from '@xyflow/react'
 import { NodeData, NodeType } from '@/lib/types/workflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
-import { NodeProps, Position } from '@xyflow/react'
 import { cn } from '@buzz8n/ui/lib/utils'
 import { memo } from 'react'
 
@@ -59,6 +62,10 @@ const getNodeIcon = (type: NodeType) => {
       return <MessageSquare size={48} />
     case 'evaluation':
       return <BarChart3 size={48} />
+    case 'multiplyTool':
+      return <CircleX size={38} />
+    case 'sumTool':
+      return <Sigma size={38} />
     default:
       return <MoreHorizontal size={48} />
   }
@@ -90,9 +97,11 @@ const getStatusIcon = (status: string) => {
 }
 
 const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
-  const { edges, nodes, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
 
-  const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
+  // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
+  const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
+
   const hasOutgoing = edges.some(
     (e) =>
       e.source === id &&
@@ -110,13 +119,24 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
       </NodeTooltipContent>
       <NodeTooltipTrigger>
         <NodeStatusIndicator status={data.status} variant="border">
+          <NodeToolbar
+            className="flex flex-col items-center gap-2"
+            isVisible={selected && (data.type === 'manualTrigger' || data.type === 'webhook')}
+            position={Position.Left}
+            align="center"
+          >
+            <Button variant="ghost" size="icon">
+              <PlayCircle className="size-6 text-primary" />
+            </Button>
+          </NodeToolbar>
           <BaseNode
             onClick={handleClick}
             className={cn(
-              'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-200',
+              'flex flex-col bg-secondary/10 items-center gap-2 p-4 cursor-pointer transition-all duration-200',
               selected && 'ring-2 ring-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
               data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
+              data.category === 'ai-agent-tools' && 'p-2 rounded-3xl bg-muted-foreground/20',
             )}
           >
             <div
@@ -126,14 +146,9 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             >
               {data.status && getStatusIcon(data.status)}
             </div>
-            <BaseNodeContent
-              className={cn(
-                'flex items-center justify-center gap-3 p-6',
-                // !data.credentials && 'ring-2 rounded-xl ring-red-500',
-              )}
-            >
+            <BaseNodeContent className={cn('flex items-center justify-center gap-3 p-6')}>
               {/* Input Handle */}
-              {!isFirstNode && !(data.type === 'webhook' || data.type === 'manualTrigger') && (
+              {!isFirstNode && (
                 <BaseHandle
                   type="target"
                   position={Position.Left}
@@ -145,54 +160,87 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               {getNodeIcon(data.type)}
 
               {/* Output Handle */}
-              {!hasOutgoing ? (
-                <ButtonHandle
-                  type="source"
-                  position={Position.Right}
-                  className="bg-muted-foreground border-2 border-background"
-                >
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openNodePaletteFor(id)
-                    }}
-                    size="sm"
-                    variant="secondary"
-                    className="rounded-sm border"
-                  >
-                    <Plus size={10} />
-                  </Button>
-                </ButtonHandle>
-              ) : (
-                <BaseHandle
-                  type="source"
-                  position={Position.Right || Position.Bottom}
-                  className="bg-muted-foreground border-2 border-background"
-                ></BaseHandle>
-              )}
+              {
+                data.type !== 'aiAgent' &&
+                  data.category !== 'ai-agent-tools' &&
+                  (!hasOutgoing ? (
+                    <ButtonHandle
+                      type="source"
+                      position={Position.Right}
+                      className="bg-muted-foreground border-2 border-background"
+                    >
+                      <Button
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          openNodePaletteFor(id)
+                        }}
+                        size="sm"
+                        variant="secondary"
+                        className="rounded-sm border"
+                      >
+                        <Plus size={10} />
+                      </Button>
+                    </ButtonHandle>
+                  ) : (
+                    <BaseHandle
+                      type="source"
+                      position={Position.Right || Position.Bottom}
+                      className="bg-muted-foreground border-2 border-background"
+                    ></BaseHandle>
+                  ))
+                // : (
+                //   <></>
+                // )
+              }
 
               {data.type === 'aiAgent' && (
-                <ButtonHandle
-                  id={`${id as string}-add-agent-bottom-handle`}
-                  type="source"
-                  position={Position.Bottom}
-                  className="bg-muted-foreground border-2 border-background"
-                >
-                  <Button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      openNodePaletteFor(id, `${id as string}-add-agent-bottom-handle`)
-                    }}
-                    size="sm"
-                    variant="secondary"
-                    className="rounded-sm border"
+                <>
+                  <ButtonHandle
+                    id={`${id as string}-add-agent-bottom-left-handle`}
+                    type="source"
+                    position={Position.Bottom}
+                    subGraph
+                    className="bg-muted-foreground border-2 border-background -translate-x-10"
                   >
-                    <Plus size={10} />
-                  </Button>
-                </ButtonHandle>
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openNodePaletteFor(id, `${id as string}-add-agent-bottom-left-handle`)
+                      }}
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-sm border"
+                    >
+                      <Plus size={10} />
+                    </Button>
+                  </ButtonHandle>
+                  <ButtonHandle
+                    id={`${id as string}-add-agent-bottom-right-handle`}
+                    type="source"
+                    subGraph
+                    position={Position.Bottom}
+                    className="bg-muted-foreground border-2 border-background translate-x-10"
+                  >
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openNodePaletteFor(id, `${id as string}-add-agent-bottom-right-handle`)
+                      }}
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-sm border"
+                    >
+                      <Plus size={10} />
+                    </Button>
+                  </ButtonHandle>
+                </>
               )}
             </BaseNodeContent>
-            <BaseNodeDescription className="text-xs font-medium text-center text-foreground text-nowrap -bottom-12">
+            <BaseNodeDescription
+              className={cn(
+                'text-xs font-medium text-center text-foreground text-nowrap -bottom-12',
+              )}
+            >
               {data.label}
             </BaseNodeDescription>
           </BaseNode>

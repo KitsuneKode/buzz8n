@@ -148,7 +148,9 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
     const queuePayload: EnqueueExecutionPayload = {
       executionId: execution.id,
       workflowId: workflowId,
-      payload: {},
+      data: {
+        triggerType: 'manualTrigger',
+      },
     }
 
     await enqueueExecution(queuePayload)
@@ -245,9 +247,6 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
           edges,
           webhook: {
             upsert: {
-              where: {
-                path: existingWebhookPath,
-              },
               update: {
                 method: webhookData.method,
                 path: webhookData.path,

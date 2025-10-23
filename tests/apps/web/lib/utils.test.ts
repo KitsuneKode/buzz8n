@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { cn } from '../utils'
+import { cn } from '@buzz8n/web/lib/utils'
 
 describe('cn utility function', () => {
   test('should merge class names correctly', () => {
@@ -29,7 +29,6 @@ describe('cn utility function', () => {
 
   test('should merge Tailwind classes correctly', () => {
     const result = cn('p-4 text-red-500', 'p-8')
-    // twMerge should handle conflicting classes
     expect(result).toContain('p-8')
     expect(result).toContain('text-red-500')
   })
@@ -38,7 +37,7 @@ describe('cn utility function', () => {
     const result = cn({
       'bg-blue-500': true,
       'text-white': true,
-      'hidden': false,
+      hidden: false,
     })
     expect(result).toContain('bg-blue-500')
     expect(result).toContain('text-white')
@@ -59,7 +58,7 @@ describe('cn utility function', () => {
       { object: true, excluded: false },
       undefined,
       null,
-      'final'
+      'final',
     )
     expect(result).toContain('base')
     expect(result).toContain('array1')
@@ -75,7 +74,6 @@ describe('cn utility function', () => {
   })
 
   test('should override conflicting Tailwind utilities', () => {
-    // Test that twMerge properly handles conflicting utilities
     const result = cn('bg-red-500 bg-blue-500')
     expect(result).toContain('bg-blue-500')
   })

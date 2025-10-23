@@ -1,20 +1,20 @@
 import {
-  addEdge,
-  applyNodeChanges,
-  applyEdgeChanges,
-  NodeChange,
-  EdgeChange,
   Connection,
+  EdgeChange,
+  NodeChange,
+  addEdge,
+  applyEdgeChanges,
+  applyNodeChanges,
 } from '@xyflow/react'
 
 import {
-  NodeData,
+  CredentialRef,
   EdgeData,
-  WorkflowData,
   Execution,
   ExecutionLog,
+  NodeData,
   NodeTemplate,
-  CredentialRef,
+  WorkflowData,
 } from '@/lib/types/workflow'
 import { create } from 'zustand'
 
@@ -158,22 +158,55 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
   // Canvas actions
   onNodesChange: (changes) => {
+    // Filter out selection-only changes to avoid setting isDirty on node selection
+    const meaningfulChanges = changes.filter((change) => {
+      if (change.type === 'select') {
+        return false // Don't mark as dirty for selection changes
+      }
+      return true // Keep all other changes (add, remove, position, etc.)
+    })
+
     set((state) => ({
       nodes: applyNodeChanges(changes, state.nodes),
-      isDirty: true,
+      isDirty: meaningfulChanges.length > 0 ? true : state.isDirty,
     }))
   },
 
   onEdgesChange: (changes) => {
+    // Filter out selection-only changes to avoid setting isDirty on edge selection
+    const meaningfulChanges = changes.filter((change) => {
+      if (change.type === 'select') {
+        return false // Don't mark as dirty for selection changes
+      }
+      return true // Keep all other changes (add, remove, etc.)
+    })
+
     set((state) => ({
       edges: applyEdgeChanges(changes, state.edges),
-      isDirty: true,
+      isDirty: meaningfulChanges.length > 0 ? true : state.isDirty,
     }))
   },
 
   onConnect: (connection) => {
+    let type = 'deleteEdge'
+    let nodes = get().nodes
+    if (connection.sourceHandle && !connection.targetHandle) {
+      const isAgent = connection.sourceHandle.split('-')[2]
+
+      if (isAgent) {
+        type = 'aiAgentTool'
+        const parentId = connection.sourceHandle.split('-')[0]
+
+        const node = nodes.find((n) => n.id === connection.target)
+        if (node) {
+          node.parentId = parentId
+          nodes = [...nodes, node]
+        }
+      }
+    }
     set((state) => ({
-      edges: addEdge(connection, state.edges),
+      edges: addEdge({ ...connection, type }, state.edges),
+      nodes: [...nodes],
       isDirty: true,
     }))
   },
@@ -184,30 +217,43 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       type: template.type,
       position,
       data: {
-        label: template.label,
-        type: template.type,
-        description: template.description,
+        ...template,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
     }
+    let newEdge: EdgeData | null = null
 
-    const newEdge: EdgeData = {
-      id: `${prevNodeId}-${newNode.id}`,
-      source: prevNodeId,
-      target: newNode.id,
+    if (!(template.type === 'webhook' || template.type === 'manualTrigger')) {
+      newEdge = {
+        id: `${prevNodeId}-${newNode.id}`,
+        source: prevNodeId,
+        target: newNode.id,
+      }
     }
-    if (handleId && handleId !== '') {
+
+    if (template.type === 'webhook') {
+      const uniquePath = crypto.randomUUID()
+      newNode.data.config.path = uniquePath
+    }
+
+    if (handleId && handleId !== '' && newEdge) {
+      if (template.category === 'ai-agent-tools') {
+        newNode.parentId = prevNodeId
+        newEdge.type = 'aiAgentTool'
+      }
+
       newEdge.sourceHandle = handleId
     }
+    console.log(handleId)
 
     set((state) => ({
       nodes: [...state.nodes, newNode],
-      edges: [...state.edges, newEdge],
+      edges: newEdge ? [...state.edges, newEdge] : state.edges,
       isDirty: true,
-      isNodePaletteOpen: false,
+      // isNodePaletteOpen: false,
       pendingConnectFromNodeId: null,
-      selectedNodeId: newNode.id,
+      // selectedNodeId: newNode.id,
     }))
   },
   addNode: (template, position) => {
@@ -216,20 +262,22 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       type: template.type,
       position,
       data: {
-        label: template.label,
-        type: template.type,
-        description: template.description,
+        ...template,
         config: { ...template.defaultConfig },
         status: 'initial',
       },
+    }
+    if (template.type === 'webhook') {
+      const uniquePath = crypto.randomUUID()
+      newNode.data.config.path = uniquePath
     }
 
     set((state) => ({
       nodes: [...state.nodes, newNode],
       isDirty: true,
       // When adding from the palette or toolbar, close the palette and open properties for the new node
-      isNodePaletteOpen: false,
-      selectedNodeId: newNode.id,
+      // isNodePaletteOpen: false,
+      // selectedNodeId: newNode.id,
     }))
   },
 
@@ -303,7 +351,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       isNodePaletteOpen: false,
       selectedNodeId: null,
       handleId: null,
-      // pendingConnectFromNodeId: null,
+      pendingConnectFromNodeId: null,
     }),
 
   // Workflow actions

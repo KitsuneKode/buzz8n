@@ -7,6 +7,13 @@ import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 
+/**
+ * Render the workflow execution control bar shown at the bottom of the editor.
+ *
+ * Displays an Execute button (disabled when execution cannot start or a request is pending), current execution status with an icon and badge, a logs button when logs are available, and a warning if the workflow has no manual trigger. Returns nothing when there are no nodes in the workflow.
+ *
+ * @returns A JSX element representing the execution control bar, or `null` when the workflow contains no nodes.
+ */
 export function ExecuteBar() {
   const { nodes, isExecuting, workflow, currentExecution, toggleLogsDrawer } =
     useWorkflowEditorStore()
@@ -58,7 +65,7 @@ export function ExecuteBar() {
 
             executeWorkflowMutate(workflow.id)
           }}
-          disabled={!canExecute || !isExecuting || isPending}
+          disabled={!canExecute || isPending}
           className="flex items-center space-x-2"
           variant={isExecuting ? 'destructive' : 'default'}
         >
