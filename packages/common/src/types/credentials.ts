@@ -14,7 +14,7 @@ export const credentialResponse = z.object({
   id: z.string(),
   title: z.string(),
   platform: SupportedPlatforms,
-  data: z.object(),
+  data: z.record(z.string(), z.any()),
   createdAt: z.date(),
 })
 

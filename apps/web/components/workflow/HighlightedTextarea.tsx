@@ -48,7 +48,7 @@ export function HighlightedTextarea({
             <Highlighter
               highlightClassName="text-blue-600 bg-blue-100/50 px-0.5 rounded"
               searchWords={searchWords}
-              autoEscape={false}
+              autoEscape={true}
               textToHighlight={value}
               className="font-mono text-sm text-transparent whitespace-pre-wrap break-words"
             />

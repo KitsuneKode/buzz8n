@@ -15,12 +15,7 @@ import axios from 'axios'
  * @returns `null` (renders nothing)
  */
 export default function DataBootstrap() {
-  const {
-    data: initialCredentials,
-    isLoading,
-    error,
-    isError,
-  } = useSuspenseQuery({
+  const { data: initialCredentials } = useSuspenseQuery({
     queryKey: ['credentials'],
     queryFn: async () => {
       const response = await axios.get(`${API_URL}/credential`, {
@@ -32,7 +27,7 @@ export default function DataBootstrap() {
   })
 
   useEffect(() => {
-    if (initialCredentials && !isLoading && !isError) {
+    if (initialCredentials) {
       const credentials: Credential[] = initialCredentials.map(
         (credential: CredentialResponse) => ({
           config: credential.data,
@@ -44,10 +39,7 @@ export default function DataBootstrap() {
       )
       useDashboardStore.setState({ credentials })
     }
-    if (isError) {
-      console.error('Failed to fetch credentials', error)
-    }
-  }, [initialCredentials, isLoading, isError, error])
+  }, [initialCredentials])
 
   return null
 }

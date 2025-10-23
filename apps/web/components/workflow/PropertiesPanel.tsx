@@ -80,7 +80,7 @@ export function PropertiesPanel() {
       </div>
 
       {/* Properties Form */}
-      <div className="flex-1 overflow-y-auto px-2 z-60-4 space-y-6">
+      <div className="flex-1 overflow-y-auto px-2 z-50 space-y-6">
         {/* Credentials Section */}
 
         {requiredCredentials.length > 0 && (

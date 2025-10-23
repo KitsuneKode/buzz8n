@@ -93,7 +93,7 @@ export const runAiAgent = async (
     })
 
     // Programmatically select tools based on allowedTools config
-    // If allowedTools is undefined or empty, use all available tools
+    // If allowedTools is undefined or empty, use no tool
     const selectedToolNames =
       allowedTools && allowedTools.length > 0 ? allowedTools?.map((tool) => tool.type) : undefined
 

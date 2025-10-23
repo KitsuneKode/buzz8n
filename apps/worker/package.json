@@ -10,6 +10,7 @@
     "start": "bun run dist/index.js"
   },
   "devDependencies": {
+    "@types/mustache": "^4.2.6",
     "@types/bun": "latest",
     "@buzz8n/typescript-config": "*"
   },
@@ -25,7 +26,6 @@
     "@langchain/google-genai": "^1.0.0",
     "@langchain/langgraph": "^1.0.0",
     "@langchain/openai": "^1.0.0",
-    "@types/mustache": "^4.2.6",
     "axios": "^1.12.2",
     "langchain": "^1.0.1",
     "mustache": "^4.2.0",

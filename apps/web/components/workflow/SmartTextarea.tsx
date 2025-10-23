@@ -202,8 +202,9 @@ export function SmartTextarea({
   const insertSuggestion = (suggestion: Suggestion) => {
     if (!textareaRef.current) return
 
-    const textBeforeCursor = value.slice(0, cursorPos)
-    const textAfterCursor = value.slice(cursorPos)
+    const currentPos = textareaRef.current.selectionStart ?? cursorPos
+    const textBeforeCursor = value.slice(0, currentPos)
+    const textAfterCursor = value.slice(currentPos)
     const lastTemplateStart = textBeforeCursor.lastIndexOf('{{')
 
     // Replace from {{ to cursor position

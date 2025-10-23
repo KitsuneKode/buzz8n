@@ -204,8 +204,8 @@ const config = {
       "fromEnvVar": null
     },
     "config": {
-      "runtime": "bun",
       "moduleFormat": "esm",
+      "runtime": "bun",
       "engineType": "library"
     },
     "binaryTargets": [

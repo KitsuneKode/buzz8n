@@ -26,6 +26,7 @@
     "@buzz8n/common": "*",
     "date-fns": "^4.1.0",
     "redis": "^5.8.3",
+    "triple-beam": "^1.4.1",
     "winston": "^3.17.0"
   },
   "peerDependencies": {

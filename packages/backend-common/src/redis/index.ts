@@ -120,6 +120,16 @@ export class RedisClient {
     return this.redisClient.unsubscribe()
   }
 
+  async xGroupDestroy({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup,
+  }: {
+    streamKey?: string
+    consumerGroup: string
+  }) {
+    return this.redisClient.xGroupDestroy(streamKey, consumerGroup)
+  }
+
   async cleanup() {
     return this.redisClient.quit()
   }

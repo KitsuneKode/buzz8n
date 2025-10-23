@@ -96,14 +96,14 @@ export function ExpressionAutocomplete({
     const lastTemplateStart = textBeforeCursor.lastIndexOf('{{')
     const templateContent = textBeforeCursor.slice(lastTemplateStart + 2)
 
-    // Replace current partial with suggestion
     const beforeTemplate = textBeforeCursor.slice(0, lastTemplateStart + 2)
-    const newValue = beforeTemplate + suggestion.insertText + textAfterCursor
+    const needsClose = !/^\s*[^}]*\}\}/.test(templateContent + textAfterCursor)
+    const suffix = needsClose ? ' }}' : ''
+    const newValue = beforeTemplate + suggestion.insertText + suffix + textAfterCursor
 
     onChange(newValue)
     setShowSuggestions(false)
   }
-
   return (
     <Popover open={showSuggestions} onOpenChange={setShowSuggestions}>
       <PopoverTrigger asChild>

@@ -43,7 +43,7 @@ export const sendTelegramMessage = async (
     const resp = await axios.post(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
       { text: resolvedMessage, chat_id: resolvedChatId },
-      { headers: { 'Content-Type': 'application/json' } },
+      { headers: { 'Content-Type': 'application/json' }, timeout: 10000 },
     )
     logger.info('Telegram message sent successfully', resp.data)
     return { status: 'ok', data: resp.data }
