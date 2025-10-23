@@ -117,11 +117,8 @@ export const processResponse = async ({
       validateDAG(children, indegree)
 
       // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-      const triggerPayload = JSON.parse(data as unknown as string) ?? {}
-      console.log('triggerPayload', triggerPayload)
-      console.log('\n\n\n')
-      console.log('\n\n\n')
-
+      const triggerPayload =
+        (payload as any)?.data ?? (execution?.output as any)?.triggerPayload ?? {}
       const ctx: ExecContext = { $json: { body: triggerPayload }, $node: {} }
 
       // Execute the DAG with bounded concurrency (tune as needed)
@@ -134,7 +131,6 @@ export const processResponse = async ({
     } finally {
       if (began) {
         // persist final state/results/telemetry here
-        console.log('here')
         await endExecutionSetStatus(workflowId) // DECR + TTL + status flip on zero
       }
     }

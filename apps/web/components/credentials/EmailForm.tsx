@@ -32,12 +32,12 @@ const EmailForm = ({ onBack, onCancel, onSubmit }: EmailFormProps) => {
     reValidateMode: 'onChange',
     defaultValues: {
       name: '',
+      email: '',
       resendApiKey: '',
     },
   })
 
   const onFormSubmit = (data: EmailFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 
@@ -61,7 +61,25 @@ const EmailForm = ({ onBack, onCancel, onSubmit }: EmailFormProps) => {
               </FormItem>
             )}
           />
-
+          {/* Resend verified email*/}
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Resend verified email <span className="text-destructive">*</span>
+                </FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., test@example.com" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Enter the email address of your verified Resend domain to send test emails.
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           {/* Resend API Key */}
           <FormField
             control={form.control}

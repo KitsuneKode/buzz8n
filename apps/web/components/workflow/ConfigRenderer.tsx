@@ -7,12 +7,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@buzz8n/ui/components/select'
+import { Popover, PopoverContent, PopoverTrigger } from '@buzz8n/ui/components/popover'
+
+import { validateTemplates } from '@/utils/template-validation'
+import { HighlightedTextarea } from './HighlightedTextarea'
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
+import { HighlightedInput } from './HighlightedInput'
+import { Copy, Check, Sparkles } from 'lucide-react'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
-import { Copy, Check } from 'lucide-react'
+import { VariablePicker } from './VariablePicker'
+// import { SmartTextarea } from './SmartTextarea'
+// import { SmartInput } from './SmartInput'
 import { useState } from 'react'
 import React from 'react'
 
@@ -108,7 +116,7 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
     options: [
       { value: 'gemini-2.5-flash', type: 'gemini', label: 'Gemini 2.5 Flash' },
       { value: 'gemini-2.5-pro', type: 'gemini', label: 'Gemini 2.5 Pro' },
-      { value: 'gemini-2.5-pro-exp', type: 'gemini', label: 'Gemini 2.5 Pro Exp' },
+      { value: 'gemini-2.0-flash', type: 'gemini', label: 'Gemini 2.0 Flash' },
       { value: 'gpt-4', type: 'openai', label: 'GPT-4' },
       { value: 'gpt-3.5-turbo', type: 'openai', label: 'GPT-3.5 Turbo' },
       { value: 'claude-3', type: 'anthropic', label: 'Claude 3' },
@@ -218,6 +226,7 @@ interface ConfigRendererProps {
   onConfigChange: (key: string, value: unknown) => void
   defaultConfig: Record<string, unknown>
   nodeType: string
+  nodeId?: string
   baseUrl?: string
 }
 
@@ -241,9 +250,12 @@ export function ConfigRenderer({
   onConfigChange,
   defaultConfig,
   nodeType,
+  nodeId,
   baseUrl = 'https://buzz8n.kitsulabs.xyz',
 }: ConfigRendererProps) {
   const [copied, setCopied] = useState<string | null>(null)
+  const [expressionMode, setExpressionMode] = useState<Record<string, boolean>>({})
+  const [pickerOpen, setPickerOpen] = useState<string | null>(null)
 
   // Generate field configs from defaultConfig
   const fieldConfigs = generateFieldConfigs(defaultConfig)
@@ -262,6 +274,7 @@ export function ConfigRenderer({
     const { key, label, type, placeholder, options, rows, description, copyable, validation } =
       fieldConfig
     const value = (config[key] as string) || ''
+    const isExpression = expressionMode[key] || value.includes('{{')
 
     const handleChange = (newValue: unknown) => {
       onConfigChange(key, newValue)
@@ -270,7 +283,14 @@ export function ConfigRenderer({
     const renderInput = () => {
       switch (type) {
         case 'text':
-          return (
+          return isExpression ? (
+            <HighlightedInput
+              value={value}
+              onChange={(newValue) => handleChange(newValue)}
+              placeholder="e.g., {{ $json.body.email }}"
+              // nodeId={nodeId}
+            />
+          ) : (
             <Input
               id={key}
               placeholder={placeholder}
@@ -281,7 +301,16 @@ export function ConfigRenderer({
           )
 
         case 'textarea':
-          return (
+          return isExpression ? (
+            <HighlightedTextarea
+              value={value}
+              onChange={(newValue) => handleChange(newValue)}
+              placeholder="e.g., {{ $json.body.message }}"
+              // nodeId={nodeId}
+              rows={rows || 4}
+              className={validation?.required && !value ? 'border-red-500' : ''}
+            />
+          ) : (
             <Textarea
               id={key}
               placeholder={placeholder}
@@ -390,6 +419,69 @@ export function ConfigRenderer({
       }
     }
 
+    // For text and textarea fields, add expression mode
+    if (type === 'text' || type === 'textarea') {
+      return (
+        <div key={key} className="space-y-2 relative">
+          {/* Label with expression toggle */}
+          <div className="flex items-center justify-between">
+            <Label htmlFor={key} className="text-sm font-medium">
+              {label}
+              {validation?.required && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => setExpressionMode((prev) => ({ ...prev, [key]: !prev[key] }))}
+              className="h-7 text-xs"
+            >
+              {isExpression ? '🔢 Fixed' : '✨ Expression'}
+            </Button>
+          </div>
+
+          {/* Input field */}
+          {renderInput()}
+
+          {/* Insert variable button */}
+          {isExpression && nodeId && (
+            <Popover
+              open={pickerOpen === key}
+              onOpenChange={(open) => !open && setPickerOpen(null)}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPickerOpen(key)}
+                  className="mt-1"
+                >
+                  <Sparkles className="h-3 w-3 mr-1" />
+                  Insert Variable
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0" align="start">
+                <VariablePicker
+                  currentNodeId={nodeId}
+                  onInsert={(template) => {
+                    onConfigChange(key, value + template)
+                    setPickerOpen(null)
+                  }}
+                  onClose={() => setPickerOpen(null)}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+
+          {description && <p className="text-xs text-muted-foreground">{description}</p>}
+          {validation?.required && !value && (
+            <p className="text-xs text-red-500">This field is required</p>
+          )}
+        </div>
+      )
+    }
+
     // Special handling for switch type (already includes label)
     if (type === 'switch') {
       return (
@@ -462,6 +554,10 @@ export function validateConfig(
       errors.push(`${field.label} format is invalid`)
     }
   })
+
+  // Add template validation
+  const templateErrors = validateTemplates(config)
+  errors.push(...templateErrors)
 
   return {
     isValid: errors.length === 0,

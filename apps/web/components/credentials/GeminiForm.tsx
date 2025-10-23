@@ -38,7 +38,6 @@ const GeminiForm = ({ onBack, onCancel, onSubmit }: GeminiFormProps) => {
   })
 
   const onFormSubmit = (data: GeminiFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 

@@ -197,14 +197,18 @@ export function NodePalette() {
 
         if (anchor) {
           if (!handleId) {
-            OFFSET.x = anchor.position.x + 300
-            OFFSET.y = anchor.position.y + 0
+            if (anchor.data.type === 'aiAgent') {
+              OFFSET.x = anchor.position.x + 500
+              OFFSET.y = anchor.position.y + 0
+            } else {
+              OFFSET.x = anchor.position.x + 300
+              OFFSET.y = anchor.position.y + 0
+            }
           } else {
             OFFSET.y = (Math.random() - 0.5) * 200 + 240
             OFFSET.x = (Math.random() - 0.5) * 200
           }
         }
-        console.log(OFFSET)
         const pos = anchor ? { x: OFFSET.x, y: OFFSET.y } : { x: 100, y: 100 }
 
         addNodeWithEdge(pendingConnectFromNodeId, template, pos, handleId)

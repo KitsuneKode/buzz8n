@@ -18,7 +18,6 @@ export async function getCurrentUser(): Promise<User | null> {
     const cookieStore = await cookies()
 
     if (!cookieStore) {
-      console.log('no cookies')
       return null
     }
     const authToken = cookieStore?.get('buzz8n_auth')?.value

@@ -10,7 +10,6 @@
   "exports": {
     ".": "./src/index.ts",
     "./redis": "./src/redis/index.ts",
-    "./redis/migrate": "./src/redis/migrate.ts",
     "./logger": "./src/utils/logger.ts",
     "./config": "./src/utils/config.ts",
     "./types": "./src/types/index.ts"
@@ -27,6 +26,7 @@
     "@buzz8n/common": "*",
     "date-fns": "^4.1.0",
     "redis": "^5.8.3",
+    "triple-beam": "^1.4.1",
     "winston": "^3.17.0"
   },
   "peerDependencies": {

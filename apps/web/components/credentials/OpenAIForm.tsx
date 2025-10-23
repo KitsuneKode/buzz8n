@@ -38,7 +38,6 @@ const OpenAIForm = ({ onBack, onCancel, onSubmit }: OpenAIFormProps) => {
   })
 
   const onFormSubmit = (data: OpenAIFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 

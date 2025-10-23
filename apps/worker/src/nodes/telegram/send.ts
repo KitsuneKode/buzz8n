@@ -1,4 +1,5 @@
 import { telegramFormSchema } from '@buzz8n/common/types'
+import { renderTemplate } from '@/nodes/helper'
 import type { ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
@@ -28,12 +29,21 @@ export const sendTelegramMessage = async (
       throw new Error('Invalid credential data')
     }
 
+    // Render templates using context
+    const resolvedMessage = renderTemplate(message, context)
+    const resolvedChatId = renderTemplate(chatId, context)
+
+    // Log for debugging
+    logger.info('Telegram config', {
+      raw: { message, chatId },
+      resolved: { message: resolvedMessage, chatId: resolvedChatId },
+    })
+
     const { botToken } = data
-    logger.info('botToken', botToken, 'message', message, 'chatId', chatId)
     const resp = await axios.post(
       `https://api.telegram.org/bot${botToken}/sendMessage`,
-      { text: message, chat_id: chatId },
-      { headers: { 'Content-Type': 'application/json' } },
+      { text: resolvedMessage, chat_id: resolvedChatId },
+      { headers: { 'Content-Type': 'application/json' }, timeout: 10000 },
     )
     logger.info('Telegram message sent successfully', resp.data)
     return { status: 'ok', data: resp.data }

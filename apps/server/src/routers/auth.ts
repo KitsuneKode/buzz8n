@@ -4,6 +4,7 @@ import { PrismaClientKnownRequestError } from '@buzz8n/store'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { auth } from '@/middlewares/auth-middleware'
 import { password as Password } from 'bun'
+import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
 import jwt from 'jsonwebtoken'
 
@@ -67,7 +68,7 @@ router.post('/signin', async (req, res, next) => {
     })
 
     if (!user) {
-      console.log('User with this email doesnot exist')
+      logger.info('User with this email does not exist', { email })
       res.status(400).send('User with this email doesnot exist')
       return
     }
@@ -75,7 +76,7 @@ router.post('/signin', async (req, res, next) => {
     const passwordMatch = await Password.verify(password, user.password_hash)
 
     if (!passwordMatch) {
-      console.log('Email or Password Invalid')
+      logger.info('Email or Password Invalid', { email })
       res.status(400).send('Email or Password Invalid')
 
       return

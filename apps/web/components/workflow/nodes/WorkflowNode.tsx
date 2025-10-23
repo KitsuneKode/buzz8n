@@ -48,23 +48,23 @@ const getNodeIcon = (type: NodeType) => {
       return <IconMail size={48} />
     case 'webhook':
       return <IconWebhook size={48} />
-    case 'schedule':
-      return <Clock size={48} />
-    case 'appEvent':
-      return <Zap size={48} />
+    // case 'schedule':
+    //   return <Clock size={48} />
+    // case 'appEvent':
+    //   return <Zap size={48} />
     case 'formSubmission':
       return <FileText size={48} />
-    case 'executedByWorkflow':
-      return <GitBranch size={48} />
+    // case 'executedByWorkflow':
+    //   return <GitBranch size={48} />
     case 'aiAgent':
       return <IconRobotFace size={48} />
     case 'chatMessage':
       return <MessageSquare size={48} />
-    case 'evaluation':
-      return <BarChart3 size={48} />
-    case 'multiplyTool':
+    // case 'evaluation':
+    //   return <BarChart3 size={48} />
+    case 'multiply':
       return <CircleX size={38} />
-    case 'sumTool':
+    case 'sum':
       return <Sigma size={38} />
     default:
       return <MoreHorizontal size={48} />
@@ -161,8 +161,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
 
               {/* Output Handle */}
               {
-                data.type !== 'aiAgent' &&
-                  data.category !== 'ai-agent-tools' &&
+                data.category !== 'ai-agent-tools' &&
                   (!hasOutgoing ? (
                     <ButtonHandle
                       type="source"
@@ -184,7 +183,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
                   ) : (
                     <BaseHandle
                       type="source"
-                      position={Position.Right || Position.Bottom}
+                      position={Position.Right}
                       className="bg-muted-foreground border-2 border-background"
                     ></BaseHandle>
                   ))

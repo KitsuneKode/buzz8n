@@ -10,7 +10,6 @@ import {
   FormMessage,
 } from '@buzz8n/ui/components/form'
 import { TelegramFormData, telegramFormSchema } from '@/lib/types/credentials'
-// import { Checkbox } from '@buzz8n/ui/components/checkbox'
 import { Button } from '@buzz8n/ui/components/button'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Input } from '@buzz8n/ui/components/input'
@@ -34,12 +33,10 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
     defaultValues: {
       name: '',
       botToken: '',
-      // sendTestMessage: false,
     },
   })
 
   const onFormSubmit = (data: TelegramFormData) => {
-    console.log('Form submitted:', data)
     onSubmit?.(data)
   }
 
@@ -107,42 +104,6 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
               </FormItem>
             )}
           />
-
-          {/* Chat ID 
-          {/* <FormField
-            control={form.control}
-            name="chatId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Chat ID <span className="text-destructive">*</span>
-                </FormLabel>
-                <FormControl>
-                  <Input placeholder="e.g., -1001234567890 or 123456789" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Use negative numbers for groups/channels, positive for direct messages
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          */}
-          {/* Send Test Message Toggle */}
-          {/* <FormField
-            control={form.control}
-            name="sendTestMessage"
-            render={({ field }) => (
-              <FormItem className="flex flex-row items-center space-x-2 space-y-0">
-                <FormControl>
-                  <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                </FormControl>
-                <FormLabel className="text-sm font-normal">
-                  Send test message after saving
-                </FormLabel>
-              </FormItem>
-            )}
-          /> */}
         </div>
 
         {/* Form Actions */}

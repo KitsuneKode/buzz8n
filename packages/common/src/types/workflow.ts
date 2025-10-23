@@ -6,15 +6,11 @@ export const nodeTypeSchema = z.enum([
   'telegramSendMessage',
   'emailSend',
   'webhook',
-  'schedule',
   'aiAgent',
-  'appEvent',
   'formSubmission',
-  'executedByWorkflow',
   'chatMessage',
-  'evaluation',
-  'sumTool',
-  'multiplyTool',
+  'sum',
+  'multiply',
   'other',
 ])
 

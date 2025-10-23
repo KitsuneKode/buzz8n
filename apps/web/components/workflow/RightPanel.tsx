@@ -24,8 +24,6 @@ export function RightPanel() {
 
   const showingPalette = isNodePaletteOpen
 
-  console.log(selectedNodeId, handleId, showingPalette)
-
   return (
     <div className="w-90 bg-card border-l border-border flex flex-col">
       {/* Header */}

@@ -14,7 +14,7 @@ export const credentialResponse = z.object({
   id: z.string(),
   title: z.string(),
   platform: SupportedPlatforms,
-  data: z.object(),
+  data: z.record(z.string(), z.any()),
   createdAt: z.date(),
 })
 
@@ -31,6 +31,7 @@ export const telegramFormSchema = z.object({
 
 export const emailFormSchema = z.object({
   name: z.string().trim().min(1, 'Credential name is required'),
+  email: z.email('Email of your verified resend domain is required'),
   resendApiKey: z.string().trim().min(1, 'Resend API key is required'),
 })
 

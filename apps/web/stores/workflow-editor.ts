@@ -191,7 +191,7 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     let type = 'deleteEdge'
     let nodes = get().nodes
     if (connection.sourceHandle && !connection.targetHandle) {
-      const isAgent = connection.sourceHandle.split('-')[2]
+      const isAgent = connection.sourceHandle.split('-')[2] === 'agent'
 
       if (isAgent) {
         type = 'aiAgentTool'
@@ -245,7 +245,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
       newEdge.sourceHandle = handleId
     }
-    console.log(handleId)
 
     set((state) => ({
       nodes: [...state.nodes, newNode],
