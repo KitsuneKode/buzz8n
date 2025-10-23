@@ -38,7 +38,7 @@ export function HighlightedTextarea({
           placeholder={placeholder}
           rows={rows}
           className={cn(
-            'w-full font-mono text-sm border-0 focus:outline-none resize-none relative z-10 bg-transparent',
+            'w-full font-mono text-sm border-0 focus:outline-none resize-none relative z-10 bg-transparent p-3',
           )}
         />
 
