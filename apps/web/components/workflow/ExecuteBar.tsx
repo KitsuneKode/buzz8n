@@ -15,13 +15,13 @@ import { Badge } from '@buzz8n/ui/components/badge'
  * @returns A JSX element representing the execution control bar, or `null` when the workflow contains no nodes.
  */
 export function ExecuteBar() {
-  const { nodes, isExecuting, workflow, currentExecution, toggleLogsDrawer } =
-    useWorkflowEditorStore()
+  const { nodes, workflow, currentExecution, toggleLogsDrawer } = useWorkflowEditorStore()
 
-  const canExecute = nodes.length > 0 && !isExecuting
   const hasManualTrigger = nodes.some((node) => node.data.type === 'manualTrigger')
+  const hasWebhook = nodes.some((node) => node.data.type === 'webhook')
+  const canExecute = nodes.length > 0 && hasManualTrigger
 
-  const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
+  const { mutate: executeWorkflowMutate, isPending: isExecuting } = useExecuteWorkflow()
 
   const getExecutionStatusIcon = () => {
     if (!currentExecution) return null
@@ -61,11 +61,11 @@ export function ExecuteBar() {
         {/* Execute Button */}
         <Button
           onClick={() => {
-            if (!workflow || isExecuting || isPending) return
+            if (!workflow || isExecuting || !canExecute) return
 
             executeWorkflowMutate(workflow.id)
           }}
-          disabled={!canExecute || isPending}
+          disabled={!canExecute || isExecuting}
           className="flex items-center space-x-2"
           variant={isExecuting ? 'destructive' : 'default'}
         >
@@ -108,9 +108,15 @@ export function ExecuteBar() {
             View logs ({currentExecution.logs.length})
           </Button>
         )}
+        {!hasManualTrigger && nodes.length > 0 && (
+          <div className="text-xs text-amber-600 flex items-center space-x-1">
+            <Clock className="w-3 h-3" />
+            <span>Add a manual trigger to execute this workflow</span>
+          </div>
+        )}
 
         {/* Manual Trigger Warning */}
-        {!hasManualTrigger && nodes.length > 0 && (
+        {!hasManualTrigger && !hasWebhook && nodes.length > 0 && (
           <div className="text-xs text-amber-600 flex items-center space-x-1">
             <Clock className="w-3 h-3" />
             <span>Add a trigger to activate this workflow</span>

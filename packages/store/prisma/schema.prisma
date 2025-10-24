@@ -34,9 +34,10 @@ model User {
 }
 
 model Workflow {
-  id     String  @id @default(cuid())
-  name   String
-  active Boolean
+  id   String @id @default(cuid())
+  name String
+
+  active Boolean @default(false)
   nodes  Json[]
   edges  Json[]
 
@@ -46,6 +47,8 @@ model Workflow {
 
   webhook    Webhook?
   executions Execution[]
+
+  status ExecutionStatus @default(initial)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -97,10 +100,28 @@ model Execution {
   userId String
   User   User   @relation(fields: [userId], references: [id])
 
+  summary String?
+
+  status     ExecutionStatus @default(initial)
+  startedAt  DateTime        @default(now())
+  finishedAt DateTime?
+  durationMs Int?
+  logs       Json[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([workflowId, status])
+  @@index([userId, createdAt])
+  @@index([status, startedAt])
   @@map("execution")
+}
+
+enum ExecutionStatus {
+  initial
+  loading
+  success
+  error
 }
 
 enum Methods {

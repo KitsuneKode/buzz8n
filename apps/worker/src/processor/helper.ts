@@ -1,3 +1,4 @@
+import type { ExecutionStatus } from '@buzz8n/common/types'
 import type { RFEdge, RFNode } from '@/processor/dag'
 import { prisma } from '@buzz8n/store'
 import { redis } from '@/redis'
@@ -16,7 +17,7 @@ export async function beginExecutionSetStatus(workflowId: string): Promise<numbe
   const count = await redis.incr(WORKFLOW_ACTIVE_COUNT_KEY) // creates WORKFLOW_ACTIVE_COUNT_KEY if missing, returns new value
   await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // refresh inactivity window
   if (count === 1) {
-    await prisma.workflow.update({ where: { id: workflowId }, data: { active: true } })
+    await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'started' } })
   }
   return count
 }
@@ -26,16 +27,27 @@ export async function beginExecutionSetStatus(workflowId: string): Promise<numbe
  *
  * @returns The current active-execution counter for the workflow after decrement.
  */
-export async function endExecutionSetStatus(workflowId: string): Promise<number> {
+export async function endExecutionSetStatus(
+  workflowId: string,
+  status: ExecutionStatus,
+): Promise<number> {
   const WORKFLOW_ACTIVE_COUNT_KEY = workflowKey(workflowId)
   const count = await redis.decr(WORKFLOW_ACTIVE_COUNT_KEY) // returns new value after decrement
   await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // keep only inactive keys expiring
   if (count === 0) {
-    await prisma.workflow.update({ where: { id: workflowId }, data: { active: false } })
+    if (status === 'success') {
+      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'success' } })
+    } else {
+      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'error' } })
+    }
   }
   if (count < 0) {
     await redis.del(WORKFLOW_ACTIVE_COUNT_KEY)
-    await prisma.workflow.update({ where: { id: workflowId }, data: { active: false } })
+    if (status === 'success') {
+      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'success' } })
+    } else {
+      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'error' } })
+    }
   }
   return count
 }

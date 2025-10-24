@@ -1,0 +1,34 @@
+import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
+import type { ExecutionLog } from '@buzz8n/common/types'
+import { logger } from '@/utils'
+import { redis } from '@/redis'
+
+export const publishNodeEvent = async (executionId: string, log: ExecutionLog) => {
+  try {
+    await redis.publishExecutionEvent(executionId, log)
+    const execution = await prisma.execution.update({
+      where: {
+        id: executionId,
+      },
+      data: {
+        logs: {
+          push: JSON.stringify(log),
+        },
+      },
+    })
+
+    if (!execution) {
+      logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
+      throw new Error(`[DB]Execution not found: ${executionId}`)
+    }
+  } catch (err) {
+    if (err instanceof PrismaClientKnownRequestError) {
+      if (err.code === 'P2025') {
+        logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
+        throw new Error(`[DB]Execution not found: ${executionId}`)
+      }
+    }
+    logger.error(`${redis.LOG_GROUP} Error publishing node event`, { executionId, log, err })
+    throw new Error(`${redis.LOG_GROUP} Error publishing node event: ${executionId} ${log} ${err}`)
+  }
+}

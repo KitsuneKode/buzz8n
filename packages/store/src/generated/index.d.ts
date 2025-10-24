@@ -43,7 +43,17 @@ export type Execution = $Result.DefaultSelection<Prisma.$ExecutionPayload>
  * Enums
  */
 export namespace $Enums {
-  export const Methods: {
+  export const ExecutionStatus: {
+  initial: 'initial',
+  loading: 'loading',
+  success: 'success',
+  error: 'error'
+};
+
+export type ExecutionStatus = (typeof ExecutionStatus)[keyof typeof ExecutionStatus]
+
+
+export const Methods: {
   POST: 'POST',
   GET: 'GET',
   PUT: 'PUT'
@@ -63,6 +73,10 @@ export const SupportedPlatforms: {
 export type SupportedPlatforms = (typeof SupportedPlatforms)[keyof typeof SupportedPlatforms]
 
 }
+
+export type ExecutionStatus = $Enums.ExecutionStatus
+
+export const ExecutionStatus: typeof $Enums.ExecutionStatus
 
 export type Methods = $Enums.Methods
 
@@ -2491,6 +2505,7 @@ export namespace Prisma {
     active: boolean | null
     userId: string | null
     archived: boolean | null
+    status: $Enums.ExecutionStatus | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2501,6 +2516,7 @@ export namespace Prisma {
     active: boolean | null
     userId: string | null
     archived: boolean | null
+    status: $Enums.ExecutionStatus | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -2513,6 +2529,7 @@ export namespace Prisma {
     edges: number
     userId: number
     archived: number
+    status: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -2525,6 +2542,7 @@ export namespace Prisma {
     active?: true
     userId?: true
     archived?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2535,6 +2553,7 @@ export namespace Prisma {
     active?: true
     userId?: true
     archived?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -2547,6 +2566,7 @@ export namespace Prisma {
     edges?: true
     userId?: true
     archived?: true
+    status?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -2632,6 +2652,7 @@ export namespace Prisma {
     edges: JsonValue[]
     userId: string
     archived: boolean
+    status: $Enums.ExecutionStatus
     createdAt: Date
     updatedAt: Date
     _count: WorkflowCountAggregateOutputType | null
@@ -2661,6 +2682,7 @@ export namespace Prisma {
     edges?: boolean
     userId?: boolean
     archived?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2677,6 +2699,7 @@ export namespace Prisma {
     edges?: boolean
     userId?: boolean
     archived?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2690,6 +2713,7 @@ export namespace Prisma {
     edges?: boolean
     userId?: boolean
     archived?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -2703,11 +2727,12 @@ export namespace Prisma {
     edges?: boolean
     userId?: boolean
     archived?: boolean
+    status?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "active" | "nodes" | "edges" | "userId" | "archived" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
+  export type WorkflowOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "active" | "nodes" | "edges" | "userId" | "archived" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["workflow"]>
   export type WorkflowInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     webhook?: boolean | Workflow$webhookArgs<ExtArgs>
@@ -2736,6 +2761,7 @@ export namespace Prisma {
       edges: Prisma.JsonValue[]
       userId: string
       archived: boolean
+      status: $Enums.ExecutionStatus
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["workflow"]>
@@ -3171,6 +3197,7 @@ export namespace Prisma {
     readonly edges: FieldRef<"Workflow", 'Json[]'>
     readonly userId: FieldRef<"Workflow", 'String'>
     readonly archived: FieldRef<"Workflow", 'Boolean'>
+    readonly status: FieldRef<"Workflow", 'ExecutionStatus'>
     readonly createdAt: FieldRef<"Workflow", 'DateTime'>
     readonly updatedAt: FieldRef<"Workflow", 'DateTime'>
   }
@@ -5826,14 +5853,29 @@ export namespace Prisma {
 
   export type AggregateExecution = {
     _count: ExecutionCountAggregateOutputType | null
+    _avg: ExecutionAvgAggregateOutputType | null
+    _sum: ExecutionSumAggregateOutputType | null
     _min: ExecutionMinAggregateOutputType | null
     _max: ExecutionMaxAggregateOutputType | null
+  }
+
+  export type ExecutionAvgAggregateOutputType = {
+    durationMs: number | null
+  }
+
+  export type ExecutionSumAggregateOutputType = {
+    durationMs: number | null
   }
 
   export type ExecutionMinAggregateOutputType = {
     id: string | null
     workflowId: string | null
     userId: string | null
+    summary: string | null
+    status: $Enums.ExecutionStatus | null
+    startedAt: Date | null
+    finishedAt: Date | null
+    durationMs: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5842,6 +5884,11 @@ export namespace Prisma {
     id: string | null
     workflowId: string | null
     userId: string | null
+    summary: string | null
+    status: $Enums.ExecutionStatus | null
+    startedAt: Date | null
+    finishedAt: Date | null
+    durationMs: number | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -5850,16 +5897,35 @@ export namespace Prisma {
     id: number
     workflowId: number
     userId: number
+    summary: number
+    status: number
+    startedAt: number
+    finishedAt: number
+    durationMs: number
+    logs: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
 
+  export type ExecutionAvgAggregateInputType = {
+    durationMs?: true
+  }
+
+  export type ExecutionSumAggregateInputType = {
+    durationMs?: true
+  }
+
   export type ExecutionMinAggregateInputType = {
     id?: true
     workflowId?: true
     userId?: true
+    summary?: true
+    status?: true
+    startedAt?: true
+    finishedAt?: true
+    durationMs?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5868,6 +5934,11 @@ export namespace Prisma {
     id?: true
     workflowId?: true
     userId?: true
+    summary?: true
+    status?: true
+    startedAt?: true
+    finishedAt?: true
+    durationMs?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -5876,6 +5947,12 @@ export namespace Prisma {
     id?: true
     workflowId?: true
     userId?: true
+    summary?: true
+    status?: true
+    startedAt?: true
+    finishedAt?: true
+    durationMs?: true
+    logs?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -5919,6 +5996,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: ExecutionAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: ExecutionSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: ExecutionMinAggregateInputType
@@ -5949,6 +6038,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: ExecutionCountAggregateInputType | true
+    _avg?: ExecutionAvgAggregateInputType
+    _sum?: ExecutionSumAggregateInputType
     _min?: ExecutionMinAggregateInputType
     _max?: ExecutionMaxAggregateInputType
   }
@@ -5957,9 +6048,17 @@ export namespace Prisma {
     id: string
     workflowId: string
     userId: string
+    summary: string | null
+    status: $Enums.ExecutionStatus
+    startedAt: Date
+    finishedAt: Date | null
+    durationMs: number | null
+    logs: JsonValue[]
     createdAt: Date
     updatedAt: Date
     _count: ExecutionCountAggregateOutputType | null
+    _avg: ExecutionAvgAggregateOutputType | null
+    _sum: ExecutionSumAggregateOutputType | null
     _min: ExecutionMinAggregateOutputType | null
     _max: ExecutionMaxAggregateOutputType | null
   }
@@ -5982,6 +6081,12 @@ export namespace Prisma {
     id?: boolean
     workflowId?: boolean
     userId?: boolean
+    summary?: boolean
+    status?: boolean
+    startedAt?: boolean
+    finishedAt?: boolean
+    durationMs?: boolean
+    logs?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
@@ -5992,6 +6097,12 @@ export namespace Prisma {
     id?: boolean
     workflowId?: boolean
     userId?: boolean
+    summary?: boolean
+    status?: boolean
+    startedAt?: boolean
+    finishedAt?: boolean
+    durationMs?: boolean
+    logs?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
@@ -6002,6 +6113,12 @@ export namespace Prisma {
     id?: boolean
     workflowId?: boolean
     userId?: boolean
+    summary?: boolean
+    status?: boolean
+    startedAt?: boolean
+    finishedAt?: boolean
+    durationMs?: boolean
+    logs?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
@@ -6012,11 +6129,17 @@ export namespace Prisma {
     id?: boolean
     workflowId?: boolean
     userId?: boolean
+    summary?: boolean
+    status?: boolean
+    startedAt?: boolean
+    finishedAt?: boolean
+    durationMs?: boolean
+    logs?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ExecutionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workflowId" | "userId" | "createdAt" | "updatedAt", ExtArgs["result"]["execution"]>
+  export type ExecutionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "workflowId" | "userId" | "summary" | "status" | "startedAt" | "finishedAt" | "durationMs" | "logs" | "createdAt" | "updatedAt", ExtArgs["result"]["execution"]>
   export type ExecutionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     workflow?: boolean | WorkflowDefaultArgs<ExtArgs>
     User?: boolean | UserDefaultArgs<ExtArgs>
@@ -6040,6 +6163,12 @@ export namespace Prisma {
       id: string
       workflowId: string
       userId: string
+      summary: string | null
+      status: $Enums.ExecutionStatus
+      startedAt: Date
+      finishedAt: Date | null
+      durationMs: number | null
+      logs: Prisma.JsonValue[]
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["execution"]>
@@ -6470,6 +6599,12 @@ export namespace Prisma {
     readonly id: FieldRef<"Execution", 'String'>
     readonly workflowId: FieldRef<"Execution", 'String'>
     readonly userId: FieldRef<"Execution", 'String'>
+    readonly summary: FieldRef<"Execution", 'String'>
+    readonly status: FieldRef<"Execution", 'ExecutionStatus'>
+    readonly startedAt: FieldRef<"Execution", 'DateTime'>
+    readonly finishedAt: FieldRef<"Execution", 'DateTime'>
+    readonly durationMs: FieldRef<"Execution", 'Int'>
+    readonly logs: FieldRef<"Execution", 'Json[]'>
     readonly createdAt: FieldRef<"Execution", 'DateTime'>
     readonly updatedAt: FieldRef<"Execution", 'DateTime'>
   }
@@ -6920,6 +7055,7 @@ export namespace Prisma {
     edges: 'edges',
     userId: 'userId',
     archived: 'archived',
+    status: 'status',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -6959,6 +7095,12 @@ export namespace Prisma {
     id: 'id',
     workflowId: 'workflowId',
     userId: 'userId',
+    summary: 'summary',
+    status: 'status',
+    startedAt: 'startedAt',
+    finishedAt: 'finishedAt',
+    durationMs: 'durationMs',
+    logs: 'logs',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -7061,6 +7203,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'ExecutionStatus'
+   */
+  export type EnumExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExecutionStatus'>
+    
+
+
+  /**
+   * Reference to a field of type 'ExecutionStatus[]'
+   */
+  export type ListEnumExecutionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ExecutionStatus[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Methods'
    */
   export type EnumMethodsFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Methods'>
@@ -7106,6 +7262,20 @@ export namespace Prisma {
    * Reference to a field of type 'Int[]'
    */
   export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float'
+   */
+  export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+  /**
+   * Reference to a field of type 'Float[]'
+   */
+  export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
   /**
    * Deep Input Types
@@ -7189,6 +7359,7 @@ export namespace Prisma {
     edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
+    status?: EnumExecutionStatusFilter<"Workflow"> | $Enums.ExecutionStatus
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -7204,6 +7375,7 @@ export namespace Prisma {
     edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -7222,6 +7394,7 @@ export namespace Prisma {
     edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
+    status?: EnumExecutionStatusFilter<"Workflow"> | $Enums.ExecutionStatus
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -7237,6 +7410,7 @@ export namespace Prisma {
     edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: WorkflowCountOrderByAggregateInput
@@ -7255,6 +7429,7 @@ export namespace Prisma {
     edges?: JsonNullableListFilter<"Workflow">
     userId?: StringWithAggregatesFilter<"Workflow"> | string
     archived?: BoolWithAggregatesFilter<"Workflow"> | boolean
+    status?: EnumExecutionStatusWithAggregatesFilter<"Workflow"> | $Enums.ExecutionStatus
     createdAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Workflow"> | Date | string
   }
@@ -7406,6 +7581,12 @@ export namespace Prisma {
     id?: StringFilter<"Execution"> | string
     workflowId?: StringFilter<"Execution"> | string
     userId?: StringFilter<"Execution"> | string
+    summary?: StringNullableFilter<"Execution"> | string | null
+    status?: EnumExecutionStatusFilter<"Execution"> | $Enums.ExecutionStatus
+    startedAt?: DateTimeFilter<"Execution"> | Date | string
+    finishedAt?: DateTimeNullableFilter<"Execution"> | Date | string | null
+    durationMs?: IntNullableFilter<"Execution"> | number | null
+    logs?: JsonNullableListFilter<"Execution">
     createdAt?: DateTimeFilter<"Execution"> | Date | string
     updatedAt?: DateTimeFilter<"Execution"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
@@ -7416,6 +7597,12 @@ export namespace Prisma {
     id?: SortOrder
     workflowId?: SortOrder
     userId?: SortOrder
+    summary?: SortOrderInput | SortOrder
+    status?: SortOrder
+    startedAt?: SortOrder
+    finishedAt?: SortOrderInput | SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    logs?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     workflow?: WorkflowOrderByWithRelationInput
@@ -7429,6 +7616,12 @@ export namespace Prisma {
     NOT?: ExecutionWhereInput | ExecutionWhereInput[]
     workflowId?: StringFilter<"Execution"> | string
     userId?: StringFilter<"Execution"> | string
+    summary?: StringNullableFilter<"Execution"> | string | null
+    status?: EnumExecutionStatusFilter<"Execution"> | $Enums.ExecutionStatus
+    startedAt?: DateTimeFilter<"Execution"> | Date | string
+    finishedAt?: DateTimeNullableFilter<"Execution"> | Date | string | null
+    durationMs?: IntNullableFilter<"Execution"> | number | null
+    logs?: JsonNullableListFilter<"Execution">
     createdAt?: DateTimeFilter<"Execution"> | Date | string
     updatedAt?: DateTimeFilter<"Execution"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
@@ -7439,11 +7632,19 @@ export namespace Prisma {
     id?: SortOrder
     workflowId?: SortOrder
     userId?: SortOrder
+    summary?: SortOrderInput | SortOrder
+    status?: SortOrder
+    startedAt?: SortOrder
+    finishedAt?: SortOrderInput | SortOrder
+    durationMs?: SortOrderInput | SortOrder
+    logs?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ExecutionCountOrderByAggregateInput
+    _avg?: ExecutionAvgOrderByAggregateInput
     _max?: ExecutionMaxOrderByAggregateInput
     _min?: ExecutionMinOrderByAggregateInput
+    _sum?: ExecutionSumOrderByAggregateInput
   }
 
   export type ExecutionScalarWhereWithAggregatesInput = {
@@ -7453,6 +7654,12 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Execution"> | string
     workflowId?: StringWithAggregatesFilter<"Execution"> | string
     userId?: StringWithAggregatesFilter<"Execution"> | string
+    summary?: StringNullableWithAggregatesFilter<"Execution"> | string | null
+    status?: EnumExecutionStatusWithAggregatesFilter<"Execution"> | $Enums.ExecutionStatus
+    startedAt?: DateTimeWithAggregatesFilter<"Execution"> | Date | string
+    finishedAt?: DateTimeNullableWithAggregatesFilter<"Execution"> | Date | string | null
+    durationMs?: IntNullableWithAggregatesFilter<"Execution"> | number | null
+    logs?: JsonNullableListFilter<"Execution">
     createdAt?: DateTimeWithAggregatesFilter<"Execution"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Execution"> | Date | string
   }
@@ -7535,10 +7742,11 @@ export namespace Prisma {
   export type WorkflowCreateInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkflowsInput
@@ -7549,11 +7757,12 @@ export namespace Prisma {
   export type WorkflowUncheckedCreateInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     webhook?: WebhookUncheckedCreateNestedOneWithoutWorkflowInput
@@ -7567,6 +7776,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkflowsNestedInput
@@ -7582,6 +7792,7 @@ export namespace Prisma {
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     webhook?: WebhookUncheckedUpdateOneWithoutWorkflowNestedInput
@@ -7591,11 +7802,12 @@ export namespace Prisma {
   export type WorkflowCreateManyInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7607,6 +7819,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7619,6 +7832,7 @@ export namespace Prisma {
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7777,6 +7991,12 @@ export namespace Prisma {
 
   export type ExecutionCreateInput = {
     id?: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
     workflow: WorkflowCreateNestedOneWithoutExecutionsInput
@@ -7787,12 +8007,24 @@ export namespace Prisma {
     id?: string
     workflowId: string
     userId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type ExecutionUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflow?: WorkflowUpdateOneRequiredWithoutExecutionsNestedInput
@@ -7803,6 +8035,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workflowId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7811,12 +8049,24 @@ export namespace Prisma {
     id?: string
     workflowId: string
     userId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type ExecutionUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7825,6 +8075,12 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     workflowId?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7963,6 +8219,13 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type EnumExecutionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExecutionStatus | EnumExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumExecutionStatusFilter<$PrismaModel> | $Enums.ExecutionStatus
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -7981,6 +8244,7 @@ export namespace Prisma {
     edges?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7991,6 +8255,7 @@ export namespace Prisma {
     active?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8001,6 +8266,7 @@ export namespace Prisma {
     active?: SortOrder
     userId?: SortOrder
     archived?: SortOrder
+    status?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8011,6 +8277,16 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type EnumExecutionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExecutionStatus | EnumExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumExecutionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ExecutionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumExecutionStatusFilter<$PrismaModel>
+    _max?: NestedEnumExecutionStatusFilter<$PrismaModel>
   }
 
   export type EnumMethodsFilter<$PrismaModel = never> = {
@@ -8203,18 +8479,55 @@ export namespace Prisma {
     _max?: NestedJsonFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type IntNullableFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableFilter<$PrismaModel> | number | null
+  }
+
   export type ExecutionCountOrderByAggregateInput = {
     id?: SortOrder
     workflowId?: SortOrder
     userId?: SortOrder
+    summary?: SortOrder
+    status?: SortOrder
+    startedAt?: SortOrder
+    finishedAt?: SortOrder
+    durationMs?: SortOrder
+    logs?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ExecutionAvgOrderByAggregateInput = {
+    durationMs?: SortOrder
   }
 
   export type ExecutionMaxOrderByAggregateInput = {
     id?: SortOrder
     workflowId?: SortOrder
     userId?: SortOrder
+    summary?: SortOrder
+    status?: SortOrder
+    startedAt?: SortOrder
+    finishedAt?: SortOrder
+    durationMs?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -8223,8 +8536,47 @@ export namespace Prisma {
     id?: SortOrder
     workflowId?: SortOrder
     userId?: SortOrder
+    summary?: SortOrder
+    status?: SortOrder
+    startedAt?: SortOrder
+    finishedAt?: SortOrder
+    durationMs?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type ExecutionSumOrderByAggregateInput = {
+    durationMs?: SortOrder
+  }
+
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
   }
 
   export type CredentialCreateNestedManyWithoutUserInput = {
@@ -8415,6 +8767,10 @@ export namespace Prisma {
     push?: InputJsonValue | InputJsonValue[]
   }
 
+  export type EnumExecutionStatusFieldUpdateOperationsInput = {
+    set?: $Enums.ExecutionStatus
+  }
+
   export type UserUpdateOneRequiredWithoutWorkflowsNestedInput = {
     create?: XOR<UserCreateWithoutWorkflowsInput, UserUncheckedCreateWithoutWorkflowsInput>
     connectOrCreate?: UserCreateOrConnectWithoutWorkflowsInput
@@ -8511,6 +8867,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutCredentialsInput, UserUpdateWithoutCredentialsInput>, UserUncheckedUpdateWithoutCredentialsInput>
   }
 
+  export type ExecutionCreatelogsInput = {
+    set: InputJsonValue[]
+  }
+
   export type WorkflowCreateNestedOneWithoutExecutionsInput = {
     create?: XOR<WorkflowCreateWithoutExecutionsInput, WorkflowUncheckedCreateWithoutExecutionsInput>
     connectOrCreate?: WorkflowCreateOrConnectWithoutExecutionsInput
@@ -8521,6 +8881,23 @@ export namespace Prisma {
     create?: XOR<UserCreateWithoutExecutionsInput, UserUncheckedCreateWithoutExecutionsInput>
     connectOrCreate?: UserCreateOrConnectWithoutExecutionsInput
     connect?: UserWhereUniqueInput
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
+  }
+
+  export type NullableIntFieldUpdateOperationsInput = {
+    set?: number | null
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
+  export type ExecutionUpdatelogsInput = {
+    set?: InputJsonValue[]
+    push?: InputJsonValue | InputJsonValue[]
   }
 
   export type WorkflowUpdateOneRequiredWithoutExecutionsNestedInput = {
@@ -8611,12 +8988,29 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedEnumExecutionStatusFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExecutionStatus | EnumExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumExecutionStatusFilter<$PrismaModel> | $Enums.ExecutionStatus
+  }
+
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedEnumExecutionStatusWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: $Enums.ExecutionStatus | EnumExecutionStatusFieldRefInput<$PrismaModel>
+    in?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    notIn?: $Enums.ExecutionStatus[] | ListEnumExecutionStatusFieldRefInput<$PrismaModel>
+    not?: NestedEnumExecutionStatusWithAggregatesFilter<$PrismaModel> | $Enums.ExecutionStatus
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedEnumExecutionStatusFilter<$PrismaModel>
+    _max?: NestedEnumExecutionStatusFilter<$PrismaModel>
   }
 
   export type NestedEnumMethodsFilter<$PrismaModel = never> = {
@@ -8718,6 +9112,58 @@ export namespace Prisma {
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
   }
 
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
+  export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedIntNullableFilter<$PrismaModel>
+    _max?: NestedIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+  }
+
   export type CredentialCreateWithoutUserInput = {
     id?: string
     title: string
@@ -8751,10 +9197,11 @@ export namespace Prisma {
   export type WorkflowCreateWithoutUserInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     webhook?: WebhookCreateNestedOneWithoutWorkflowInput
@@ -8764,10 +9211,11 @@ export namespace Prisma {
   export type WorkflowUncheckedCreateWithoutUserInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     webhook?: WebhookUncheckedCreateNestedOneWithoutWorkflowInput
@@ -8786,6 +9234,12 @@ export namespace Prisma {
 
   export type ExecutionCreateWithoutUserInput = {
     id?: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
     workflow: WorkflowCreateNestedOneWithoutExecutionsInput
@@ -8794,6 +9248,12 @@ export namespace Prisma {
   export type ExecutionUncheckedCreateWithoutUserInput = {
     id?: string
     workflowId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -8865,6 +9325,7 @@ export namespace Prisma {
     edges?: JsonNullableListFilter<"Workflow">
     userId?: StringFilter<"Workflow"> | string
     archived?: BoolFilter<"Workflow"> | boolean
+    status?: EnumExecutionStatusFilter<"Workflow"> | $Enums.ExecutionStatus
     createdAt?: DateTimeFilter<"Workflow"> | Date | string
     updatedAt?: DateTimeFilter<"Workflow"> | Date | string
   }
@@ -8892,6 +9353,12 @@ export namespace Prisma {
     id?: StringFilter<"Execution"> | string
     workflowId?: StringFilter<"Execution"> | string
     userId?: StringFilter<"Execution"> | string
+    summary?: StringNullableFilter<"Execution"> | string | null
+    status?: EnumExecutionStatusFilter<"Execution"> | $Enums.ExecutionStatus
+    startedAt?: DateTimeFilter<"Execution"> | Date | string
+    finishedAt?: DateTimeNullableFilter<"Execution"> | Date | string | null
+    durationMs?: IntNullableFilter<"Execution"> | number | null
+    logs?: JsonNullableListFilter<"Execution">
     createdAt?: DateTimeFilter<"Execution"> | Date | string
     updatedAt?: DateTimeFilter<"Execution"> | Date | string
   }
@@ -8950,6 +9417,12 @@ export namespace Prisma {
 
   export type ExecutionCreateWithoutWorkflowInput = {
     id?: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
     User: UserCreateNestedOneWithoutExecutionsInput
@@ -8958,6 +9431,12 @@ export namespace Prisma {
   export type ExecutionUncheckedCreateWithoutWorkflowInput = {
     id?: string
     userId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9055,10 +9534,11 @@ export namespace Prisma {
   export type WorkflowCreateWithoutWebhookInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkflowsInput
@@ -9068,11 +9548,12 @@ export namespace Prisma {
   export type WorkflowUncheckedCreateWithoutWebhookInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     executions?: ExecutionUncheckedCreateNestedManyWithoutWorkflowInput
@@ -9101,6 +9582,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkflowsNestedInput
@@ -9115,6 +9597,7 @@ export namespace Prisma {
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     executions?: ExecutionUncheckedUpdateManyWithoutWorkflowNestedInput
@@ -9183,10 +9666,11 @@ export namespace Prisma {
   export type WorkflowCreateWithoutExecutionsInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutWorkflowsInput
@@ -9196,11 +9680,12 @@ export namespace Prisma {
   export type WorkflowUncheckedCreateWithoutExecutionsInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     userId: string
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
     webhook?: WebhookUncheckedCreateNestedOneWithoutWorkflowInput
@@ -9256,6 +9741,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutWorkflowsNestedInput
@@ -9270,6 +9756,7 @@ export namespace Prisma {
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     userId?: StringFieldUpdateOperationsInput | string
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     webhook?: WebhookUncheckedUpdateOneWithoutWorkflowNestedInput
@@ -9321,10 +9808,11 @@ export namespace Prisma {
   export type WorkflowCreateManyUserInput = {
     id?: string
     name: string
-    active: boolean
+    active?: boolean
     nodes?: WorkflowCreatenodesInput | InputJsonValue[]
     edges?: WorkflowCreateedgesInput | InputJsonValue[]
     archived?: boolean
+    status?: $Enums.ExecutionStatus
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9332,6 +9820,12 @@ export namespace Prisma {
   export type ExecutionCreateManyUserInput = {
     id?: string
     workflowId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -9373,6 +9867,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     webhook?: WebhookUpdateOneWithoutWorkflowNestedInput
@@ -9386,6 +9881,7 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     webhook?: WebhookUncheckedUpdateOneWithoutWorkflowNestedInput
@@ -9399,12 +9895,19 @@ export namespace Prisma {
     nodes?: WorkflowUpdatenodesInput | InputJsonValue[]
     edges?: WorkflowUpdateedgesInput | InputJsonValue[]
     archived?: BoolFieldUpdateOperationsInput | boolean
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type ExecutionUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     workflow?: WorkflowUpdateOneRequiredWithoutExecutionsNestedInput
@@ -9413,6 +9916,12 @@ export namespace Prisma {
   export type ExecutionUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     workflowId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9420,6 +9929,12 @@ export namespace Prisma {
   export type ExecutionUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     workflowId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9427,12 +9942,24 @@ export namespace Prisma {
   export type ExecutionCreateManyWorkflowInput = {
     id?: string
     userId: string
+    summary?: string | null
+    status?: $Enums.ExecutionStatus
+    startedAt?: Date | string
+    finishedAt?: Date | string | null
+    durationMs?: number | null
+    logs?: ExecutionCreatelogsInput | InputJsonValue[]
     createdAt?: Date | string
     updatedAt?: Date | string
   }
 
   export type ExecutionUpdateWithoutWorkflowInput = {
     id?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     User?: UserUpdateOneRequiredWithoutExecutionsNestedInput
@@ -9441,6 +9968,12 @@ export namespace Prisma {
   export type ExecutionUncheckedUpdateWithoutWorkflowInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -9448,6 +9981,12 @@ export namespace Prisma {
   export type ExecutionUncheckedUpdateManyWithoutWorkflowInput = {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
+    summary?: NullableStringFieldUpdateOperationsInput | string | null
+    status?: EnumExecutionStatusFieldUpdateOperationsInput | $Enums.ExecutionStatus
+    startedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    finishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    durationMs?: NullableIntFieldUpdateOperationsInput | number | null
+    logs?: ExecutionUpdatelogsInput | InputJsonValue[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

@@ -1,4 +1,4 @@
-import { backendLogger, workerLogger } from './logger'
+import { backendLogger, workerLogger, wsServerLogger } from './logger'
 import { ConfigLoader } from '@buzz8n/common/config'
 
 const backendConfigSchema = {
@@ -16,5 +16,12 @@ const workerSchema = {
   redisConsumerGroup: () => `worker-${process.pid}`,
 }
 
+const wsServerSchema = {
+  nodeEnv: () => process.env.NODE_ENV,
+  dbUrl: () => process.env.DATABASE_URL,
+  redisUrl: () => process.env.REDIS_URL,
+}
+
 export const backendConfig = ConfigLoader.getInstance(backendConfigSchema, 'server', backendLogger)
 export const workerConfig = ConfigLoader.getInstance(workerSchema, 'worker', workerLogger)
+export const wsServerConfig = ConfigLoader.getInstance(wsServerSchema, 'ws-server', wsServerLogger)

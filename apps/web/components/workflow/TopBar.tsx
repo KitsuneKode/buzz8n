@@ -6,6 +6,7 @@ import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useUpdateWorkflow } from '@/hooks/useWorkflow'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
@@ -19,8 +20,12 @@ export function TopBar() {
     console.log('Toggle active state')
   }
 
-  const handleShare = () => {
-    console.log('Share workflow')
+  const handleShare = async () => {
+    if (!workflow) return
+
+    const url = `${window.location}`
+    await navigator.clipboard.writeText(url)
+    toast.success('Copied workflow url to clipboard')
   }
 
   const handleSave = async () => {

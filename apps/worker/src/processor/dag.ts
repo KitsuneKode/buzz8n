@@ -1,17 +1,17 @@
 /**
  *
  * @module processor/dag
- * @remarks Topological scheduling (Kahn’s algorithm) over DAGs with a bounded worker pool.
- * @see Topological sorting (Kahn’s algorithm)
+ * @remarks Topological scheduling (Kahn's algorithm) over DAGs with a bounded worker pool.
+ * @see Topological sorting (Kahn's algorithm)
  *
  * DAG utilities and executor for workflow nodes.
  *
  * This module:
  *    i> Builds a directed graph from nodes/edges (adjacency + indegree).
  *   ii> Seeds a ready queue from indegree-0 nodes.
- *  iii> Executes in topological order (Kahn’s algorithm) with optional concurrency.
+ *  iii> Executes in topological order (Kahn's algorithm) with optional concurrency.
  *
- * Why Kahn’s algorithm:
+ * Why Kahn's algorithm:
  *    i> Guarantees a valid topological order on DAGs (dependency-correct scheduling).
  *   ii> Exposes safe parallelism for independent branches with bounded workers.
  *  iii> Linear-time in nodes + edges for scalable pipelines.
@@ -23,13 +23,20 @@
  *  -> validateDAG(children, indegree): cycle detection via dry Kahn pass.
  *  -> executeGraphConcurrent(nodeMap, children, indegree, ctx, runNode, opts): bounded concurrent executor.
  *
- * References: Topological sorting (Kahn’s algorithm) and DAG execution patterns.
+ * References: Topological sorting (Kahn's algorithm) and DAG execution patterns.
  *
  */
 
-import { renderGraphAscii } from '@/processor/helper'
+import { endExecutionSetStatus, renderGraphAscii } from '@/processor/helper'
+import type { ExecutionLog } from '@buzz8n/common/types'
+import { publishNodeEvent } from '@/services/publisher'
 import type { ExecContext, RunNode } from '@/nodes'
 import Mustache from 'mustache'
+
+/**
+ * Execution log entry format for persisting and displaying node execution details.
+ * This structure is used for both real-time updates and historical query.
+ */
 
 /**
  * Minimal node shape the executor needs: a unique id and optional data for dispatch/config.
@@ -172,6 +179,55 @@ function initialReady(indegree: Map<string, number>): string[] {
 }
 
 /**
+ * Converts node execution results to ExecutionLog format for persistence and real-time updates.
+ * This helper extracts input, output, timing, and error information from the execution context.
+ *
+ * @param nodeId - The ID of the node
+ * @param node - The node object containing type and config
+ * @param ctx - Execution context with $node results
+ * @param startTime - When the node started execution
+ * @param endTime - When the node finished execution (undefined for failed nodes)
+ * @param error - Error object if the node failed
+ * @param metadata - Additional metadata like workflowId, executionId, userId
+ * @returns ExecutionLog entry ready for persistence or publishing
+ */
+export function nodeResultToExecutionLog(
+  nodeId: string,
+  node: RFNode,
+  ctx: ExecContext,
+  startTime: number | undefined,
+  endTime: number | undefined,
+  error?: Error | string,
+  metadata?: { workflowId?: string; executionId?: string; userId?: string },
+): ExecutionLog {
+  const nodeResult = ctx.$node[nodeId]
+  const duration = startTime && endTime ? endTime - startTime : undefined
+
+  return {
+    id: `${nodeId}_${Date.now()}`,
+    timestamp: new Date(startTime ?? Date.now()),
+    nodeId,
+    status: error ? 'error' : 'success',
+    level: error ? 'error' : 'info',
+    message: error
+      ? `Node ${nodeId} (${node.data?.type}) failed: ${typeof error === 'string' ? error : error.message}`
+      : `Node ${nodeId} (${node.data?.type}) completed successfully`,
+    context: {
+      input: nodeResult?.input || node.data?.config || {},
+      output: nodeResult?.output,
+      error: error
+        ? {
+            message: typeof error === 'string' ? error : error.message,
+            // stack: typeof error !== 'string' ? error.stack : undefined,
+          }
+        : undefined,
+      duration,
+    },
+    metadata,
+  }
+}
+
+/**
  * Schedule and execute nodes of a DAG in topological order using a bounded worker pool.
  *
  * Executes ready nodes (indegree 0) respecting dependencies and a concurrency cap,
@@ -199,11 +255,13 @@ export async function executeGraphConcurrent(
     logger?: any // Winston instance with info/debug/error
     onEvent?: (e: DagEvent) => void | Promise<void>
     printGraph?: boolean // optional: print ASCII DAG structure
+    metadata?: { workflowId?: string; executionId?: string; userId?: string } // for ExecutionLog
   },
 ) {
   const maxConcurrency = opts?.maxConcurrency ?? 4
   const failFast = opts?.failFast ?? true
   const logger = opts?.logger
+  const metadata = opts?.metadata
 
   // One-time ASCII snapshot (compact)
   if (opts?.printGraph && logger) {
@@ -215,6 +273,7 @@ export async function executeGraphConcurrent(
   const ready: string[] = initialReady(indegree)
   const running = new Map<string, Promise<void>>()
   const completed = new Set<string>()
+  const failedNodes = new Map<string, Error | string>() // Track failed nodes with their errors
   let failed = false
 
   // Timeline tracking
@@ -299,6 +358,22 @@ export async function executeGraphConcurrent(
       timeline.push({ t: Date.now(), ev: 'node_succeeded', id })
       logger?.info('[DAG] node_succeeded:', { nodeId: id, durationMs: dur })
 
+      // TODO: Publish node success to Redis for real-time frontend updates
+      const successLog = nodeResultToExecutionLog(
+        id,
+        node,
+        ctx,
+        startTimes.get(id),
+        finishTimes.get(id),
+        undefined,
+        metadata,
+      )
+      ctx.logs?.push(successLog)
+      console.log('--------------------------------')
+
+      await publishNodeEvent(ctx.$json.executionId, successLog)
+
+      console.log('--------------------------------')
       // Unlock children
       for (const v of children.get(id) ?? []) {
         const prevIndegree = indegree.get(v)!
@@ -312,14 +387,31 @@ export async function executeGraphConcurrent(
     })()
       .catch((err) => {
         failed = true
+        failedNodes.set(id, err)
+        finishTimes.set(id, Date.now()) // Set finish time for failed nodes
         timeline.push({
           t: Date.now(),
           ev: 'node_failed',
           id,
           info: { error: String(err?.message ?? err) },
         })
-        logger?.error('[DAG] node_failed:', { nodeId: id, error: String(err?.message ?? err) })
-        throw err
+        logger?.warn('[DAG] node_failed:', { nodeId: id, error: String(err?.message ?? err) })
+
+        // TODO: Publish node failure to Redis for real-time frontend updates
+        const failureLog = nodeResultToExecutionLog(
+          id,
+          node,
+          ctx,
+          startTimes.get(id),
+          finishTimes.get(id),
+          err,
+          metadata,
+        )
+        ctx.logs?.push(failureLog)
+        console.log(failureLog)
+        // await redis.publish(`execution:${metadata?.executionId}:logs`, JSON.stringify(failureLog))
+
+        // throw err
       })
       .finally(() => {
         running.delete(id)
@@ -340,28 +432,61 @@ export async function executeGraphConcurrent(
     timeline.push({ t: Date.now(), ev: 'race_done' })
   }
 
-  // Final summary
+  // Wait for all remaining running promises to settle before generating summary
+  // This prevents "Error executing workflow" from appearing before async nodes complete
+  if (running.size > 0) {
+    logger?.debug('[DAG] Waiting for remaining nodes to complete:', { remaining: running.size })
+    await Promise.allSettled(running.values())
+  }
+
+  // Final summary - always log, even on failures
   logger?.info('[DAG] executionOrder:', { order: executionOrder })
+
+  // Only log timing for nodes that have valid start and finish times
   for (const id of executionOrder) {
-    const s = startTimes.get(id)!
-    const f = finishTimes.get(id)!
-    logger?.debug('[DAG] timing:', {
-      nodeId: id,
-      start: new Date(s).toISOString(),
-      finish: new Date(f).toISOString(),
-      durationMs: f - s,
-    })
+    const s = startTimes.get(id)
+    const f = finishTimes.get(id)
+    if (s && f) {
+      logger?.debug('[DAG] timing:', {
+        nodeId: id,
+        start: new Date(s).toISOString(),
+        finish: new Date(f).toISOString(),
+        durationMs: f - s,
+      })
+    } else {
+      logger?.debug('[DAG] timing:', {
+        nodeId: id,
+        status: 'incomplete',
+        startTime: s ? new Date(s).toISOString() : 'not started',
+      })
+    }
   }
 
   const success = !failed && completed.size === nodeMap.size
-  logger?.info('[DAG] execution_finished:', {
+  const summary = {
     success,
     completed: completed.size,
+    failed: failedNodes.size,
     total: nodeMap.size,
-  })
+  }
+
+  logger?.info(
+    `[DAG] Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`,
+  )
+
+  // TODO: Publish execution summary to Redis for frontend
+  // const executionLogs: ExecutionLog[] = []
+  // for (const id of executionOrder) {
+  //   const node = nodeMap.get(id)!
+  //   const error = failedNodes.get(id)
+  //   const log = nodeResultToExecutionLog(id, node, ctx, startTimes.get(id), finishTimes.get(id), error, metadata)
+  //   executionLogs.push(log)
+  // }
+  // await redis.publish(`execution:${metadata?.executionId}:summary`, JSON.stringify({ summary, logs: executionLogs }))
+  await endExecutionSetStatus(ctx.$json.workflowId, 'success') // DECR + TTL + status flip on zero
 
   if (failFast && failed) throw new Error('Execution FAILED')
   if (completed.size !== nodeMap.size)
     throw new Error('Unreachable nodes remained (cycle or unmet dependency)')
-  return ctx
+  return { ctx, summary }
 }

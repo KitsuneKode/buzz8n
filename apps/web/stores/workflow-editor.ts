@@ -39,7 +39,6 @@ interface WorkflowEditorState {
   handleId: string | null
 
   // Execution state
-  isExecuting: boolean
   currentExecution: Execution | null
   executionHistory: Execution[]
 
@@ -64,7 +63,6 @@ interface WorkflowEditorState {
   updateNodeConfig: (id: string, patch: Record<string, unknown>) => void
   updateSelectedNodeConfig: (patch: Record<string, unknown>) => void
   setSelectedNodeCredentialRef: (credential: CredentialRef | null) => void
-  resendEmail: (nodeId: string) => Promise<void>
 
   // UI actions
   toggleNodePalette: () => void
@@ -77,7 +75,6 @@ interface WorkflowEditorState {
   // Workflow actions
   saveWorkflow: (updatedWorkflow: WorkflowData) => void
   executeWorkflow: () => void
-  stopExecution: () => void
 
   // Execution actions
   addExecutionLog: (log: Omit<ExecutionLog, 'id'>) => void
@@ -139,7 +136,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   isLogsDrawerOpen: false,
   isPropertiesPanelOpen: false,
   selectedNodeId: null,
-  isExecuting: false,
   currentExecution: null,
   executionHistory: [],
   pendingConnectFromNodeId: null,
@@ -375,7 +371,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     }
 
     set({
-      isExecuting: true,
       currentExecution: execution,
       executionHistory: [execution, ...get().executionHistory],
     })
@@ -413,7 +408,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     const durationMs = finishedAt.getTime() - execution.startedAt.getTime()
 
     set((state) => ({
-      isExecuting: false,
       currentExecution: state.currentExecution
         ? {
             ...state.currentExecution,
@@ -424,10 +418,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
           }
         : null,
     }))
-  },
-
-  stopExecution: () => {
-    set({ isExecuting: false })
   },
 
   // Execution actions
@@ -489,41 +479,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       ),
       isDirty: true,
     }))
-  },
-
-  resendEmail: async (nodeId: string) => {
-    const node = get().nodes.find((n) => n.id === nodeId)
-    if (!node || node.data.type !== 'emailSend') return
-
-    // Set loading status
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, status: 'loading' } } : n,
-      ),
-    }))
-
-    get().addExecutionLog({
-      timestamp: new Date(),
-      nodeId,
-      level: 'info',
-      message: `Resending email for node: ${node.data.label}`,
-    })
-
-    // Simulate
-    await new Promise((r) => setTimeout(r, 800))
-
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, status: 'success' } } : n,
-      ),
-    }))
-
-    get().addExecutionLog({
-      timestamp: new Date(),
-      nodeId,
-      level: 'info',
-      message: 'Email resent successfully',
-    })
   },
 }))
 

@@ -71,19 +71,20 @@ const getNodeIcon = (type: NodeType) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'loading':
-      return 'text-yellow-500 '
+      return 'text-blue-500'
     case 'success':
-      return 'text-green-500 '
+      return 'text-green-500'
     case 'error':
-      return 'text-red-500 '
+      return 'text-red-500'
     default:
-      return 'bg-gray-500 '
+      return 'text-gray-500'
   }
 }
+
 const getStatusIcon = (status: string) => {
   switch (status) {
     case 'loading':
-      return <Spinner className={`size-4 ${getStatusColor(status)}`} />
+      return <Spinner className={`size-4 ${getStatusColor(status)} animate-spin`} />
     case 'success':
       return <CheckIcon className={`size-4 ${getStatusColor(status)}`} />
     case 'error':
@@ -94,7 +95,7 @@ const getStatusIcon = (status: string) => {
 }
 
 const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
-  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+  const { edges, selectNode, openNodePaletteFor, workflow } = useWorkflowEditorStore()
 
   // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
   const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
@@ -127,8 +128,8 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               variant="ghost"
               size="icon"
               onClick={() => {
-                if (isPending) return
-                executeWorkflowMutate(id)
+                if (isPending || !workflow) return
+                executeWorkflowMutate(workflow.id)
               }}
             >
               <PlayCircle className="size-6 text-primary" />
@@ -137,20 +138,36 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
           <BaseNode
             onClick={handleClick}
             className={cn(
-              'flex flex-col bg-secondary/10 items-center gap-2 p-4 cursor-pointer transition-all duration-200',
+              'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-300 ease-in-out',
               selected && 'ring-2 ring-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
               data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
               data.category === 'ai-agent-tools' && 'p-2 rounded-3xl bg-muted-foreground/20',
+              // Enhanced status-based styling
+              data.status === 'loading' &&
+                'bg-blue-50 border-2 border-blue-200 shadow-lg shadow-blue-100 animate-pulse ring-2 ring-blue-200/50',
+              data.status === 'success' &&
+                'bg-green-50 border-2 border-green-200 shadow-lg shadow-green-100 ring-2 ring-green-200/50',
+              data.status === 'error' &&
+                'bg-red-50 border-2 border-red-200 shadow-lg shadow-red-100 ring-2 ring-red-200/50',
+              !data.status && 'bg-secondary/10',
             )}
           >
-            <div
-              className={`
-              rounded-full text-xs absolute top-2  right-1
-            `}
-            >
-              {data.status && getStatusIcon(data.status)}
-            </div>
+            {/* Enhanced Status Indicator */}
+            {data.status && (
+              <div className="absolute -top-2 -right-2 z-10">
+                <div
+                  className={cn(
+                    'flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg transition-all duration-300 border-transparent',
+                    data.status === 'loading' && 'bg-blue-100 border-blue-300 shadow-blue-200',
+                    data.status === 'success' && 'bg-green-100 border-green-300 shadow-green-200',
+                    data.status === 'error' && 'bg-red-100 border-red-300 shadow-red-200',
+                  )}
+                >
+                  {getStatusIcon(data.status)}
+                </div>
+              </div>
+            )}
             <BaseNodeContent className={cn('flex items-center justify-center gap-3 p-6')}>
               {/* Input Handle */}
               {!isFirstNode && (

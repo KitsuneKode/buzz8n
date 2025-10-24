@@ -86,58 +86,55 @@ export const processResponse = async ({
       await redis.xAck({ messageID: id })
       return
     }
-    let began = false
-    try {
-      await beginExecutionSetStatus(workflowId)
-      began = true
 
-      /**
-       *
-       *  Starts a workflow execution and tracks concurrent executions.
-       * Uses Redis atomic counter to track how many instances are running.
-       * Only updates DB status to 'active' when first execution starts.
-       *
-       */
-      const { executableNodes, filteredEdges, nonExecutableIds } = collapsePropertyNodes(
-        nodes,
-        edges,
-      )
-      logger.debug('[DAG] collapse_properties', {
-        collapsedCount: nonExecutableIds.size,
-        collapsedIds: Array.from(nonExecutableIds),
-      })
+    await beginExecutionSetStatus(workflowId)
 
-      // Define the runnable subgraph from the trigger and build the DAG
+    /**
+     *
+     *  Starts a workflow execution and tracks concurrent executions.
+     * Uses Redis atomic counter to track how many instances are running.
+     * Only updates DB status to 'active' when first execution starts.
+     *
+     */
+    const { executableNodes, filteredEdges, nonExecutableIds } = collapsePropertyNodes(nodes, edges)
+    logger.debug('[DAG] collapse_properties', {
+      collapsedCount: nonExecutableIds.size,
+      collapsedIds: Array.from(nonExecutableIds),
+    })
 
-      const reachable = collectReachableFrom(triggerId, filteredEdges)
-      const execIdSet = new Set(executableNodes.map((n) => n.id))
-      const allowed = new Set([...reachable].filter((id) => execIdSet.has(id)))
+    // Define the runnable subgraph from the trigger and build the DAG
 
-      const { nodeMap, children, indegree } = buildGraph(executableNodes, filteredEdges, allowed)
-      validateDAG(children, indegree)
+    const reachable = collectReachableFrom(triggerId, filteredEdges)
+    const execIdSet = new Set(executableNodes.map((n) => n.id))
+    const allowed = new Set([...reachable].filter((id) => execIdSet.has(id)))
 
-      // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-      const triggerPayload =
-        (payload as any)?.data ?? (execution?.output as any)?.triggerPayload ?? {}
-      const ctx: ExecContext = { $json: { body: triggerPayload }, $node: {} }
+    const { nodeMap, children, indegree } = buildGraph(executableNodes, filteredEdges, allowed)
+    validateDAG(children, indegree)
 
-      // Execute the DAG with bounded concurrency (tune as needed)
-      await executeGraphConcurrent(nodeMap, children, indegree, ctx, runNode, {
-        logger,
-        printGraph: true,
-      })
+    // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
+    const triggerPayload =
+      (payload as any)?.data ?? (execution?.output as any)?.triggerPayload ?? {}
 
-      logger.info(`Execution finished for ${executionId}`)
-    } finally {
-      if (began) {
-        // persist final state/results/telemetry here
-        await endExecutionSetStatus(workflowId) // DECR + TTL + status flip on zero
-      }
+    const ctx: ExecContext = {
+      $json: { body: triggerPayload, executionId, workflowId },
+      $node: {},
     }
 
+    // Execute the DAG with bounded concurrency (tune as needed)
+    await executeGraphConcurrent(nodeMap, children, indegree, ctx, runNode, {
+      logger,
+      printGraph: true,
+      metadata: { workflowId, executionId }, // Pass metadata for ExecutionLog
+    })
+
+    logger.info(`Execution finished successfully for ${executionId} `)
     //TODO: Publish the status of the workflow to redis to use it in fe
+    // TODO: Extract ExecutionLog entries from ctx and persist/publish them
+    // const logs = generateExecutionLogs(ctx, nodeMap, metadata)
+    // await redis.publish(`execution:${executionId}:complete`, JSON.stringify(logs))
   } catch (err) {
-    logger.error(`Error executing the workflow:${workflowId}`, err)
+    // This error now appears AFTER all async nodes have settled
+    logger.warn(`Error executing the workflow:${workflowId}`, err)
   } finally {
     // Ensure counter/status and ACK always happen
     await redis.xAck({ messageID: id })

@@ -79,7 +79,7 @@ async function shutdown() {
   logger.info('Shutting down gracefully…')
 
   try {
-    await redis.unsubscribe()
+    // await redis.unsubscribe()
     await redis.xGroupDestroy({
       consumerGroup: REDIS_CONSUMER_GROUP,
     })

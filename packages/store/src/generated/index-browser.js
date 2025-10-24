@@ -137,6 +137,7 @@ exports.Prisma.WorkflowScalarFieldEnum = {
   edges: 'edges',
   userId: 'userId',
   archived: 'archived',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -167,6 +168,12 @@ exports.Prisma.ExecutionScalarFieldEnum = {
   id: 'id',
   workflowId: 'workflowId',
   userId: 'userId',
+  summary: 'summary',
+  status: 'status',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  durationMs: 'durationMs',
+  logs: 'logs',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -195,6 +202,13 @@ exports.Prisma.JsonNullValueFilter = {
   JsonNull: Prisma.JsonNull,
   AnyNull: Prisma.AnyNull
 };
+exports.ExecutionStatus = exports.$Enums.ExecutionStatus = {
+  initial: 'initial',
+  loading: 'loading',
+  success: 'success',
+  error: 'error'
+};
+
 exports.Methods = exports.$Enums.Methods = {
   POST: 'POST',
   GET: 'GET',

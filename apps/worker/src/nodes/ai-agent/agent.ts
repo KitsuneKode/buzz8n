@@ -53,8 +53,10 @@ export const runAiAgent = async (
   context: ExecContext,
 ) => {
   try {
+    console.log(credentialId, 'credentialId')
     if (!credentialId || typeof config !== 'object') {
-      throw new Error('Credentials to execute sendTelegram Message not provided')
+      logger.warn('AI Agent: Missing credentials or invalid config', { credentialId, config })
+      throw new Error('Credentials to execute AI Agent not provided')
     }
 
     const credential = await prisma.credential.findUnique({
@@ -63,7 +65,8 @@ export const runAiAgent = async (
       },
     })
     if (!credential || !credential.data) {
-      throw new Error('Credential to execute sendTelegram Message does not exists')
+      logger.warn('AI Agent: Credential not found', { credentialId })
+      throw new Error('Credential to execute AI Agent does not exists')
     }
     const { data, success } = aiAgentFormSchema.safeParse(credential.data)
 
@@ -75,12 +78,12 @@ export const runAiAgent = async (
         | undefined
     }
 
-    if (!success || !prompt || !model) {
-      throw new Error('Invalid credential data')
-    }
     // Render template in prompt
     const resolvedPrompt = renderTemplate(prompt, context)
-
+    if (!success || !resolvedPrompt || !model) {
+      logger.warn('AI Agent: Invalid credential data or config', { success, prompt, model })
+      throw new Error('Invalid credential data')
+    }
     // Log for debugging
     logger.info('AI Agent config', {
       raw: { prompt, model, allowedTools },
@@ -107,7 +110,6 @@ export const runAiAgent = async (
     ${tools && tools.length > 0 && selectedToolNames?.map((tool) => `- ${tool}`).join('\n')}
     `
 
-    console.log(systemPrompt, 'systemPrompt')
     const agent = createAgent({
       model: selectedModel,
       tools: tools && tools.length > 0 ? tools : undefined,
@@ -125,6 +127,6 @@ export const runAiAgent = async (
     return { status: 'ok', data: { response: structuredResponse.response_from_agent } }
   } catch (error) {
     logger.error('Failed to invoke AI Agent', error)
-    return { status: 'error', data: error }
+    throw error
   }
 }

@@ -183,9 +183,21 @@ export interface ExecutionLog {
   id: string
   timestamp: Date
   nodeId: string
-  level: 'info' | 'warn' | 'error' | 'debug'
+  status: 'success' | 'error'
+  level: 'debug' | 'info' | 'warn' | 'error'
   message: string
-  data?: any
+  context?: {
+    input?: any
+    output?: any
+    error?: any
+    duration?: number
+    retryCount?: number
+  }
+  metadata?: {
+    userId?: string
+    workflowId?: string
+    executionId?: string
+  }
 }
 
 export interface NodeCategory {
