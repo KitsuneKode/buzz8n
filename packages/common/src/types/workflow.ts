@@ -205,3 +205,10 @@ export interface NodeCategory {
   label: string
   nodes: NodeTemplate[]
 }
+
+export const workflowEventSchema = z.object({
+  type: z.enum(['subscribe', 'unsubscribe']),
+  workflowId: z.string(),
+})
+
+export type WorkflowEvent = z.infer<typeof workflowEventSchema>

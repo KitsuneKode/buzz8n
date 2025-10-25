@@ -17,6 +17,8 @@ const workerSchema = {
 }
 
 const wsServerSchema = {
+  port: () => process.env.PORT,
+  jwtSecret: () => process.env.JWT_SECRET,
   nodeEnv: () => process.env.NODE_ENV,
   dbUrl: () => process.env.DATABASE_URL,
   redisUrl: () => process.env.REDIS_URL,

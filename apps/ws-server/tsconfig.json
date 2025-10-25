@@ -1,0 +1,13 @@
+{
+  "extends": "@buzz8n/typescript-config/backend.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@buzz8n/common/*": ["../../packages/common/src/*"],
+      "@buzz8n/backend-common/*": ["../../packages/backend-common/src/*"],
+      "@buzz8n/store/*": ["../../packages/store/src/*"]
+    },
+    "outDir": "dist"
+  }
+}

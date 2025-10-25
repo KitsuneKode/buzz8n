@@ -3,6 +3,8 @@ import { backendConfig, workerConfig } from '../utils/config'
 import type { ExecutionLog } from '@buzz8n/common/types'
 import { createClient } from 'redis'
 
+export type { RedisClientType } from 'redis'
+
 type ServiceType = 'server' | 'worker' | 'ws-server'
 
 const getEnvironment = (service: ServiceType) => {
@@ -27,7 +29,7 @@ export class RedisClient {
   private logger
   public LOG_GROUP = '[REDIS]'
   // Channel names for different event types
-  private readonly CHANNELS = {
+  public readonly CHANNELS = {
     WORKFLOW_EVENTS: 'workflow:events',
     EXECUTION_EVENTS: 'workflow:execution:events',
   } as const
@@ -119,6 +121,14 @@ export class RedisClient {
     return this.redisClient.publish(channelName, message)
   }
 
+  async duplicate() {
+    return this.redisClient.duplicate()
+  }
+
+  async destroy() {
+    return this.redisClient.destroy()
+  }
+
   async publishWorkflowEvent(workflowId: string, event: any) {
     const channel = `${this.CHANNELS.WORKFLOW_EVENTS}:${workflowId}`
     const message = JSON.stringify(event)
@@ -133,16 +143,16 @@ export class RedisClient {
     await this.publish(channel, message)
     this.logger.debug(`${this.LOG_GROUP} Published execution event`, { channel, message })
   }
-  async subscribe(channelName: string, callback: (message: string) => void) {
-    return this.redisClient.subscribe(channelName, callback)
-  }
-
-  async unsubscribe(channelName?: string[]) {
-    if (channelName) {
-      return this.redisClient.unsubscribe(...channelName)
-    }
-    return this.redisClient.unsubscribe()
-  }
+  // async subscribe(channelName: string, callback: (message: string) => void) {
+  //   return this.redisClient.subscribe(channelName, callback)
+  // }
+  //
+  // async unsubscribe(channelName?: string[]) {
+  //   if (channelName) {
+  //     return this.redisClient.unsubscribe(...channelName)
+  //   }
+  //   return this.redisClient.unsubscribe()
+  // }
 
   async xGroupDestroy({
     streamKey = this.EXECUTION_QUEUE_KEY,
