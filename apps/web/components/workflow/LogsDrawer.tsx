@@ -57,7 +57,7 @@ export function LogsDrawer() {
   }
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+    return new Date(date).toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
@@ -129,46 +129,48 @@ export function LogsDrawer() {
         </div>
 
         {/* Logs Content */}
-        <ScrollArea className="flex-1">
-          <div className="p-4">
-            {currentExecution.logs.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">No logs available</div>
-            ) : (
-              <div className="space-y-2">
-                {currentExecution.logs.map((log, index) => (
-                  <div
-                    key={log.id}
-                    className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors ${getLevelColor(log.level)}`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3 flex-1">
-                        {getLevelIcon(log.level)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <span className="font-medium">{getNodeLabel(log.nodeId)}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {log.level}
-                            </Badge>
-                            <span className="text-muted-foreground">
-                              {formatTime(log.timestamp)}
-                            </span>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              {currentExecution.logs.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">No logs available</div>
+              ) : (
+                <div className="space-y-2">
+                  {currentExecution.logs.reverse().map((log, index) => (
+                    <div
+                      key={log.id}
+                      className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors ${getLevelColor(log.level)}`}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 flex-1">
+                          {getLevelIcon(log.level)}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <span className="font-medium">{getNodeLabel(log.nodeId)}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {log.level}
+                              </Badge>
+                              <span className="text-muted-foreground">
+                                {formatTime(log.timestamp)}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground mt-1">{log.message}</p>
+                            {log.data && (
+                              <pre className="text-xs text-muted-foreground mt-2 bg-muted p-2 rounded overflow-x-auto">
+                                {JSON.stringify(log.data, null, 2)}
+                              </pre>
+                            )}
                           </div>
-                          <p className="text-sm text-foreground mt-1">{log.message}</p>
-                          {log.data && (
-                            <pre className="text-xs text-muted-foreground mt-2 bg-muted p-2 rounded overflow-x-auto">
-                              {JSON.stringify(log.data, null, 2)}
-                            </pre>
-                          )}
                         </div>
                       </div>
+                      {index < currentExecution.logs.length - 1 && <Separator className="mt-2" />}
                     </div>
-                    {index < currentExecution.logs.length - 1 && <Separator className="mt-2" />}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
     </div>
   )

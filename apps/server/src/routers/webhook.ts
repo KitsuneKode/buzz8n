@@ -68,8 +68,8 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
       },
     })
 
-    res.status(200).json({
-      message: 'Execution started',
+    res.status(202).json({
+      message: 'Execution accepted',
       executionId: execution.id,
     })
   } catch (error) {

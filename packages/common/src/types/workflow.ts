@@ -76,9 +76,9 @@ export const workflowSchema = z.object({
 // Workflow creation schema (without id, timestamps)
 export const createWorkflowSchema = z.object({
   name: z.string().min(1, 'Workflow name is required'),
-  active: z.boolean().default(false),
-  nodes: nodesSchema.default([]),
-  edges: edgesSchema.default([]),
+  active: z.boolean().optional().default(false),
+  nodes: nodesSchema.default([]).optional(),
+  edges: edgesSchema.default([]).optional(),
 })
 
 // Node template schema
@@ -101,7 +101,7 @@ export const executionSchema = z.object({
   startedAt: z.date(),
   finishedAt: z.date().optional(),
   durationMs: z.number().optional(),
-  summary: z.string(),
+  summary: z.string().optional(),
   logs: z.array(
     z.object({
       id: z.string(),
@@ -181,10 +181,12 @@ export type CredentialRef = z.infer<typeof credentialRefSchema>
 
 export interface ExecutionLog {
   id: string
+  type: 'execution_complete' | 'node_event'
   timestamp: Date
   nodeId: string
   status: 'loading' | 'success' | 'error'
   level: 'debug' | 'info' | 'warn' | 'error'
+  executionSummary?: string
   message: string
   context?: {
     input?: any
@@ -217,8 +219,8 @@ export interface NodeCategory {
 // WebSocket message types for type safety
 export const webSocketMessageSchema = z.object({
   type: z.enum(['subscribe', 'unsubscribe', 'ping', 'pong']),
-  workflowId: z.string().optional(),
-  executionId: z.string().optional(),
+  workflowId: z.string(),
+  executionId: z.string(),
 })
 
 export type WebSocketMessage = z.infer<typeof webSocketMessageSchema>

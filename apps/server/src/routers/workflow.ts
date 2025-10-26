@@ -155,8 +155,8 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
 
     await enqueueExecution(queuePayload)
 
-    res.status(200).json({
-      message: 'Execution started',
+    res.status(202).json({
+      message: 'Execution accepted',
       payload: queuePayload,
     })
   } catch (error: unknown) {

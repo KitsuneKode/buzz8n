@@ -38,6 +38,8 @@ export function WorkflowModal({ open, onOpenChange }: WorkflowModalProps) {
         await createWorkflowMutation.mutateAsync({
           name,
           active: false,
+          nodes: [],
+          edges: [],
         })
 
         // Reset form

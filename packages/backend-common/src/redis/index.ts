@@ -30,7 +30,7 @@ export class RedisClient {
   public LOG_GROUP = '[REDIS]'
   // Channel names for different event types
   public readonly CHANNELS = {
-    WORKFLOW_EVENTS: 'workflow:events',
+    // WORKFLOW_EVENTS: 'workflow:events',
     EXECUTION_EVENTS: 'workflow:execution:events',
   } as const
 
@@ -129,12 +129,12 @@ export class RedisClient {
     return this.redisClient.destroy()
   }
 
-  async publishWorkflowEvent(workflowId: string, event: any) {
-    const channel = `${this.CHANNELS.WORKFLOW_EVENTS}:${workflowId}`
-    const message = JSON.stringify(event)
-    await this.publish(channel, message)
-    this.logger.debug(`${this.LOG_GROUP} Published workflow event`, { channel, message })
-  }
+  // async publishWorkflowEvent(workflowId: string, event: any) {
+  //   const channel = `${this.CHANNELS.WORKFLOW_EVENTS}:${workflowId}`
+  //   const message = JSON.stringify(event)
+  //   await this.publish(channel, message)
+  //   this.logger.debug(`${this.LOG_GROUP} Published workflow event`, { channel, message })
+  // }
 
   async publishExecutionEvent(executionId: string, log: ExecutionLog) {
     const channel = `${this.CHANNELS.EXECUTION_EVENTS}:${executionId}`

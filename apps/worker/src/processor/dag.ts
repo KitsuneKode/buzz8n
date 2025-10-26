@@ -209,6 +209,7 @@ export function nodeResultToExecutionLog(
     id: `${nodeId}_${Date.now()}`,
     timestamp: new Date(startTime ?? Date.now()),
     nodeId,
+    type: 'node_event',
     status,
     level: error ? 'error' : 'info',
     message: error
@@ -490,7 +491,7 @@ export async function executeGraphConcurrent(
     `[DAG] Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`,
   )
 
-  const oneLinerSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`
+  const executionSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`
 
   // TODO: Publish execution summary to Redis for frontend
   // const executionLogs: ExecutionLog[] = []
@@ -507,10 +508,12 @@ export async function executeGraphConcurrent(
   if (metadata?.executionId) {
     await publishNodeEvent(metadata.executionId, {
       id: `execution_complete_${Date.now()}`,
+      type: 'execution_complete',
       timestamp: new Date(),
       nodeId: 'execution',
       status: success ? 'success' : 'error',
       level: success ? 'info' : 'error',
+      executionSummary,
       message: success
         ? `Execution completed successfully: ${completed.size}/${nodeMap.size} nodes completed`
         : `Execution failed: ${failedNodes.size} nodes failed`,

@@ -1,17 +1,17 @@
 'use client'
 
-import { useUpdateWorkflow, useExecuteWorkflow } from '@/hooks/useWorkflow'
+import { useExecuteWorkflow, useUpdateWorkflow } from '@/hooks/useWorkflow'
 import { useWebSocket, useWebSocketStore } from '@/hooks/useWebSocket'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CredentialModal from '../credentials/CredentialModal'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
+import { useCallback, useEffect } from 'react'
 import { RightPanel } from './RightPanel'
 import { LogsDrawer } from './LogsDrawer'
 import { ExecuteBar } from './ExecuteBar'
 import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
-import { useEffect } from 'react'
 
 function WebSocketStatus() {
   const { isConnected, isConnecting, error } = useWebSocket()
@@ -31,10 +31,11 @@ function WebSocketStatus() {
 }
 
 export function WorkflowEditor() {
-  const { nodes, edges, workflow, activeTab, isLogsDrawerOpen, deleteSelectedNodes, saveWorkflow } =
+  const { nodes, edges, workflow, activeTab, isLogsDrawerOpen, deleteSelectedNodes, isDirty } =
     useWorkflowEditorStore()
 
-  const { mutate: updateWorkflowMutate } = useUpdateWorkflow()
+  const { mutate: updateWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
+
   const { mutate: executeWorkflowMutate } = useExecuteWorkflow()
 
   // Connect WebSocket on mount
@@ -43,9 +44,8 @@ export function WorkflowEditor() {
     connect()
   }, [])
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = async (event: KeyboardEvent) => {
+  const handleKeyDown = useCallback(
+    async (event: KeyboardEvent) => {
       if (!workflow || !workflow.id || !nodes || !edges) {
         return
       }
@@ -60,6 +60,7 @@ export function WorkflowEditor() {
       // Save workflow (Cmd/Ctrl + S)
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault()
+        if (isSaving || !isDirty) return
         updateWorkflowMutate({
           id: workflow.id,
           data: {
@@ -77,21 +78,26 @@ export function WorkflowEditor() {
           executeWorkflowMutate(workflow.id)
         }
       }
-    }
+    },
+    [
+      workflow,
+      nodes,
+      edges,
+      isSaving,
+      isDirty,
+      updateWorkflowMutate,
+      executeWorkflowMutate,
+      deleteSelectedNodes,
+    ],
+  )
 
+  // Keyboard shortcuts
+  useEffect(() => {
     document.addEventListener('keydown', handleKeyDown)
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
     }
-  }, [
-    saveWorkflow,
-    executeWorkflowMutate,
-    deleteSelectedNodes,
-    nodes,
-    updateWorkflowMutate,
-    workflow,
-    edges,
-  ])
+  }, [handleKeyDown])
 
   if (!workflow) {
     return (

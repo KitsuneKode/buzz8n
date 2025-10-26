@@ -16,7 +16,8 @@ export function TopBar() {
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
   const handleToggleActive = () => {
-    // Toggle workflow active state
+    // TODO:Toogle active state
+
     console.log('Toggle active state')
   }
 
@@ -30,10 +31,6 @@ export function TopBar() {
 
   const handleSave = async () => {
     if (!workflow) return
-
-    const webhookNode = nodes.find((node) => node.data.type === 'webhook')
-
-    console.log(webhookNode)
 
     saveWorkflowMutate({
       id: workflow.id,

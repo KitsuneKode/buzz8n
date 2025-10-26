@@ -21,7 +21,7 @@ export function ExecuteBar() {
   const hasWebhook = nodes.some((node) => node.data.type === 'webhook')
   const canExecute = nodes.length > 0 && hasManualTrigger
 
-  const { mutate: executeWorkflowMutate, isPending: isExecuting } = useExecuteWorkflow()
+  const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
 
   const getExecutionStatusIcon = () => {
     if (!currentExecution) return null
@@ -59,29 +59,31 @@ export function ExecuteBar() {
     <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
       <div className="bg-card border border-border rounded-lg shadow-lg p-4 flex items-center space-x-4">
         {/* Execute Button */}
-        <Button
-          onClick={() => {
-            if (!workflow || isExecuting || !canExecute) return
+        {!currentExecution && (
+          <Button
+            onClick={() => {
+              if (!workflow || isPending || !canExecute) return
 
-            executeWorkflowMutate(workflow.id)
-          }}
-          disabled={!canExecute || isExecuting}
-          className="flex items-center space-x-2"
-          variant={isExecuting ? 'destructive' : 'default'}
-        >
-          {isExecuting ? (
-            <>
-              <Spinner className="size-4" />
-              {/* <Square className="w-4 h-4" /> */}
-              {/* <span>Stop execution</span> */}
-            </>
-          ) : (
-            <>
-              <Play className="w-4 h-4" />
-              <span>Execute workflow</span>
-            </>
-          )}
-        </Button>
+              executeWorkflowMutate(workflow.id)
+            }}
+            disabled={!canExecute || isPending}
+            className="flex items-center space-x-2"
+            variant={isPending ? 'destructive' : 'default'}
+          >
+            {isPending ? (
+              <>
+                <Spinner className="size-4" />
+                {/* <Square className="w-4 h-4" /> */}
+                {/* <span>Stop execution</span> */}
+              </>
+            ) : (
+              <>
+                <Play className="w-4 h-4" />
+                <span>Execute workflow</span>
+              </>
+            )}
+          </Button>
+        )}
 
         {/* Execution Status */}
         {currentExecution && (

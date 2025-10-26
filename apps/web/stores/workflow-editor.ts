@@ -40,6 +40,7 @@ interface WorkflowEditorState {
   handleId: string | null
 
   // Execution state
+  setCurrentExecution: (execution: Execution | null) => void
   currentExecution: Execution | null
   executionHistory: Execution[]
 
@@ -360,6 +361,14 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
 
   // Execution actions
+
+  setCurrentExecution: (execution) => {
+    set((state) => ({
+      currentExecution: execution ? execution : null,
+      executionHistory: execution ? [execution, ...state.executionHistory] : state.executionHistory,
+    }))
+  },
+
   addExecutionLog: (logData) => {
     const log: ExecutionLog = {
       id: `log_${Date.now()}`,

@@ -7,6 +7,7 @@ import {
   CreateWorkflow,
   UpdateWorkflow,
   WorkflowListData,
+  Execution,
 } from '@buzz8n/common/types'
 
 import {
@@ -110,6 +111,8 @@ export function useWorkflowsList(
     staleTime: 2 * 60 * 1000, // 2 minutes
   })
 }
+
+//TODO:Add activate workflow mutation
 
 // Create workflow mutation
 export function useCreateWorkflow(): UseMutationResult<
@@ -227,6 +230,7 @@ export function useExecuteWorkflow(): UseMutationResult<
   unknown
 > {
   const { subscribe } = useWebSocket()
+  const { setCurrentExecution } = useWorkflowEditorStore()
 
   return useMutation({
     mutationFn: async (
@@ -244,8 +248,68 @@ export function useExecuteWorkflow(): UseMutationResult<
 
     onSuccess: ({ payload }) => {
       // Subscribe to WebSocket for real-time updates
+      //TODO:Fix this we should only subscribe to the current execution
 
       subscribe(payload.workflowId, payload.executionId)
+      const execution: Execution = {
+        id: payload.executionId,
+        workflowId: payload.workflowId,
+        status: 'loading',
+        startedAt: new Date(),
+        summary: 'Workflow execution started',
+        logs: [],
+      }
+      setCurrentExecution(execution)
+
+      // // Simulate execution
+      // for (const node of nodes) {
+      //   // Update node status
+      //   set((state) => ({
+      //     nodes: state.nodes.map((n) =>
+      //       n.id === node.id ? { ...n, data: { ...n.data, status:
+      //       'loading' } } : n,
+      //     ),
+      //   }))
+
+      //   // Add log
+      //   get().addExecutionLog({
+      //     timestamp: new Date(),
+      //     nodeId: node.id,
+      //     level: 'info',
+      //     message: `Executing node: ${node.data.label}`,
+      //   })
+
+      //   // Simulate processing time
+      //   await new Promise((resolve) => setTimeout(resolve, 1000))
+
+      //   // Update node status to success
+      //   set((state) => ({
+      //     nodes: state.nodes.map((n) =>
+      //       n.id === node.id ? { ...n, data: { ...n.data, status:
+      //       'success' } } : n,
+      //     ),
+      //   }))
+      // }
+
+      // // Complete execution
+      // const finishedAt = new Date()
+      // const durationMs = finishedAt.getTime() - execution.startedAt.
+      // getTime()
+
+      // set((state) => ({
+      //   currentExecution: state.currentExecution
+      //     ? {
+      //         ...state.currentExecution,
+      //         status: 'success',
+      //         finishedAt,
+      //         durationMs,
+      //         summary: `Workflow completed successfully in ${durationMs}
+      //         ms`,
+      //       }
+      //     : null,
+      // }))
+      // }
+
       toast.success('Workflow execution started')
     },
     onError: (error: AxiosError) => {

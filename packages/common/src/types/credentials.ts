@@ -1,8 +1,7 @@
-import { Platforms } from '@buzz8n/store'
-import z from 'zod'
+import { z } from 'zod'
 
 // Map the database enum to our supported platforms
-export const SupportedPlatforms = z.enum(Platforms)
+export const SupportedPlatforms = z.enum(['Telegram', 'Email', 'OpenAI', 'Gemini', 'Anthropic'])
 
 export const credentialSchema = z.object({
   title: z.string(),

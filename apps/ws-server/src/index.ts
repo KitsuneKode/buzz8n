@@ -11,7 +11,7 @@ type WebSocketData = {
   subscribedChannel: string | null
 }
 
-const server = Bun.serve<WebSocketData>({
+Bun.serve<WebSocketData>({
   port: PORT,
   fetch(req, server) {
     const cookieHeader = req.headers.get('cookie')
@@ -96,8 +96,7 @@ const server = Bun.serve<WebSocketData>({
 
           ws.data.subscriber = await redis.duplicate()
           await ws.data.subscriber.connect()
-          // Use executionId if provided, otherwise fall back to workflowId
-          const channelId = data.executionId || data.workflowId
+          const channelId = data.executionId
           ws.data.subscribedChannel = `${redis.CHANNELS.EXECUTION_EVENTS}:${channelId}`
           await ws.data.subscriber.subscribe(ws.data.subscribedChannel!, (message) => {
             if (ws.readyState === WebSocket.OPEN) {
@@ -105,6 +104,8 @@ const server = Bun.serve<WebSocketData>({
                 `📤 Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
                 { message },
               )
+
+              console.log('message.type', JSON.parse(message).type)
               ws.send(message)
             }
           })
@@ -113,7 +114,7 @@ const server = Bun.serve<WebSocketData>({
         if (data && data.type === 'unsubscribe') {
           if (ws.data.subscriber) {
             await ws.data.subscriber.unsubscribe(ws.data.subscribedChannel!)
-            await ws.data.subscriber.quit()
+            // await ws.data.subscriber.quit()
             logger.info(
               `User ${ws.data.userId} unsubscribed from workflow ${ws.data.subscribedChannel}`,
             )
@@ -127,7 +128,6 @@ const server = Bun.serve<WebSocketData>({
       }
     },
     async close(ws) {
-      logger.info(`User ${ws.data.userId} disconnected`)
       if (ws.data.subscriber) {
         await ws.data.subscriber.unsubscribe(ws.data.subscribedChannel!)
         await ws.data.subscriber.quit()
@@ -137,6 +137,7 @@ const server = Bun.serve<WebSocketData>({
         ws.data.subscriber = null
         ws.data.subscribedChannel = null
       }
+      logger.info(`User ${ws.data.userId} disconnected`)
     },
   },
 })

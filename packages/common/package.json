@@ -16,7 +16,6 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@buzz8n/store": "*",
     "zod": "^4.1.11"
   }
 }
