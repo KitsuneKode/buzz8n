@@ -49,7 +49,6 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
     }
   }
 
-  console.log(workflow)
   // const handleDuplicate = () => {
   //   // TODO: Implement duplicate functionality
   //   console.log('Duplicate workflow:', workflow.id)
@@ -69,11 +68,11 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 pr-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pr-3">
             <CardTitle
-              className="text-lg font-semibold truncate group-hover:text-primary transition-colors"
+              className="text-lg max-w-[200px] font-semibold truncate overflow-hidden text-ellipsis group-hover:text-primary transition-colors"
               onClick={handleResume}
             >
               {workflow.name}
@@ -81,12 +80,12 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
             <p className="text-sm text-muted-foreground mt-1">Modified {formatLastModified()}</p>
           </div>
 
-          <div className="flex items-center gap-4 ml-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {getStatusBadge()}
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
-                <Button variant="destructive" size="icon" disabled={isDeleting}>
+                <Button variant="destructive" size="icon" disabled={isDeleting} className="h-8 w-8">
                   {isDeleting ? <Spinner className="size-4" /> : <Trash className="size-4" />}
                 </Button>
               </AlertDialogTrigger>

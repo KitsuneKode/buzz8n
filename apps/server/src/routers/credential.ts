@@ -36,7 +36,15 @@ router.get('/credential', async (req, res, next: NextFunction) => {
       },
     })
 
-    res.status(200).send({ credentials })
+    // Determine if there are more pages and set cursor
+    const hasNextPage = credentials.length > limit
+    const actualCredentials = hasNextPage ? credentials.slice(0, limit) : credentials
+    const nextCursor = hasNextPage ? actualCredentials[actualCredentials.length - 1]?.id : undefined
+
+    res.status(200).send({
+      credentials: actualCredentials,
+      cursor: nextCursor,
+    })
     return
   } catch (error) {
     next(error)

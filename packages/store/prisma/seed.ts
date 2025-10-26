@@ -37,7 +37,7 @@ async function main() {
   // const domains = ['example.com', 'test.com', ...]
   // for (let i = 0; i < userCount; i++) { ... }
 
-  const passwordHash = await Password.hash('Test123!@#', {
+  const passwordHash = await Password.hash('1232@Password', {
     algorithm: 'bcrypt',
     cost: 10,
   })
@@ -45,7 +45,7 @@ async function main() {
   const user = await prisma.user.create({
     data: {
       name: 'Test User',
-      email: 'test@example.com',
+      email: 'testuser@me.com',
       password_hash: passwordHash,
     },
   })
@@ -56,7 +56,7 @@ async function main() {
   console.log('🔑 LOGIN CREDENTIALS')
   console.log('='.repeat(60))
   console.log(`Email:    ${user.email}`)
-  console.log(`Password: Test123!@#`)
+  console.log(`Password: 1232@Password`)
   console.log('='.repeat(60) + '\n')
 
   console.log(`✅ Created test user`)
@@ -67,7 +67,7 @@ async function main() {
   const credentialTypes = ['OpenAI', 'Anthropic', 'Gemini', 'Email', 'Telegram']
 
   // Generate more credentials for the single test user
-  const credentialCount = randomInt(15, 25) // 15-25 credentials for testing
+  const credentialCount = randomInt(50, 100) // 50-100 credentials for extensive testing
 
   // Alternative: Loop through users (uncomment to use multiple users with 2-8 credentials each)
   // for (const user of users) {
@@ -134,10 +134,38 @@ async function main() {
     {
       name: 'Customer Support Automation',
       nodes: [
-        { id: '1', type: 'trigger', data: { label: 'Email Received' } },
-        { id: '2', type: 'llm', data: { label: 'Analyze Intent' } },
-        { id: '3', type: 'condition', data: { label: 'Route Request' } },
-        { id: '4', type: 'action', data: { label: 'Send Response' } },
+        {
+          id: '1',
+          data: {
+            label: 'Email Received',
+            type: 'trigger',
+            config: {},
+          },
+        },
+        {
+          id: '2',
+          data: {
+            label: 'Analyze Intent',
+            type: 'llm',
+            config: { model: 'gpt-4' },
+          },
+        },
+        {
+          id: '3',
+          data: {
+            label: 'Route Request',
+            type: 'condition',
+            config: {},
+          },
+        },
+        {
+          id: '4',
+          data: {
+            label: 'Send Response',
+            type: 'action',
+            config: {},
+          },
+        },
       ],
       edges: [
         { id: 'e1', source: '1', target: '2' },
@@ -148,10 +176,38 @@ async function main() {
     {
       name: 'Content Generation Pipeline',
       nodes: [
-        { id: '1', type: 'trigger', data: { label: 'Content Request' } },
-        { id: '2', type: 'llm', data: { label: 'Generate Draft' } },
-        { id: '3', type: 'llm', data: { label: 'Proofread' } },
-        { id: '4', type: 'action', data: { label: 'Publish' } },
+        {
+          id: '1',
+          data: {
+            label: 'Content Request',
+            type: 'trigger',
+            config: {},
+          },
+        },
+        {
+          id: '2',
+          data: {
+            label: 'Generate Draft',
+            type: 'llm',
+            config: { model: 'gpt-4' },
+          },
+        },
+        {
+          id: '3',
+          data: {
+            label: 'Proofread',
+            type: 'llm',
+            config: { model: 'gpt-4' },
+          },
+        },
+        {
+          id: '4',
+          data: {
+            label: 'Publish',
+            type: 'action',
+            config: {},
+          },
+        },
       ],
       edges: [
         { id: 'e1', source: '1', target: '2' },
@@ -162,10 +218,38 @@ async function main() {
     {
       name: 'Data Processing Workflow',
       nodes: [
-        { id: '1', type: 'trigger', data: { label: 'Data Ingest' } },
-        { id: '2', type: 'transform', data: { label: 'Clean Data' } },
-        { id: '3', type: 'llm', data: { label: 'Extract Insights' } },
-        { id: '4', type: 'action', data: { label: 'Save Results' } },
+        {
+          id: '1',
+          data: {
+            label: 'Data Ingest',
+            type: 'trigger',
+            config: {},
+          },
+        },
+        {
+          id: '2',
+          data: {
+            label: 'Clean Data',
+            type: 'transform',
+            config: {},
+          },
+        },
+        {
+          id: '3',
+          data: {
+            label: 'Extract Insights',
+            type: 'llm',
+            config: { model: 'gpt-4' },
+          },
+        },
+        {
+          id: '4',
+          data: {
+            label: 'Save Results',
+            type: 'action',
+            config: {},
+          },
+        },
       ],
       edges: [
         { id: 'e1', source: '1', target: '2' },
@@ -176,7 +260,7 @@ async function main() {
   ]
 
   for (const user of users) {
-    const workflowCount = randomInt(3, 15) // 3-15 workflows per user
+    const workflowCount = randomInt(20, 50) // 3-15 workflows per user
 
     for (let i = 0; i < workflowCount; i++) {
       const template = randomElement(workflowTemplates)

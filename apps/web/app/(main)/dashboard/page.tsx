@@ -4,17 +4,18 @@ import CredentialModal from '@/components/credentials/CredentialModal'
 import { DashboardExecutions } from '@/components/DashboardExecutions'
 import { WorkflowModal } from '@/components/workflow/WorkflowModal'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WorkflowsInfiniteResponse } from '@buzz8n/common/types'
 import { TabType, useDashboardStore } from '@/stores/dashboard'
 import { useInfiniteWorkflowsList } from '@/hooks/useWorkflow'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { useRouter, useSearchParams } from 'next/navigation'
 import CredentialsList from '@/components/CredentialsList'
-import { useCallback, useEffect, useState } from 'react'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import HeaderNav from '@/components/HeaderNav'
 import { isTabType } from '@/stores/dashboard'
+import { ChevronUp } from 'lucide-react'
 
 const DashboardPage = () => {
   const searchParams = useSearchParams()
@@ -23,7 +24,7 @@ const DashboardPage = () => {
 
   const [showWorkflowModal, setShowWorkflowModal] = useState(false)
   const [isClient, setIsClient] = useState(false)
-
+  const [scrollY, setScrollY] = useState(0)
   // Use infinite query for workflows
   const {
     data: infiniteWorkflowsData,
@@ -60,6 +61,16 @@ const DashboardPage = () => {
     },
     [router, setActiveTab],
   )
+
+  const notTop = useMemo(() => scrollY > 100, [scrollY])
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     setIsClient(true)
@@ -271,6 +282,16 @@ const DashboardPage = () => {
         <div className="mt-8">{renderTabContent()}</div>
       </div>
 
+      {notTop && (
+        <Button
+          onClick={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+          }}
+          className="fixed bottom-16 right-8 z-50 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground/90 p-2 rounded-full border border-border shadow-md"
+        >
+          <ChevronUp className="size-6" />
+        </Button>
+      )}
       <CredentialModal />
       <WorkflowModal open={showWorkflowModal} onOpenChange={setShowWorkflowModal} />
     </div>

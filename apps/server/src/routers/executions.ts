@@ -80,14 +80,19 @@ router.get('/execution', async (req: Request, res: Response, next: NextFunction)
       orderBy: {
         updatedAt: 'desc',
       },
-      take: limit,
+      take: limit + 1,
       ...(cursor && {
         cursor: { id: cursor },
         skip: 1,
       }),
     })
+    // Determine if there are more pages and set cursor
+    const hasNextPage = executions.length > limit
+    const actualExecutions = hasNextPage ? executions.slice(0, limit) : executions
+    const nextCursor = hasNextPage ? actualExecutions[actualExecutions.length - 1]?.id : undefined
+
     // Parse logs from JSON strings to objects for each execution
-    const parsedExecutions = executions.map((execution) => ({
+    const parsedExecutions = actualExecutions.map((execution) => ({
       ...execution,
       logs: execution.logs.map((log: any) => {
         try {
@@ -98,9 +103,6 @@ router.get('/execution', async (req: Request, res: Response, next: NextFunction)
         }
       }),
     }))
-
-    const nextCursor =
-      executions.length === limit ? executions[executions.length - 1]?.id : undefined
 
     res.status(200).json({ executions: parsedExecutions, cursor: nextCursor })
   } catch (error) {

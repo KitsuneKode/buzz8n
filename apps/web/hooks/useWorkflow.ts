@@ -463,7 +463,7 @@ export async function prefetchInfiniteExecutions(
 export function useInfiniteWorkflowsList(
   limit: number = 10,
 ): UseInfiniteQueryResult<InfiniteData<WorkflowsInfiniteResponse>, Error> {
-  return useInfiniteQuery<WorkflowsInfiniteResponse, Error>({
+  return useInfiniteQuery({
     queryKey: WORKFLOW_QUERY_KEYS.list({ infinite: true, limit }),
     queryFn: async ({ pageParam }): Promise<WorkflowsInfiniteResponse> => {
       const params = new URLSearchParams()
@@ -484,7 +484,7 @@ export function useInfiniteWorkflowsList(
 export function useInfiniteWorkflowExecutions(
   workflowId: string,
   limit: number = 10,
-): UseInfiniteQueryResult<ExecutionsInfiniteResponse, Error> {
+): UseInfiniteQueryResult<InfiniteData<ExecutionsInfiniteResponse>, Error> {
   return useInfiniteQuery({
     queryKey: ['workflows', 'executions', 'infinite', workflowId, { limit }],
     queryFn: async ({ pageParam }): Promise<ExecutionsInfiniteResponse> => {
