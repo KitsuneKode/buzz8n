@@ -26,9 +26,8 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
         },
         data: {
           logs: {
-            push: JSON.stringify(log),
+            push: log as unknown as any, // or Prisma.JsonValue
           },
-        },
       })
     }
     if (!execution) {
