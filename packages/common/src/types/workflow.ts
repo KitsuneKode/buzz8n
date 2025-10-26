@@ -97,6 +97,13 @@ export const nodeTemplateSchema = z.object({
 export const executionSchema = z.object({
   id: z.string(),
   workflowId: z.string(),
+  workflow: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      active: z.boolean(),
+    })
+    .optional(),
   status: executionStatusSchema,
   startedAt: z.date(),
   finishedAt: z.date().optional(),
@@ -105,11 +112,29 @@ export const executionSchema = z.object({
   logs: z.array(
     z.object({
       id: z.string(),
+      type: z.enum(['execution_complete', 'node_event']),
       timestamp: z.date(),
       nodeId: z.string(),
+      status: z.enum(['loading', 'success', 'error']),
       level: z.enum(['info', 'warn', 'error', 'debug']),
+      executionSummary: z.string().optional(),
       message: z.string(),
-      data: z.any().optional(),
+      context: z
+        .object({
+          input: z.any().optional(),
+          output: z.any().optional(),
+          error: z.any().optional(),
+          duration: z.number().optional(),
+          retryCount: z.number().optional(),
+        })
+        .optional(),
+      metadata: z
+        .object({
+          userId: z.string().optional(),
+          workflowId: z.string().optional(),
+          executionId: z.string().optional(),
+        })
+        .optional(),
     }),
   ),
 })
@@ -149,9 +174,18 @@ export const workflowListItemSchema = z.object({
 
 export const workflowsListResponseSchema = z.object({
   workflows: z.array(workflowListItemSchema),
-  total: z.number(),
-  page: z.number(),
-  limit: z.number(),
+  cursor: z.string().optional(),
+})
+
+// Infinite query response schemas (cursor-based pagination)
+export const workflowsInfiniteResponseSchema = z.object({
+  workflows: z.array(workflowListItemSchema),
+  cursor: z.string().optional(),
+})
+
+export const executionsInfiniteResponseSchema = z.object({
+  executions: z.array(executionSchema),
+  cursor: z.string().optional(),
 })
 
 // Type exports
@@ -167,6 +201,8 @@ export type Execution = z.infer<typeof executionSchema>
 export type WorkflowResponse = z.infer<typeof workflowResponseSchema>
 export type WorkflowListItem = z.infer<typeof workflowListItemSchema>
 export type WorkflowsListResponse = z.infer<typeof workflowsListResponseSchema>
+export type WorkflowsInfiniteResponse = z.infer<typeof workflowsInfiniteResponseSchema>
+export type ExecutionsInfiniteResponse = z.infer<typeof executionsInfiniteResponseSchema>
 
 // Frontend-specific types (extended for React Flow)
 // export interface WorkflowData extends Omit<Workflow, 'nodes' | 'edges'> {

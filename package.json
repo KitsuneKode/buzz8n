@@ -28,6 +28,7 @@
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "db:reset": "turbo run db:reset",
+    "db:seed": "turbo run db:seed",
     "db:studio": "turbo run db:studio",
     "redis:migrate": "turbo run redis:migrate",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",

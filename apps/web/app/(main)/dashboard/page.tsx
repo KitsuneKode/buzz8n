@@ -1,39 +1,65 @@
 'use client'
 
 import CredentialModal from '@/components/credentials/CredentialModal'
+import { DashboardExecutions } from '@/components/DashboardExecutions'
 import { WorkflowModal } from '@/components/workflow/WorkflowModal'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
+import { WorkflowsInfiniteResponse } from '@buzz8n/common/types'
 import { TabType, useDashboardStore } from '@/stores/dashboard'
-import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
-import ExecutionsTable from '@/components/ExecutionsTable'
+import { useInfiniteWorkflowsList } from '@/hooks/useWorkflow'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import { useRouter, useSearchParams } from 'next/navigation'
 import CredentialsList from '@/components/CredentialsList'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { useCallback, useEffect, useState } from 'react'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
-import { useSearchParams } from 'next/navigation'
 import HeaderNav from '@/components/HeaderNav'
 import { isTabType } from '@/stores/dashboard'
-import { useEffect, useState } from 'react'
 
 const DashboardPage = () => {
   const searchParams = useSearchParams()
-
-  const { activeTab, setActiveTab, credentials, executions, openCredentialModal } =
-    useDashboardStore()
+  const router = useRouter()
+  const { activeTab, setActiveTab, credentials, openCredentialModal } = useDashboardStore()
 
   const [showWorkflowModal, setShowWorkflowModal] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  // Fetch workflows list
-  const { data: workflows, isLoading: workflowsLoading } = useSuspenseQuery({
-    queryKey: ['workflows', 'list', { filters: { limit: 20 } }],
-    queryFn: () =>
-      prefetchWorkflowsList({
-        limit: 20,
-      }),
+
+  // Use infinite query for workflows
+  const {
+    data: infiniteWorkflowsData,
+    isLoading: workflowsLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteWorkflowsList(10)
+
+  // Flatten workflows data
+  const workflows =
+    infiniteWorkflowsData?.pages.flatMap((page: WorkflowsInfiniteResponse) =>
+      page.workflows.map((workflow) => ({
+        ...workflow,
+        createdAt: new Date(workflow.createdAt),
+        updatedAt: new Date(workflow.updatedAt),
+      })),
+    ) || []
+
+  // Use infinite scroll hook for workflows
+  const { sentinelRef: workflowsSentinelRef } = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   })
 
   const create = searchParams.get('create')
   const tab = searchParams.get('tab')
+
+  const onTabChange = useCallback(
+    (tab: TabType) => {
+      router.replace(`/dashboard?tab=${tab}`)
+      setActiveTab(tab)
+    },
+    [router, setActiveTab],
+  )
 
   useEffect(() => {
     setIsClient(true)
@@ -41,12 +67,12 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (tab && isTabType(tab as string)) {
-      setActiveTab(tab as TabType)
+      onTabChange(tab as TabType)
     }
     if (create && create !== undefined && create === 'true') {
       setShowWorkflowModal(true)
     }
-  }, [tab, create, setActiveTab])
+  }, [tab, create, onTabChange])
 
   const onCreateWorkflow = () => {
     setShowWorkflowModal(true)
@@ -158,11 +184,30 @@ const DashboardPage = () => {
                   ))}
                 </div>
               ) : workflows && workflows.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {workflows.map((workflow) => (
-                    <WorkflowCard key={workflow.id} workflow={workflow} />
-                  ))}
-                </div>
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {workflows.map((workflow) => (
+                      <WorkflowCard key={workflow.id} workflow={workflow} />
+                    ))}
+                  </div>
+
+                  {/* Infinite scroll sentinel for workflows */}
+                  <div ref={workflowsSentinelRef} className="py-4">
+                    {isFetchingNextPage && (
+                      <div className="flex items-center justify-center">
+                        <Spinner className="mr-2" />
+                        <span className="text-sm text-muted-foreground">
+                          Loading more workflows...
+                        </span>
+                      </div>
+                    )}
+                    {!hasNextPage && workflows.length > 0 && (
+                      <div className="text-center text-sm text-muted-foreground">
+                        No more workflows to load
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 <div className="text-center py-12">
                   <div className="text-4xl mb-4">🚀</div>
@@ -197,12 +242,12 @@ const DashboardPage = () => {
                 </Button>
               </div>
             ) : (
-              <CredentialsList credentials={credentials} />
+              <CredentialsList />
             )}
           </div>
         )
       case 'executions':
-        return <ExecutionsTable executions={executions} />
+        return <DashboardExecutions />
       case 'settings':
         return (
           <div className="text-center py-12">
@@ -219,7 +264,7 @@ const DashboardPage = () => {
     <div className="max-w-screen-xl mx-auto pt-18">
       <HeaderNav
         activeTab={activeTab}
-        onTabChange={setActiveTab}
+        onTabChange={onTabChange}
         onCreateWorkflow={onCreateWorkflow}
       />
       <div className="px-6 py-6">

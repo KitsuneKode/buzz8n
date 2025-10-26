@@ -1,7 +1,7 @@
 'use client'
 
-import { CheckCircle, Clock, Loader2, Play, XCircle } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { CheckCircle, Clock, Play, XCircle } from 'lucide-react'
 import { useExecuteWorkflow } from '@/hooks/useWorkflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'

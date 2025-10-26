@@ -36,9 +36,15 @@ export async function endExecutionSetStatus(
   await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // keep only inactive keys expiring
   if (count === 0) {
     if (status === 'success') {
-      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'success' } })
+      await prisma.workflow.update({
+        where: { id: workflowId },
+        data: { status: 'success' },
+      })
     } else {
-      await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'error' } })
+      await prisma.workflow.update({
+        where: { id: workflowId },
+        data: { status: 'error' },
+      })
     }
   }
   if (count < 0) {

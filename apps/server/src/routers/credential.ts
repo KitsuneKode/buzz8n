@@ -11,11 +11,21 @@ router.use('/credential', auth)
 router.get('/credential', async (req, res, next: NextFunction) => {
   try {
     const userId = req.user!.userId
+    const limit = parseInt((req.query.limit as string) || '20')
+    const cursor = req.query.cursor as string
 
     const credentials = await prisma.credential.findMany({
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor as string },
+        skip: 1,
+      }),
       where: {
         userId,
         archived: false,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
       select: {
         id: true,
@@ -101,7 +111,7 @@ router.delete('/credential', async (req: Request, res: Response, next: NextFunct
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2025') {
-        res.status(404).send('Credential with that id doesnot exists')
+        res.status(404).send('Credential with that id does not exists')
         return
       }
     }

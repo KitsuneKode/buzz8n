@@ -44,7 +44,7 @@ export function WorkflowClient() {
         isFitView: workflow.nodes.length > 3,
       })
     }
-  }, [workflow, setWorkflow, error, router])
+  }, [workflow, setWorkflow, error, router, setCurrentExecution])
 
   return (
     <div className="pt-16">

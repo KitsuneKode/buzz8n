@@ -19,6 +19,14 @@ export const credentialResponse = z.object({
 
 export type CredentialResponse = z.infer<typeof credentialResponse>
 
+// Infinite query response schema (cursor-based pagination)
+export const credentialsInfiniteResponseSchema = z.object({
+  credentials: z.array(credentialResponse),
+  cursor: z.string().optional(),
+})
+
+export type CredentialsInfiniteResponse = z.infer<typeof credentialsInfiniteResponseSchema>
+
 export const telegramFormSchema = z.object({
   name: z.string().trim().min(1, 'Credential name is required'),
   botToken: z

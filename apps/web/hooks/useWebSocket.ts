@@ -1,4 +1,19 @@
 import type { Execution, ExecutionLog } from '@buzz8n/common/types'
+import { API_URL } from '@/utils/config'
+import axios from 'axios'
+
+// Helper function to fetch full execution details
+const fetchFullExecutionDetails = async (executionId: string): Promise<Execution | null> => {
+  try {
+    const response = await axios.get<Execution>(`${API_URL}/execution/${executionId}`, {
+      withCredentials: true,
+    })
+    return response.data
+  } catch (error) {
+    console.error('Failed to fetch execution details:', error)
+    return null
+  }
+}
 import { toast } from '@buzz8n/ui/components/sonner'
 import { WS_URL } from '@/utils/config'
 import { create } from 'zustand'
@@ -97,9 +112,22 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
                 summary: message.executionSummary,
                 finishedAt: message.finishedAt,
                 durationMs: message.durationMs,
+                logs: message.logs || currentExecution.logs, // Include logs if available
               }
               console.log('🔄 Setting current execution:', newExecution)
               setCurrentExecution(newExecution)
+
+              // Fetch full execution details from the database
+              fetchFullExecutionDetails(currentExecution.id)
+                .then((fullExecution) => {
+                  if (fullExecution) {
+                    console.log('📊 Fetched full execution details:', fullExecution)
+                    setCurrentExecution(fullExecution)
+                  }
+                })
+                .catch((error) => {
+                  console.error('❌ Failed to fetch full execution details:', error)
+                })
             }
           })
 

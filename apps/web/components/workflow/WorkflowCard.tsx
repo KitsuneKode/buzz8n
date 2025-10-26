@@ -11,8 +11,8 @@ import {
   AlertDialogTrigger,
 } from '@buzz8n/ui/components/alert-dialog'
 
+import { CheckCircle, Clock, Pause, Play, RotateCcw, Trash, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
-import { CheckCircle, Pause, Play, RotateCcw, Trash, XCircle } from 'lucide-react'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { WorkflowListData } from '@buzz8n/common/types'
 import { useDeleteWorkflow } from '@/hooks/useWorkflow'
@@ -142,7 +142,12 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
               Running
             </Button>
           )}
-
+          {workflow.status == 'initial' && (
+            <Button variant="outline" size="sm" disabled>
+              <Clock className="mr-2 size-4" />
+              Not Executed
+            </Button>
+          )}
           {workflow.status == 'success' && (
             <Button variant="outline" size="sm" disabled className="bg-green-600/40 text-green-300">
               <CheckCircle className="mr-2 size-4" />

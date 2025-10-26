@@ -6,17 +6,31 @@ import { redis } from '@/redis'
 export const publishNodeEvent = async (executionId: string, log: ExecutionLog) => {
   try {
     await redis.publishExecutionEvent(executionId, log)
-    const execution = await prisma.execution.update({
-      where: {
-        id: executionId,
-      },
-      data: {
-        logs: {
-          push: JSON.stringify(log),
+    let execution = null
+    if (log.type === 'execution_complete') {
+      execution = await prisma.execution.update({
+        where: {
+          id: executionId,
         },
-      },
-    })
-
+        data: {
+          status: log.status,
+          summary: log.executionSummary,
+          finishedAt: new Date(),
+          durationMs: Date.now() - (log.timestamp.getTime() - 1000),
+        },
+      })
+    } else {
+      execution = await prisma.execution.update({
+        where: {
+          id: executionId,
+        },
+        data: {
+          logs: {
+            push: JSON.stringify(log),
+          },
+        },
+      })
+    }
     if (!execution) {
       logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
       throw new Error(`[DB]Execution not found: ${executionId}`)

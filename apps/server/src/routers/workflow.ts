@@ -18,10 +18,17 @@ router.get('/workflow', async (req: Request, res: Response, next: NextFunction) 
     const userId = req.user!.userId
 
     const workflowList = await prisma.workflow.findMany({
-      take: limit,
+      take: limit + 1,
+      ...(cursor && {
+        cursor: { id: cursor as string },
+        skip: 1,
+      }),
       where: {
         archived: false,
         userId,
+      },
+      orderBy: {
+        updatedAt: 'desc',
       },
       select: {
         id: true,
@@ -34,7 +41,9 @@ router.get('/workflow', async (req: Request, res: Response, next: NextFunction) 
       },
     })
 
-    res.status(200).json({ workflows: workflowList })
+    const nextCursor =
+      workflowList.length === limit ? workflowList[workflowList.length - 1]?.id : undefined
+    res.status(200).json({ workflows: workflowList, cursor: nextCursor })
   } catch (error) {
     next(error)
   }
@@ -59,7 +68,7 @@ router.get('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
     })
 
     if (!workflow) {
-      res.status(404).send('Page not found')
+      res.status(404).send('Data not found')
       return
     }
 
@@ -333,6 +342,64 @@ router.delete('/workflow/:id', async (req: Request, res: Response, next: NextFun
         return
       }
     }
+    next(error)
+  }
+})
+
+router.get('/workflow/:id/executions', async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const workflowId = req.params.id
+    const limit = parseInt((req.query.limit as string) || '20')
+    const cursor = req.query.cursor as string
+
+    if (!workflowId) {
+      res.status(422).send('Invalid Data')
+      return
+    }
+
+    const userId = req.user!.userId
+
+    const executions = await prisma.execution.findMany({
+      where: {
+        workflowId,
+        userId,
+      },
+      include: {
+        workflow: {
+          select: {
+            id: true,
+            name: true,
+            active: true,
+          },
+        },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      take: limit,
+      ...(cursor && {
+        cursor: { id: cursor },
+        skip: 1,
+      }),
+    })
+
+    // Parse logs from JSON strings to objects for each execution
+    const parsedExecutions = executions.map((execution) => ({
+      ...execution,
+      logs: execution.logs.map((log: any) => {
+        try {
+          return typeof log === 'string' ? JSON.parse(log) : log
+        } catch (error) {
+          console.error('Failed to parse log:', log, error)
+          return log
+        }
+      }),
+    }))
+
+    const nextCursor =
+      executions.length === limit ? executions[executions.length - 1]?.id : undefined
+    res.status(200).json({ executions: parsedExecutions, cursor: nextCursor })
+  } catch (error) {
     next(error)
   }
 })

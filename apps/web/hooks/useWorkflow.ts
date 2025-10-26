@@ -3,6 +3,8 @@
 import {
   WorkflowResponse,
   WorkflowsListResponse,
+  WorkflowsInfiniteResponse,
+  ExecutionsInfiniteResponse,
   WorkflowListItem,
   CreateWorkflow,
   UpdateWorkflow,
@@ -13,9 +15,12 @@ import {
 import {
   useMutation,
   useQuery,
+  useInfiniteQuery,
   useQueryClient,
   UseQueryResult,
+  UseInfiniteQueryResult,
   UseMutationResult,
+  InfiniteData,
 } from '@tanstack/react-query'
 import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
@@ -388,4 +393,202 @@ export async function prefetchWorkflowsList(
   } catch {
     return []
   }
+}
+
+// Server-side prefetch workflows list for infinite queries
+export async function prefetchInfiniteWorkflowsList(
+  limit: number = 10,
+  cookieHeader?: string,
+): Promise<WorkflowsInfiniteResponse> {
+  try {
+    const params = new URLSearchParams()
+    params.append('limit', limit.toString())
+
+    let config
+    if (cookieHeader) {
+      config = {
+        headers: {
+          Cookie: cookieHeader,
+        },
+      }
+    } else {
+      config = {
+        withCredentials: true,
+      }
+    }
+
+    const response = await axios.get<WorkflowsInfiniteResponse>(
+      `${API_URL}/workflow?${params.toString()}`,
+      config,
+    )
+    return response.data
+  } catch {
+    return { workflows: [], cursor: undefined }
+  }
+}
+
+// Server-side prefetch executions for infinite queries
+export async function prefetchInfiniteExecutions(
+  limit: number = 10,
+  cookieHeader?: string,
+): Promise<ExecutionsInfiniteResponse> {
+  try {
+    const params = new URLSearchParams()
+    params.append('limit', limit.toString())
+
+    let config
+    if (cookieHeader) {
+      config = {
+        headers: {
+          Cookie: cookieHeader,
+        },
+      }
+    } else {
+      config = {
+        withCredentials: true,
+      }
+    }
+
+    const response = await axios.get<ExecutionsInfiniteResponse>(
+      `${API_URL}/execution?${params.toString()}`,
+      config,
+    )
+    return response.data
+  } catch {
+    return { executions: [], cursor: undefined }
+  }
+}
+
+// Fetch workflows list with infinite scrolling support
+export function useInfiniteWorkflowsList(
+  limit: number = 10,
+): UseInfiniteQueryResult<InfiniteData<WorkflowsInfiniteResponse>, Error> {
+  return useInfiniteQuery<WorkflowsInfiniteResponse, Error>({
+    queryKey: WORKFLOW_QUERY_KEYS.list({ infinite: true, limit }),
+    queryFn: async ({ pageParam }): Promise<WorkflowsInfiniteResponse> => {
+      const params = new URLSearchParams()
+      params.append('limit', limit.toString())
+      if (pageParam) params.append('cursor', pageParam as unknown as string)
+      const response = await axios.get<WorkflowsInfiniteResponse>(
+        `${API_URL}/workflow?${params.toString()}`,
+        { withCredentials: true },
+      )
+      return response.data
+    },
+    getNextPageParam: (lastPage) => lastPage.cursor || undefined,
+    initialPageParam: undefined as string | undefined,
+    staleTime: 2 * 60 * 1000,
+  })
+}
+// Fetch executions for a workflow with infinite scrolling support
+export function useInfiniteWorkflowExecutions(
+  workflowId: string,
+  limit: number = 10,
+): UseInfiniteQueryResult<ExecutionsInfiniteResponse, Error> {
+  return useInfiniteQuery({
+    queryKey: ['workflows', 'executions', 'infinite', workflowId, { limit }],
+    queryFn: async ({ pageParam }): Promise<ExecutionsInfiniteResponse> => {
+      const params = new URLSearchParams()
+      params.append('limit', limit.toString())
+      if (pageParam) {
+        params.append('cursor', pageParam)
+      }
+
+      const response = await axios.get<ExecutionsInfiniteResponse>(
+        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
+        {
+          withCredentials: true,
+        },
+      )
+      return response.data
+    },
+    getNextPageParam: (lastPage): string | undefined => lastPage.cursor || undefined,
+    initialPageParam: undefined as string | undefined,
+    enabled: !!workflowId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+// Fetch all executions with infinite scrolling support
+export function useInfiniteExecutions(
+  limit: number = 10,
+): UseInfiniteQueryResult<InfiniteData<ExecutionsInfiniteResponse>, Error> {
+  return useInfiniteQuery({
+    queryKey: ['executions', 'infinite', { limit }],
+    queryFn: async ({ pageParam }): Promise<ExecutionsInfiniteResponse> => {
+      const params = new URLSearchParams()
+      params.append('limit', limit.toString())
+      if (pageParam) {
+        params.append('cursor', pageParam)
+      }
+
+      const response = await axios.get<ExecutionsInfiniteResponse>(
+        `${API_URL}/execution?${params.toString()}`,
+        {
+          withCredentials: true,
+        },
+      )
+      return response.data
+    },
+    getNextPageParam: (lastPage): string | undefined => lastPage.cursor || undefined,
+    initialPageParam: undefined as string | undefined,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+// Fetch executions for a workflow (legacy - kept for backward compatibility)
+export function useWorkflowExecutions(
+  workflowId: string,
+  filters: { limit?: number; cursor?: string } = {},
+): UseQueryResult<Execution[], Error> {
+  return useQuery({
+    queryKey: ['workflows', 'executions', workflowId, filters],
+    queryFn: async (): Promise<Execution[]> => {
+      const params = new URLSearchParams()
+      if (filters.limit) params.append('limit', filters.limit.toString())
+      if (filters.cursor) params.append('cursor', filters.cursor)
+
+      const response = await axios.get<{ executions: Execution[] }>(
+        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
+        {
+          withCredentials: true,
+        },
+      )
+      return response.data.executions.map((execution) => ({
+        ...execution,
+        startedAt: new Date(execution.startedAt),
+        finishedAt: execution.finishedAt ? new Date(execution.finishedAt) : undefined,
+        logs: execution.logs.map((log) => ({
+          ...log,
+          timestamp: new Date(log.timestamp),
+        })),
+      }))
+    },
+    enabled: !!workflowId,
+    staleTime: 2 * 60 * 1000, // 2 minutes
+  })
+}
+
+// Fetch single execution details
+export function useExecutionDetail(executionId: string): UseQueryResult<Execution, Error> {
+  return useQuery({
+    queryKey: ['executions', 'detail', executionId],
+    queryFn: async (): Promise<Execution> => {
+      const response = await axios.get<Execution>(`${API_URL}/execution/${executionId}`, {
+        withCredentials: true,
+      })
+      const execution = response.data
+      return {
+        ...execution,
+        startedAt: new Date(execution.startedAt),
+        finishedAt: execution.finishedAt ? new Date(execution.finishedAt) : undefined,
+        logs: execution.logs.map((log) => ({
+          ...log,
+          timestamp: new Date(log.timestamp),
+        })),
+      }
+    },
+    enabled: !!executionId,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  })
 }

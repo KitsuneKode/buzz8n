@@ -301,6 +301,7 @@ export async function executeGraphConcurrent(
     if (completed.has(id)) return false
 
     const node = nodeMap.get(id)!
+    startTimes.set('execution', Date.now())
     const p = (async () => {
       // Mark start
       startTimes.set(id, Date.now())
@@ -493,14 +494,12 @@ export async function executeGraphConcurrent(
 
   const executionSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`
 
-  // TODO: Publish execution summary to Redis for frontend
-
   await endExecutionSetStatus(ctx.$json.workflowId, success ? 'success' : 'error')
   // Publish execution completion event
   await publishNodeEvent(ctx.$json.executionId, {
     id: `execution_complete_${Date.now()}`,
     type: 'execution_complete',
-    timestamp: new Date(),
+    timestamp: new Date(startTimes.get('execution')!),
     nodeId: 'execution',
     status: success ? 'success' : 'error',
     level: success ? 'info' : 'error',

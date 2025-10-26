@@ -4,6 +4,7 @@ import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { backendConfig } from '@buzz8n/backend-common/config'
 import { credentialRouter } from '@/routers/credential'
+import { executionRouter } from '@/routers/executions'
 import { workflowRouter } from '@/routers/workflow'
 import { webhookRouter } from '@/routers/webhook'
 import { corsConfig } from '@/utils/cors-config'
@@ -26,7 +27,7 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter, credentialRouter, workflowRouter]
+const routers = [authRouter, credentialRouter, workflowRouter, executionRouter]
 
 routers.forEach((router) => app.use('/api/v1', router))
 

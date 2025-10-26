@@ -82,6 +82,7 @@ interface WorkflowEditorState {
   updateNodeStatus: (nodeId: string, status: string) => void
   clearLogs: () => void
   loadExecutionHistory: (executions: Execution[]) => void
+  getNodeExecutionLog: (nodeId: string) => ExecutionLog | null
 }
 
 // Sample node templates
@@ -421,6 +422,13 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     set((state) => ({
       executionHistory: [...state.executionHistory, ...executions],
     }))
+  },
+
+  getNodeExecutionLog: (nodeId) => {
+    const { currentExecution } = get()
+    if (!currentExecution) return null
+
+    return currentExecution.logs.find((log) => log.nodeId === nodeId) || null
   },
   updateNodeConfig: (id, patch) => {
     set((state) => ({
