@@ -58,7 +58,7 @@ const transformWorkflowListItem = (response: WorkflowListItem): WorkflowListData
     name: response.name,
     active: response.active,
     userId: response.userId,
-
+    status: response.status,
     createdAt: new Date(response.createdAt),
     updatedAt: new Date(response.updatedAt),
   }
@@ -154,6 +154,7 @@ export function useCreateWorkflow(): UseMutationResult<
 type UpdateWorkflowArgs = {
   id: string
   data: UpdateWorkflow
+  activeChange?: boolean
 }
 // Update workflow mutation
 export function useUpdateWorkflow(): UseMutationResult<
@@ -172,7 +173,7 @@ export function useUpdateWorkflow(): UseMutationResult<
       })
       return transformWorkflowResponse(response.data)
     },
-    onSuccess: (workflow) => {
+    onSuccess: (workflow, { activeChange }) => {
       // Update cache
 
       queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(workflow.id), workflow)
@@ -181,7 +182,13 @@ export function useUpdateWorkflow(): UseMutationResult<
       queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
 
       saveWorkflow(workflow)
-      toast.success('Workflow updated successfully')
+      if (activeChange) {
+        toast.success(
+          workflow.active ? 'Workflow activated successfully' : 'Workflow deactivated successfully',
+        )
+      } else {
+        toast.success('Workflow updated successfully')
+      }
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Failed to update workflow'

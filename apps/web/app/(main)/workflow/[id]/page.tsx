@@ -3,9 +3,7 @@ import { getQueryClient } from '@/utils/get-query-client'
 import { prefetchWorkflow } from '@/hooks/useWorkflow'
 import { notFound, redirect } from 'next/navigation'
 import { WorkflowClient } from './workflow-client'
-import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
-import axios from 'axios'
 
 interface WorkflowPageProps {
   params: Promise<{ id: string }>

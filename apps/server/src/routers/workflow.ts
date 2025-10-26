@@ -28,6 +28,7 @@ router.get('/workflow', async (req: Request, res: Response, next: NextFunction) 
         createdAt: true,
         active: true,
         name: true,
+        status: true,
         updatedAt: true,
         userId: true,
       },
@@ -130,9 +131,10 @@ router.post('/workflow/:id/execute', async (req: Request, res: Response, next: N
       return
     }
 
-    // if(workflow.active){
-    //   throw new Error('Workflow already executing', {cause: 'rate-limit'})
-    // }
+    if (!workflow.active) {
+      res.status(409).send('Workflow is not active to execute. Please activate the workflow first.')
+      return
+    }
 
     const execution = await prisma.execution.create({
       data: {

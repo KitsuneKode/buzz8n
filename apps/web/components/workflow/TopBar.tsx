@@ -10,15 +10,21 @@ import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
-//TODO:Fix the functionality of the top bar
+
 export function TopBar() {
   const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
-  const handleToggleActive = () => {
-    // TODO:Toogle active state
+  const handleToggleActive = (checked: boolean) => {
+    if (!workflow || isSaving) return
 
-    console.log('Toggle active state')
+    saveWorkflowMutate({
+      id: workflow.id,
+      data: {
+        active: checked,
+      },
+      activeChange: true,
+    })
   }
 
   const handleShare = async () => {
@@ -64,7 +70,7 @@ export function TopBar() {
             <TabsList className="bg-muted">
               <TabsTrigger value="editor">Editor</TabsTrigger>
               <TabsTrigger value="executions">Executions</TabsTrigger>
-              <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
+              {/* <TabsTrigger value="evaluations">Evaluations</TabsTrigger> */}
             </TabsList>
           </Tabs>
         </div>
@@ -72,15 +78,20 @@ export function TopBar() {
         {/* Right: Controls */}
         <div className="flex items-center space-x-4">
           {/* Active/Inactive toggle */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 relative w-fit">
             <Label htmlFor="active-toggle" className="text-sm">
               {workflow.active ? 'Active' : 'Inactive'}
             </Label>
-            <Switch
-              id="active-toggle"
-              checked={workflow.active}
-              onCheckedChange={handleToggleActive}
-            />
+            {isSaving ? (
+              <Spinner className="size-4 " />
+            ) : (
+              <Switch
+                id="active-toggle"
+                checked={workflow.active}
+                onCheckedChange={handleToggleActive}
+                disabled={isSaving}
+              />
+            )}
           </div>
 
           {/* Share button */}

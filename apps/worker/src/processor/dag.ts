@@ -376,7 +376,7 @@ export async function executeGraphConcurrent(
       timeline.push({ t: Date.now(), ev: 'node_succeeded', id })
       logger?.info('[DAG] node_succeeded:', { nodeId: id, durationMs: dur })
 
-      // TODO: Publish node success to Redis for real-time frontend updates
+      // Publish node success to real-time frontend updates
       const successLog = nodeResultToExecutionLog(
         id,
         node,
@@ -413,7 +413,7 @@ export async function executeGraphConcurrent(
         })
         logger?.warn('[DAG] node_failed:', { nodeId: id, error: String(err?.message ?? err) })
 
-        // Publish node failure to Redis for real-time frontend updates
+        // Publish node failure to real-time frontend updates
         const failureLog = nodeResultToExecutionLog(
           id,
           node,
@@ -494,40 +494,30 @@ export async function executeGraphConcurrent(
   const executionSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`
 
   // TODO: Publish execution summary to Redis for frontend
-  // const executionLogs: ExecutionLog[] = []
-  // for (const id of executionOrder) {
-  //   const node = nodeMap.get(id)!
-  //   const error = failedNodes.get(id)
-  //   const log = nodeResultToExecutionLog(id, node, ctx, startTimes.get(id), finishTimes.get(id), error, metadata)
-  //   executionLogs.push(log)
-  // }
-  // await redis.publish(`execution:${metadata?.executionId}:summary`, JSON.stringify({ summary, logs: executionLogs }))
-  await endExecutionSetStatus(ctx.$json.workflowId, 'success') // DECR + TTL + status flip on zero
 
+  await endExecutionSetStatus(ctx.$json.workflowId, success ? 'success' : 'error')
   // Publish execution completion event
-  if (metadata?.executionId) {
-    await publishNodeEvent(metadata.executionId, {
-      id: `execution_complete_${Date.now()}`,
-      type: 'execution_complete',
-      timestamp: new Date(),
-      nodeId: 'execution',
-      status: success ? 'success' : 'error',
-      level: success ? 'info' : 'error',
-      executionSummary,
-      message: success
-        ? `Execution completed successfully: ${completed.size}/${nodeMap.size} nodes completed`
-        : `Execution failed: ${failedNodes.size} nodes failed`,
-      context: {
-        input: { total: nodeMap.size },
-        output: {
-          completed: completed.size,
-          failed: failedNodes.size,
-          success,
-        },
+  await publishNodeEvent(ctx.$json.executionId, {
+    id: `execution_complete_${Date.now()}`,
+    type: 'execution_complete',
+    timestamp: new Date(),
+    nodeId: 'execution',
+    status: success ? 'success' : 'error',
+    level: success ? 'info' : 'error',
+    executionSummary,
+    message: success
+      ? `Execution completed successfully: ${completed.size}/${nodeMap.size} nodes completed`
+      : `Execution failed: ${failedNodes.size} nodes failed`,
+    context: {
+      input: { total: nodeMap.size },
+      output: {
+        completed: completed.size,
+        failed: failedNodes.size,
+        success,
       },
-      metadata,
-    })
-  }
+    },
+    metadata,
+  })
 
   if (failFast && failed) throw new Error('Execution FAILED')
   if (completed.size !== nodeMap.size)

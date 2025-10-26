@@ -112,8 +112,7 @@ export const processResponse = async ({
     validateDAG(children, indegree)
 
     // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-    const triggerPayload =
-      (payload as any)?.data ?? (execution?.output as any)?.triggerPayload ?? {}
+    const triggerPayload = (payload as any)?.data ?? (execution?.logs as any)?.triggerPayload ?? {}
 
     const ctx: ExecContext = {
       $json: { body: triggerPayload, executionId, workflowId },
@@ -128,10 +127,6 @@ export const processResponse = async ({
     })
 
     logger.info(`Execution finished successfully for ${executionId} `)
-    //TODO: Publish the status of the workflow to redis to use it in fe
-    // TODO: Extract ExecutionLog entries from ctx and persist/publish them
-    // const logs = generateExecutionLogs(ctx, nodeMap, metadata)
-    // await redis.publish(`execution:${executionId}:complete`, JSON.stringify(logs))
   } catch (err) {
     // This error now appears AFTER all async nodes have settled
     logger.warn(`Error executing the workflow:${workflowId}`, err)

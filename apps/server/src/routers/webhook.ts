@@ -33,6 +33,7 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
         workflow: {
           select: {
             userId: true,
+            active: true,
           },
         },
         secret: true,
@@ -48,6 +49,11 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
 
     if (webhook.secret && webhook.secret !== secret_token) {
       res.status(403).send('Webhook called with invalid secret. Not authorized')
+      return
+    }
+
+    if (!webhook.workflow.active) {
+      res.status(409).send('Workflow is not active to execute. Please activate the workflow first.')
       return
     }
 

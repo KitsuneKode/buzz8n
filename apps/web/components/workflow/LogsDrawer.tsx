@@ -85,6 +85,12 @@ export function LogsDrawer() {
             >
               {currentExecution.status}
             </Badge>
+
+            <div className="flex items-center space-x-2">
+              {currentExecution.summary && (
+                <span className="text-sm text-muted-foreground">{currentExecution.summary}</span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center space-x-2">

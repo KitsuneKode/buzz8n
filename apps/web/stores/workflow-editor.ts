@@ -78,7 +78,7 @@ interface WorkflowEditorState {
   saveWorkflow: (updatedWorkflow: WorkflowData) => void
 
   // Execution actions
-  addExecutionLog: (log: Omit<ExecutionLog, 'id'>) => void
+  addExecutionLog: (log: ExecutionLog) => void
   updateNodeStatus: (nodeId: string, status: string) => void
   clearLogs: () => void
   loadExecutionHistory: (executions: Execution[]) => void
@@ -158,11 +158,19 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   // Canvas actions
   onNodesChange: (changes) => {
     // Filter out selection-only changes to avoid setting isDirty on node selection
+
     const meaningfulChanges = changes.filter((change) => {
       if (change.type === 'select') {
         return false // Don't mark as dirty for selection changes
       }
-      return true // Keep all other changes (add, remove, position, etc.)
+
+      // Filter out position and dimension changes that don't affect workflow logic
+      // These are typically triggered by React Flow's internal state management
+      if (change.type === 'position' || change.type === 'dimensions') {
+        return false
+      }
+
+      return true // Keep all other changes (add, remove, etc.)
     })
 
     set((state) => ({
@@ -364,35 +372,38 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
 
   setCurrentExecution: (execution) => {
     set((state) => ({
-      currentExecution: execution ? execution : null,
+      currentExecution: execution,
       executionHistory: execution ? [execution, ...state.executionHistory] : state.executionHistory,
     }))
   },
 
   addExecutionLog: (logData) => {
-    const log: ExecutionLog = {
-      id: `log_${Date.now()}`,
-      ...logData,
-    }
-
     set((state) => ({
       currentExecution: state.currentExecution
         ? {
             ...state.currentExecution,
-            logs: [...state.currentExecution.logs, log],
+            logs: [...state.currentExecution.logs, logData],
           }
         : null,
     }))
   },
 
   updateNodeStatus: (nodeId, status) => {
-    set((state) => ({
-      nodes: state.nodes.map((node) =>
+    set((state) => {
+      const updatedNodes = state.nodes.map((node) =>
         node.id === nodeId
           ? { ...node, data: { ...node.data, status: status as ExecutionStatus } }
           : node,
-      ),
-    }))
+      )
+
+      // Check if status actually changed to avoid unnecessary re-renders
+      const node = state.nodes.find((n) => n.id === nodeId)
+      if (node?.data.status === status) {
+        return state // No change, return current state
+      }
+
+      return { nodes: updatedNodes }
+    })
   },
 
   clearLogs: () => {

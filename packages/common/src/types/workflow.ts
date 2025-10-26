@@ -129,6 +129,7 @@ export const workflowResponseSchema = z.object({
   active: z.boolean(),
   nodes: nodesSchema,
   edges: edgesSchema,
+  status: executionStatusSchema,
   userId: z.string(),
   archived: z.boolean(),
   createdAt: z.string(), // ISO string from API
@@ -140,6 +141,7 @@ export const workflowListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   active: z.boolean(),
+  status: executionStatusSchema,
   userId: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -217,11 +219,20 @@ export interface NodeCategory {
 // export type WorkflowEvent = z.infer<typeof workflowEventSchema>
 
 // WebSocket message types for type safety
-export const webSocketMessageSchema = z.object({
-  type: z.enum(['subscribe', 'unsubscribe', 'ping', 'pong']),
+export const subscribeMessageType = z.object({
+  type: z.literal('subscribe'),
   workflowId: z.string(),
   executionId: z.string(),
 })
+
+export const unsubscribeMessageType = z.object({
+  type: z.literal('unsubscribe'),
+})
+
+export const webSocketMessageSchema = z.discriminatedUnion('type', [
+  subscribeMessageType,
+  unsubscribeMessageType,
+])
 
 export type WebSocketMessage = z.infer<typeof webSocketMessageSchema>
 

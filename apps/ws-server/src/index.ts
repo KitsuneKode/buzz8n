@@ -102,10 +102,9 @@ Bun.serve<WebSocketData>({
             if (ws.readyState === WebSocket.OPEN) {
               logger.info(
                 `📤 Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
-                { message },
+                { type: JSON.parse(message).type },
               )
 
-              console.log('message.type', JSON.parse(message).type)
               ws.send(message)
             }
           })

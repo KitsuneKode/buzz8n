@@ -40,8 +40,11 @@ export function WorkflowEditor() {
 
   // Connect WebSocket on mount
   useEffect(() => {
-    const { connect } = useWebSocketStore.getState()
+    const { connect, disconnect } = useWebSocketStore.getState()
     connect()
+    return () => {
+      disconnect()
+    }
   }, [])
 
   const handleKeyDown = useCallback(

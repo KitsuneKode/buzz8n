@@ -25,7 +25,7 @@ export function WorkflowClient() {
     staleTime: Infinity, // Data never goes stale - only refetch on explicit invalidation
   })
 
-  const { setWorkflow } = useWorkflowEditorStore()
+  const { setWorkflow, setCurrentExecution } = useWorkflowEditorStore()
 
   // Only initialize workflow once when ID changes, not when workflow data changes
   useEffect(() => {
@@ -39,6 +39,7 @@ export function WorkflowClient() {
     if (workflow && initializedWorkflowId.current !== workflow.id) {
       initializedWorkflowId.current = workflow.id
       setWorkflow(workflow)
+      setCurrentExecution(null)
       useWorkflowEditorStore.setState({
         isFitView: workflow.nodes.length > 3,
       })

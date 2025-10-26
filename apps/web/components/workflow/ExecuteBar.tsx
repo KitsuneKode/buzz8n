@@ -1,6 +1,6 @@
 'use client'
 
-import { Play, RotateCcw, Clock, CheckCircle, XCircle } from 'lucide-react'
+import { CheckCircle, Clock, Loader2, Play, XCircle } from 'lucide-react'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { useExecuteWorkflow } from '@/hooks/useWorkflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
@@ -28,7 +28,8 @@ export function ExecuteBar() {
 
     switch (currentExecution.status) {
       case 'loading':
-        return <RotateCcw className="w-4 h-4 animate-spin" />
+        return null
+      // return <Spinner className="size-4" />
       case 'success':
         return <CheckCircle className="w-4 h-4 text-green-500" />
       case 'error':
@@ -54,77 +55,81 @@ export function ExecuteBar() {
   }
 
   if (nodes.length === 0) return null
-
   return (
-    <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">
-      <div className="bg-card border border-border rounded-lg shadow-lg p-4 flex items-center space-x-4">
-        {/* Execute Button */}
-        {!currentExecution && (
-          <Button
-            onClick={() => {
-              if (!workflow || isPending || !canExecute) return
+    <div className="relative">
+      {/* other page content */}
 
-              executeWorkflowMutate(workflow.id)
-            }}
-            disabled={!canExecute || isPending}
-            className="flex items-center space-x-2"
-            variant={isPending ? 'destructive' : 'default'}
-          >
-            {isPending ? (
-              <>
-                <Spinner className="size-4" />
-                {/* <Square className="w-4 h-4" /> */}
-                {/* <span>Stop execution</span> */}
-              </>
-            ) : (
-              <>
-                <Play className="w-4 h-4" />
-                <span>Execute workflow</span>
-              </>
-            )}
-          </Button>
-        )}
+      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10">
+        <div className="bg-card border border-border rounded-lg shadow-lg p-4 flex items-center gap-4">
+          {currentExecution?.status === 'loading' ? (
+            <Spinner className="size-6 ml-4 mb-0 mt-6 inline-block" />
+          ) : (
+            <Button
+              onClick={() => {
+                if (!workflow || isPending || !canExecute) return
 
-        {/* Execution Status */}
-        {currentExecution && (
-          <div className="flex items-center space-x-2">
-            {getExecutionStatusIcon()}
-            <span className="text-sm text-muted-foreground">{getExecutionStatusText()}</span>
-            <Badge
-              variant={
-                currentExecution.status === 'success'
-                  ? 'default'
-                  : currentExecution.status === 'error'
-                    ? 'destructive'
-                    : 'secondary'
-              }
+                executeWorkflowMutate(workflow.id)
+              }}
+              disabled={!canExecute || isPending}
+              className="flex items-center space-x-2"
+              variant={isPending ? 'destructive' : 'default'}
             >
-              {currentExecution.status}
-            </Badge>
-          </div>
-        )}
+              {isPending ? (
+                <>
+                  <Spinner className="size-4" />
+                  {/* <Square className="w-4 h-4" /> */}
+                  {/* <span>Stop execution</span> */}
+                </>
+              ) : (
+                <>
+                  <Play className="w-4 h-4" />
+                  <span>Execute workflow</span>
+                </>
+              )}
+            </Button>
+          )}
 
-        {/* Logs Button */}
-        {currentExecution && currentExecution.logs.length > 0 && (
-          <Button variant="outline" size="sm" onClick={toggleLogsDrawer}>
-            View logs ({currentExecution.logs.length})
-          </Button>
-        )}
+          {/* Execution Status */}
+          {currentExecution && (
+            <div className="flex items-center space-x-2">
+              {getExecutionStatusIcon()}
+              <span className="text-sm text-muted-foreground">{getExecutionStatusText()}</span>
+              <Badge
+                variant={
+                  currentExecution.status === 'success'
+                    ? 'default'
+                    : currentExecution.status === 'error'
+                      ? 'destructive'
+                      : 'secondary'
+                }
+              >
+                {currentExecution.status}
+              </Badge>
+            </div>
+          )}
 
-        {!hasManualTrigger && nodes.length > 0 && (
-          <div className="text-xs text-amber-600 flex items-center space-x-1">
-            <Clock className="w-3 h-3" />
-            <span>Add a manual trigger to execute this workflow</span>
-          </div>
-        )}
+          {/* Logs Button */}
+          {currentExecution && currentExecution.logs.length > 0 && (
+            <Button variant="outline" size="sm" onClick={toggleLogsDrawer}>
+              View logs ({currentExecution.logs.length})
+            </Button>
+          )}
 
-        {/* Manual Trigger Warning */}
-        {!hasManualTrigger && !hasWebhook && nodes.length > 0 && (
-          <div className="text-xs text-amber-600 flex items-center space-x-1">
-            <Clock className="w-3 h-3" />
-            <span>Add a trigger to activate this workflow</span>
-          </div>
-        )}
+          {!hasManualTrigger && nodes.length > 0 && (
+            <div className="text-xs text-amber-600 flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>Add a manual trigger to execute this workflow</span>
+            </div>
+          )}
+
+          {/* Manual Trigger Warning */}
+          {!hasManualTrigger && !hasWebhook && nodes.length > 0 && (
+            <div className="text-xs text-amber-600 flex items-center space-x-1">
+              <Clock className="w-3 h-3" />
+              <span>Add a trigger to activate this workflow</span>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )

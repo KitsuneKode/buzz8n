@@ -1,6 +1,5 @@
-import type { ExecutionLog } from '@buzz8n/common/types'
+import type { Execution, ExecutionLog } from '@buzz8n/common/types'
 import { toast } from '@buzz8n/ui/components/sonner'
-import { unsubscribe } from 'diagnostics_channel'
 import { WS_URL } from '@/utils/config'
 import { create } from 'zustand'
 
@@ -89,12 +88,25 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           console.log('✅ Execution completed:', message)
 
           import('@/stores/workflow-editor').then(({ useWorkflowEditorStore }) => {
-            const { setCurrentExecution } = useWorkflowEditorStore.getState()
-            setCurrentExecution(null)
+            const { setCurrentExecution, currentExecution } = useWorkflowEditorStore.getState()
+
+            if (currentExecution) {
+              const newExecution: Execution = {
+                ...currentExecution,
+                status: message.status,
+                summary: message.executionSummary,
+                finishedAt: message.finishedAt,
+                durationMs: message.durationMs,
+              }
+              console.log('🔄 Setting current execution:', newExecution)
+              setCurrentExecution(newExecution)
+            }
           })
 
           unsubscribe()
-          toast.success(message.executionSummary || 'Execution completed')
+
+          const toastT = message.status === 'success' ? toast.success : toast.error
+          toastT(message.executionSummary || 'Execution completed')
           return
         }
 
