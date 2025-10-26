@@ -199,15 +199,17 @@ export function nodeResultToExecutionLog(
   endTime: number | undefined,
   error?: Error | string,
   metadata?: { workflowId?: string; executionId?: string; userId?: string },
+  customStatus?: 'loading' | 'success' | 'error',
 ): ExecutionLog {
   const nodeResult = ctx.$node[nodeId]
   const duration = startTime && endTime ? endTime - startTime : undefined
+  const status = customStatus || (error ? 'error' : 'success')
 
   return {
     id: `${nodeId}_${Date.now()}`,
     timestamp: new Date(startTime ?? Date.now()),
     nodeId,
-    status: error ? 'error' : 'success',
+    status,
     level: error ? 'error' : 'info',
     message: error
       ? `Node ${nodeId} (${node.data?.type}) failed: ${typeof error === 'string' ? error : error.message}`
@@ -310,6 +312,21 @@ export async function executeGraphConcurrent(
         ready: ready.length,
       })
 
+      // Publish node started event for real-time updates
+      const startedLog = nodeResultToExecutionLog(
+        id,
+        node,
+        ctx,
+        startTimes.get(id),
+        undefined, // No end time yet
+        undefined, // No error
+        metadata,
+        'loading', // Custom status
+      )
+      startedLog.message = `Node ${id} (${node.data?.type}) started execution`
+
+      await publishNodeEvent(ctx.$json.executionId, startedLog)
+
       const res = TRIGGER_TYPES.has(node.data?.type ?? '')
         ? { status: 'ok', trigger: true, payload: ctx.$json.body }
         : await runNode(node, ctx)
@@ -369,11 +386,9 @@ export async function executeGraphConcurrent(
         metadata,
       )
       ctx.logs?.push(successLog)
-      console.log('--------------------------------')
 
       await publishNodeEvent(ctx.$json.executionId, successLog)
 
-      console.log('--------------------------------')
       // Unlock children
       for (const v of children.get(id) ?? []) {
         const prevIndegree = indegree.get(v)!
@@ -385,7 +400,7 @@ export async function executeGraphConcurrent(
         }
       }
     })()
-      .catch((err) => {
+      .catch(async (err) => {
         failed = true
         failedNodes.set(id, err)
         finishTimes.set(id, Date.now()) // Set finish time for failed nodes
@@ -397,7 +412,7 @@ export async function executeGraphConcurrent(
         })
         logger?.warn('[DAG] node_failed:', { nodeId: id, error: String(err?.message ?? err) })
 
-        // TODO: Publish node failure to Redis for real-time frontend updates
+        // Publish node failure to Redis for real-time frontend updates
         const failureLog = nodeResultToExecutionLog(
           id,
           node,
@@ -409,7 +424,8 @@ export async function executeGraphConcurrent(
         )
         ctx.logs?.push(failureLog)
         console.log(failureLog)
-        // await redis.publish(`execution:${metadata?.executionId}:logs`, JSON.stringify(failureLog))
+
+        await publishNodeEvent(ctx.$json.executionId, failureLog)
 
         // throw err
       })
@@ -474,6 +490,8 @@ export async function executeGraphConcurrent(
     `[DAG] Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`,
   )
 
+  const oneLinerSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`
+
   // TODO: Publish execution summary to Redis for frontend
   // const executionLogs: ExecutionLog[] = []
   // for (const id of executionOrder) {
@@ -484,6 +502,29 @@ export async function executeGraphConcurrent(
   // }
   // await redis.publish(`execution:${metadata?.executionId}:summary`, JSON.stringify({ summary, logs: executionLogs }))
   await endExecutionSetStatus(ctx.$json.workflowId, 'success') // DECR + TTL + status flip on zero
+
+  // Publish execution completion event
+  if (metadata?.executionId) {
+    await publishNodeEvent(metadata.executionId, {
+      id: `execution_complete_${Date.now()}`,
+      timestamp: new Date(),
+      nodeId: 'execution',
+      status: success ? 'success' : 'error',
+      level: success ? 'info' : 'error',
+      message: success
+        ? `Execution completed successfully: ${completed.size}/${nodeMap.size} nodes completed`
+        : `Execution failed: ${failedNodes.size} nodes failed`,
+      context: {
+        input: { total: nodeMap.size },
+        output: {
+          completed: completed.size,
+          failed: failedNodes.size,
+          success,
+        },
+      },
+      metadata,
+    })
+  }
 
   if (failFast && failed) throw new Error('Execution FAILED')
   if (completed.size !== nodeMap.size)

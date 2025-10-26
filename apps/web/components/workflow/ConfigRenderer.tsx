@@ -18,6 +18,7 @@ import { BASE_APP_URL, NODE_ENV } from '@/utils/config'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { HighlightedInput } from './HighlightedInput'
+import { CredentialRef } from '@buzz8n/common/types'
 import { Check, Copy, Sparkles } from 'lucide-react'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
@@ -235,6 +236,7 @@ function formatLabel(key: string): string {
 
 interface ConfigRendererProps {
   config: Record<string, unknown>
+  selectedCredential: CredentialRef | undefined
   onConfigChange: (key: string, value: unknown) => void
   defaultConfig: Record<string, unknown>
   nodeType: string
@@ -260,6 +262,7 @@ interface ConfigRendererProps {
 export function ConfigRenderer({
   config,
   onConfigChange,
+  selectedCredential,
   defaultConfig,
   nodeType,
   nodeId,
@@ -340,11 +343,28 @@ export function ConfigRenderer({
                 <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
               </SelectTrigger>
               <SelectContent>
-                {options?.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                {label === 'Model' ? (
+                  selectedCredential ? (
+                    options?.map(
+                      (option) =>
+                        selectedCredential.name === option.type && (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ),
+                    )
+                  ) : (
+                    <SelectItem key="no-credential-selected" value="no-credential-selected">
+                      No model selected
+                    </SelectItem>
+                  )
+                ) : (
+                  options?.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           )

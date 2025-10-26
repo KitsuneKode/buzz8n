@@ -1,4 +1,4 @@
-import { workflowEventSchema } from '@buzz8n/common/types'
+import { webSocketMessageSchema } from '@buzz8n/common/types'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import { JWT_SECRET, PORT, logger } from '@/utils'
 import { prisma } from '@buzz8n/store'
@@ -65,7 +65,9 @@ const server = Bun.serve<WebSocketData>({
     },
     async message(ws, message) {
       try {
-        const { success, data } = workflowEventSchema.safeParse(message.toString())
+        console.log('📡 WebSocket server received message:', message)
+
+        const { success, data } = webSocketMessageSchema.safeParse(JSON.parse(message))
         if (!success) {
           logger.error('Invalid message', { message })
           ws.close(1008, 'Invalid message')
@@ -94,11 +96,13 @@ const server = Bun.serve<WebSocketData>({
 
           ws.data.subscriber = await redis.duplicate()
           await ws.data.subscriber.connect()
-          ws.data.subscribedChannel = `${redis.CHANNELS.WORKFLOW_EVENTS}:${data.workflowId}`
+          // Use executionId if provided, otherwise fall back to workflowId
+          const channelId = data.executionId || data.workflowId
+          ws.data.subscribedChannel = `${redis.CHANNELS.EXECUTION_EVENTS}:${channelId}`
           await ws.data.subscriber.subscribe(ws.data.subscribedChannel!, (message) => {
             if (ws.readyState === WebSocket.OPEN) {
               logger.info(
-                `Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
+                `📤 Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
                 { message },
               )
               ws.send(message)
@@ -119,6 +123,7 @@ const server = Bun.serve<WebSocketData>({
         }
       } catch (error) {
         logger.error('Error processing message', { error })
+        ws.close(1008, 'Invalid message')
       }
     },
     async close(ws) {
@@ -135,3 +140,5 @@ const server = Bun.serve<WebSocketData>({
     },
   },
 })
+
+logger.info(`🚀 WebSocket server started on port ${PORT}`)

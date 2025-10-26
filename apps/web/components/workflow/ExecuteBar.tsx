@@ -108,6 +108,7 @@ export function ExecuteBar() {
             View logs ({currentExecution.logs.length})
           </Button>
         )}
+
         {!hasManualTrigger && nodes.length > 0 && (
           <div className="text-xs text-amber-600 flex items-center space-x-1">
             <Clock className="w-3 h-3" />

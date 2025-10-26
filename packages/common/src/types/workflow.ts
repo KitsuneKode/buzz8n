@@ -183,7 +183,7 @@ export interface ExecutionLog {
   id: string
   timestamp: Date
   nodeId: string
-  status: 'success' | 'error'
+  status: 'loading' | 'success' | 'error'
   level: 'debug' | 'info' | 'warn' | 'error'
   message: string
   context?: {
@@ -206,9 +206,29 @@ export interface NodeCategory {
   nodes: NodeTemplate[]
 }
 
-export const workflowEventSchema = z.object({
-  type: z.enum(['subscribe', 'unsubscribe']),
-  workflowId: z.string(),
+// export const workflowEventSchema = z.object({
+//   type: z.enum(['subscribe', 'unsubscribe']),
+//   workflowId: z.string(),
+//   executionId: z.string().optional(),
+// })
+
+// export type WorkflowEvent = z.infer<typeof workflowEventSchema>
+
+// WebSocket message types for type safety
+export const webSocketMessageSchema = z.object({
+  type: z.enum(['subscribe', 'unsubscribe', 'ping', 'pong']),
+  workflowId: z.string().optional(),
+  executionId: z.string().optional(),
 })
 
-export type WorkflowEvent = z.infer<typeof workflowEventSchema>
+export type WebSocketMessage = z.infer<typeof webSocketMessageSchema>
+
+// Execution completion event
+export const executionCompleteSchema = z.object({
+  type: z.literal('execution_complete'),
+  executionId: z.string(),
+  status: executionStatusSchema,
+  timestamp: z.date(),
+})
+
+export type ExecutionComplete = z.infer<typeof executionCompleteSchema>

@@ -20,6 +20,7 @@ import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { notFound, useRouter } from 'next/navigation'
 import { toast } from '@buzz8n/ui/components/sonner'
+import { useWebSocket } from './useWebSocket'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
 import { useTransition } from 'react'
@@ -220,14 +221,18 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
 
 // Execute workflow mutation
 export function useExecuteWorkflow(): UseMutationResult<
-  { executionId: string },
+  { payload: { executionId: string; workflowId: string } },
   Error,
   string, // ✅ argument type for mutate(),
   unknown
 > {
+  const { subscribe } = useWebSocket()
+
   return useMutation({
-    mutationFn: async (id: string): Promise<{ executionId: string }> => {
-      const response = await axios.post<{ executionId: string }>(
+    mutationFn: async (
+      id: string,
+    ): Promise<{ payload: { executionId: string; workflowId: string } }> => {
+      const response = await axios.post(
         `${API_URL}/workflow/${id}/execute`,
         {},
         {
@@ -237,9 +242,11 @@ export function useExecuteWorkflow(): UseMutationResult<
       return response.data
     },
 
-    onSuccess: () => {
+    onSuccess: ({ payload }) => {
+      // Subscribe to WebSocket for real-time updates
+
+      subscribe(payload.workflowId, payload.executionId)
       toast.success('Workflow execution started')
-      // Could trigger a query to fetch execution status
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Failed to execute workflow'

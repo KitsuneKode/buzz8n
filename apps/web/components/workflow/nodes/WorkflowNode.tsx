@@ -1,9 +1,8 @@
 'use client'
 
 import {
-  CheckIcon,
+  Check,
   CircleX,
-  CrossIcon,
   FileText,
   MessageSquare,
   MoreHorizontal,
@@ -11,6 +10,7 @@ import {
   PlayCircle,
   Plus,
   Sigma,
+  X,
 } from 'lucide-react'
 import {
   NodeTooltip,
@@ -83,12 +83,10 @@ const getStatusColor = (status: string) => {
 
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'loading':
-      return <Spinner className={`size-4 ${getStatusColor(status)} animate-spin`} />
     case 'success':
-      return <CheckIcon className={`size-4 ${getStatusColor(status)}`} />
+      return <Check className={`relative size-3 ${getStatusColor(status)}`} />
     case 'error':
-      return <CrossIcon className={`size-4 ${getStatusColor(status)}`} />
+      return <X className={`relative size-3 ${getStatusColor(status)}`} />
     default:
       return <></>
   }
@@ -103,13 +101,13 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
   const hasOutgoing = edges.some(
     (e) =>
       e.source === id &&
-      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-handle`),
+      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-left-handle`) &&
+      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-right-handle`),
   )
 
   const handleClick = () => {
     selectNode(id)
   }
-
   const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
   return (
     <NodeTooltip>
@@ -117,7 +115,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
         {data?.description}
       </NodeTooltipContent>
       <NodeTooltipTrigger>
-        <NodeStatusIndicator status={data.status} variant="border">
+        <NodeStatusIndicator status={data.status} variant="border" initial={isFirstNode}>
           <NodeToolbar
             className="flex flex-col items-center gap-2"
             isVisible={selected && data.type === 'manualTrigger'}
@@ -139,35 +137,36 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             onClick={handleClick}
             className={cn(
               'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-300 ease-in-out',
-              selected && 'ring-2 ring-primary shadow-lg',
+              selected && 'border border-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
               data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
               data.category === 'ai-agent-tools' && 'p-2 rounded-3xl bg-muted-foreground/20',
+              data.status == 'loading' && 'm-0.5',
               // Enhanced status-based styling
-              data.status === 'loading' &&
-                'bg-blue-50 border-2 border-blue-200 shadow-lg shadow-blue-100 animate-pulse ring-2 ring-blue-200/50',
-              data.status === 'success' &&
-                'bg-green-50 border-2 border-green-200 shadow-lg shadow-green-100 ring-2 ring-green-200/50',
-              data.status === 'error' &&
-                'bg-red-50 border-2 border-red-200 shadow-lg shadow-red-100 ring-2 ring-red-200/50',
-              !data.status && 'bg-secondary/10',
+              // data.status === 'loading' &&
+              //   'bg-blue-50 border-2 border-blue-200 shadow-lg shadow-blue-100 animate-pulse ring-2 ring-blue-200/50',
+              // data.status === 'success' &&
+              //   'bg-green-50 border-2 border-green-200 shadow-lg shadow-green-100 ring-2 ring-green-200/50',
+              // data.status === 'error' &&
+              //   'bg-red-50 border-2 border-red-200 shadow-lg shadow-red-100 ring-2 ring-red-200/50',
+              // !data.status && 'bg-secondary/10',
             )}
           >
             {/* Enhanced Status Indicator */}
-            {data.status && (
-              <div className="absolute -top-2 -right-2 z-10">
+            {data.status &&
+              (data.status === 'loading' ? (
+                <Spinner className={`absolute top-3 z-10 -right-1 text-blue-500 size-4`} />
+              ) : (
                 <div
                   className={cn(
-                    'flex items-center justify-center w-8 h-8 rounded-full border-2 shadow-lg transition-all duration-300 border-transparent',
-                    data.status === 'loading' && 'bg-blue-100 border-blue-300 shadow-blue-200',
-                    data.status === 'success' && 'bg-green-100 border-green-300 shadow-green-200',
-                    data.status === 'error' && 'bg-red-100 border-red-300 shadow-red-200',
+                    'absolute top-1 right-1 z-10  rounded-full size-4 flex items-center justify-center',
+                    data.status !== 'initial' && getStatusColor(data.status),
+                    data.status !== 'initial' && 'ring-2',
                   )}
                 >
                   {getStatusIcon(data.status)}
                 </div>
-              </div>
-            )}
+              ))}
             <BaseNodeContent className={cn('flex items-center justify-center gap-3 p-6')}>
               {/* Input Handle */}
               {!isFirstNode && (

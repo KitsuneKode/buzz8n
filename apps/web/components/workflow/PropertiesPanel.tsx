@@ -145,6 +145,7 @@ export function PropertiesPanel() {
         {/* Node-specific Configuration */}
         <ConfigRenderer
           config={nodeConfig}
+          selectedCredential={selectedNode.data.credentials}
           onConfigChange={handleConfigChange}
           defaultConfig={getDefaultConfig(selectedNode.data.type)}
           nodeType={selectedNode.data.type}

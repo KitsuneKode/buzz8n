@@ -141,7 +141,7 @@ export class RedisClient {
 
     const message = JSON.stringify(log)
     await this.publish(channel, message)
-    this.logger.debug(`${this.LOG_GROUP} Published execution event`, { channel, message })
+    this.logger.debug(`${this.LOG_GROUP} Published execution event`, { channel })
   }
   // async subscribe(channelName: string, callback: (message: string) => void) {
   //   return this.redisClient.subscribe(channelName, callback)

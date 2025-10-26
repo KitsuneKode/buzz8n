@@ -17,7 +17,7 @@ export async function beginExecutionSetStatus(workflowId: string): Promise<numbe
   const count = await redis.incr(WORKFLOW_ACTIVE_COUNT_KEY) // creates WORKFLOW_ACTIVE_COUNT_KEY if missing, returns new value
   await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // refresh inactivity window
   if (count === 1) {
-    await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'started' } })
+    await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'initial' } })
   }
   return count
 }

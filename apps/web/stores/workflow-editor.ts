@@ -12,6 +12,7 @@ import {
   EdgeData,
   Execution,
   ExecutionLog,
+  ExecutionStatus,
   NodeData,
   NodeTemplate,
   WorkflowData,
@@ -74,11 +75,12 @@ interface WorkflowEditorState {
 
   // Workflow actions
   saveWorkflow: (updatedWorkflow: WorkflowData) => void
-  executeWorkflow: () => void
 
   // Execution actions
   addExecutionLog: (log: Omit<ExecutionLog, 'id'>) => void
+  updateNodeStatus: (nodeId: string, status: string) => void
   clearLogs: () => void
+  loadExecutionHistory: (executions: Execution[]) => void
 }
 
 // Sample node templates
@@ -357,69 +359,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     })
   },
 
-  executeWorkflow: async () => {
-    const { nodes, workflow } = get()
-    if (!workflow || nodes.length === 0) return
-
-    const execution: Execution = {
-      id: `exec_${Date.now()}`,
-      workflowId: workflow.id,
-      status: 'loading',
-      startedAt: new Date(),
-      summary: 'Workflow execution started',
-      logs: [],
-    }
-
-    set({
-      currentExecution: execution,
-      executionHistory: [execution, ...get().executionHistory],
-    })
-
-    // Simulate execution
-    for (const node of nodes) {
-      // Update node status
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, status: 'loading' } } : n,
-        ),
-      }))
-
-      // Add log
-      get().addExecutionLog({
-        timestamp: new Date(),
-        nodeId: node.id,
-        level: 'info',
-        message: `Executing node: ${node.data.label}`,
-      })
-
-      // Simulate processing time
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Update node status to success
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, status: 'success' } } : n,
-        ),
-      }))
-    }
-
-    // Complete execution
-    const finishedAt = new Date()
-    const durationMs = finishedAt.getTime() - execution.startedAt.getTime()
-
-    set((state) => ({
-      currentExecution: state.currentExecution
-        ? {
-            ...state.currentExecution,
-            status: 'success',
-            finishedAt,
-            durationMs,
-            summary: `Workflow completed successfully in ${durationMs}ms`,
-          }
-        : null,
-    }))
-  },
-
   // Execution actions
   addExecutionLog: (logData) => {
     const log: ExecutionLog = {
@@ -437,6 +376,16 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     }))
   },
 
+  updateNodeStatus: (nodeId, status) => {
+    set((state) => ({
+      nodes: state.nodes.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, status: status as ExecutionStatus } }
+          : node,
+      ),
+    }))
+  },
+
   clearLogs: () => {
     set((state) => ({
       currentExecution: state.currentExecution
@@ -445,6 +394,12 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
             logs: [],
           }
         : null,
+    }))
+  },
+
+  loadExecutionHistory: (executions) => {
+    set((state) => ({
+      executionHistory: [...state.executionHistory, ...executions],
     }))
   },
   updateNodeConfig: (id, patch) => {

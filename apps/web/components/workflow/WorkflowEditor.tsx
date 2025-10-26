@@ -1,8 +1,9 @@
 'use client'
 
+import { useUpdateWorkflow, useExecuteWorkflow } from '@/hooks/useWorkflow'
+import { useWebSocket, useWebSocketStore } from '@/hooks/useWebSocket'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CredentialModal from '../credentials/CredentialModal'
-import { useUpdateWorkflow } from '@/hooks/useWorkflow'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
 import { RightPanel } from './RightPanel'
@@ -12,19 +13,36 @@ import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
 import { useEffect } from 'react'
 
+function WebSocketStatus() {
+  const { isConnected, isConnecting, error } = useWebSocket()
+
+  return (
+    <div className="absolute top-2 right-2 z-50 bg-black/80 text-white px-2 py-1 rounded text-xs">
+      WS:{' '}
+      {isConnected
+        ? '🟢 Connected'
+        : isConnecting
+          ? '🟡 Connecting...'
+          : error
+            ? '🔴 Disconnected'
+            : '⚫ Offline'}
+    </div>
+  )
+}
+
 export function WorkflowEditor() {
-  const {
-    nodes,
-    edges,
-    workflow,
-    activeTab,
-    isLogsDrawerOpen,
-    deleteSelectedNodes,
-    saveWorkflow,
-    executeWorkflow,
-  } = useWorkflowEditorStore()
+  const { nodes, edges, workflow, activeTab, isLogsDrawerOpen, deleteSelectedNodes, saveWorkflow } =
+    useWorkflowEditorStore()
 
   const { mutate: updateWorkflowMutate } = useUpdateWorkflow()
+  const { mutate: executeWorkflowMutate } = useExecuteWorkflow()
+
+  // Connect WebSocket on mount
+  useEffect(() => {
+    const { connect } = useWebSocketStore.getState()
+    connect()
+  }, [])
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = async (event: KeyboardEvent) => {
@@ -55,7 +73,9 @@ export function WorkflowEditor() {
       // Execute workflow (Cmd/Ctrl + Enter)
       if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
         event.preventDefault()
-        executeWorkflow()
+        if (workflow) {
+          executeWorkflowMutate(workflow.id)
+        }
       }
     }
 
@@ -65,7 +85,7 @@ export function WorkflowEditor() {
     }
   }, [
     saveWorkflow,
-    executeWorkflow,
+    executeWorkflowMutate,
     deleteSelectedNodes,
     nodes,
     updateWorkflowMutate,
@@ -92,6 +112,9 @@ export function WorkflowEditor() {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col relative">
+            {/* WebSocket Status Indicator */}
+            <WebSocketStatus />
+
             {activeTab === 'editor' && (
               <>
                 <Canvas />
