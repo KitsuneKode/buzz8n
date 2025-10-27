@@ -13,7 +13,11 @@ router.use('/workflow', auth)
 router.get('/workflow', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const limit = parseInt((req.query.limit as string) || '20')
-    const cursor = req.query.cursor
+    const cursor = req.query.cursor as string | undefined
+
+    if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
+      return res.status(400).json({ error: 'Invalid cursor format' })
+    }
 
     const userId = req.user!.userId
 
@@ -68,8 +72,12 @@ router.get('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
         id,
         userId,
       },
+      include: {
+        webhook: true,
+      },
     })
 
+    console.log(workflow)
     if (!workflow) {
       res.status(404).send('Data not found')
       return
@@ -196,6 +204,7 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
 
     const { active, nodes, edges } = data
 
+    // console.log(data?.active)
     let workflow = null
 
     workflow = await prisma.workflow.findUnique({
@@ -224,6 +233,11 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
     const existingWebhookPath = workflow.webhook?.path
     const existingWebhookSecret = workflow.webhook?.secret
 
+    // console.log('=== WEBHOOK DEBUG ===')
+    // console.log('existingWebhookPath:', existingWebhookPath)
+    // console.log('existingWebhookSecret:', existingWebhookSecret)
+    // console.log('nodes:', JSON.stringify(nodes, null, 2))
+
     let newWebhook = null
     let deletedWebhook = false
     if (nodes && nodes.length > 0) {
@@ -240,15 +254,16 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
         !nodes.some((node) => node.data.type === 'webhook')
       )
     } else {
-      deletedWebhook = !!existingWebhookPath
+      deletedWebhook = active === undefined ? !!existingWebhookPath : false
     }
 
-    // console.log(existingWebhookPath)
-    // console.log(newWebhook)
-    // console.log(deletedWebhook)
-    // // return res.status(404).send('not found')
+    // console.log('newWebhook:', newWebhook)
+    // console.log('deletedWebhook:', deletedWebhook)
+    // console.log('=== END WEBHOOK DEBUG ===')
+    // // // return res.status(404).send('not found')
 
     if (newWebhook) {
+      console.log('Creating/updating webhook...')
       const webhookData = {
         method: Methods.POST,
         path: newWebhook.data.config.path as string,
@@ -279,7 +294,19 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
             },
           },
         },
+
+        include: {
+          webhook: {
+            select: {
+              id: true,
+              method: true,
+              path: true,
+              secret: true,
+            },
+          },
+        },
       })
+      console.log(workflow?.webhook)
     } else {
       if (deletedWebhook) {
         workflow = await prisma.workflow.update({
@@ -314,7 +341,6 @@ router.put('/workflow/:id', async (req: Request, res: Response, next: NextFuncti
       res.status(404).send('Workflow not found')
       return
     }
-
     res.status(200).json(workflow)
   } catch (error) {
     next(error)
@@ -360,6 +386,9 @@ router.get('/workflow/:id/executions', async (req: Request, res: Response, next:
       return
     }
 
+    if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
+      return res.status(400).json({ error: 'Invalid cursor format' })
+    }
     const userId = req.user!.userId
 
     const executions = await prisma.execution.findMany({
@@ -398,7 +427,7 @@ router.get('/workflow/:id/executions', async (req: Request, res: Response, next:
         try {
           return typeof log === 'string' ? JSON.parse(log) : log
         } catch (error) {
-          console.error('Failed to parse log:', log, error)
+          logger.error('Failed to parse execution log', { executionId: execution.id, error })
           return log
         }
       }),

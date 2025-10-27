@@ -43,7 +43,7 @@ export function TopBar() {
       data: {
         nodes,
         edges,
-        active: workflow.active,
+        active: undefined,
       },
     })
   }

@@ -27,6 +27,7 @@ async function main() {
   await prisma.credential.deleteMany()
   await prisma.user.deleteMany()
 
+  return
   // Generate single test user
   console.log('👥 Creating test user...')
 

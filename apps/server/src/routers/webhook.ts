@@ -9,24 +9,29 @@ const router = Router()
 //TODO:RateLimited
 // router.use('/webhook', rateLimitMiddleware)
 
-router.all('/webhook/:webhookId', async (req: Request, res: Response, next: NextFunction) => {
+router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const webhookId = req.params.webhookId
+    const webhookPath = req.params.webhookPath
     const authorization = req.headers.authorization
     const secret_token = authorization?.trim().split(/\s+/).at(1)
 
     const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
 
-    if (!webhookId || !success) {
+    if (!webhookPath || !success) {
       logger.error('not parsed')
       res.status(422).send('Invalid Data')
       return
     }
 
+    console.log(webhookPath, method)
+    const all = await prisma.webhook.findMany()
+
+    console.log(all)
+
     const webhook = await prisma.webhook.findUnique({
       where: {
         method,
-        path: webhookId,
+        path: webhookPath,
       },
       select: {
         workflowId: true,

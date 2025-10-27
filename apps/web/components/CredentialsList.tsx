@@ -90,6 +90,11 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
 
       removeCredential(responseData.id)
 
+      // Invalidate infinite credentials cache to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ['credentials', 'infinite'],
+      })
+
       queryClient.setQueryData(['credential'], (old: Array<CredentialResponse>) =>
         old.filter((c) => c.id !== responseData.id),
       )

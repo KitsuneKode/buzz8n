@@ -11,6 +11,9 @@ type WebSocketData = {
   subscribedChannel: string | null
 }
 
+const connectionLimits = new Map<string, number>()
+const MAX_CONNECTIONS_PER_USER = 2
+
 Bun.serve<WebSocketData>({
   port: PORT,
   fetch(req, server) {
@@ -38,7 +41,11 @@ Bun.serve<WebSocketData>({
 
       const { userId } = jwt.verify(token, JWT_SECRET!) as JwtPayload
 
-      const { userId } = isValidated as JwtPayload
+      const currentConnections = connectionLimits.get(userId) || 0
+      if (currentConnections >= MAX_CONNECTIONS_PER_USER) {
+        return new Response('Too many connections', { status: 429 })
+      }
+      connectionLimits.set(userId, currentConnections + 1)
 
       const success = server.upgrade(req, {
         data: { userId, subscribedChannel: null, subscriber: null },
@@ -62,7 +69,13 @@ Bun.serve<WebSocketData>({
       try {
         console.log('📡 WebSocket server received message:', message)
 
-        const { success, data } = webSocketMessageSchema.safeParse(JSON.parse(message))
+        if (message.length > 1024 * 100) {
+          // 100KB limit
+          ws.close(1009, 'Message too large')
+          return
+        }
+
+        const { success, data } = webSocketMessageSchema.safeParse(JSON.parse(message.toString()))
         if (!success) {
           logger.error('Invalid message', { message })
           ws.close(1008, 'Invalid message')
@@ -131,6 +144,7 @@ Bun.serve<WebSocketData>({
         ws.data.subscriber = null
         ws.data.subscribedChannel = null
       }
+      connectionLimits.set(ws.data.userId, (connectionLimits.get(ws.data.userId) || 0) - 1)
       logger.info(`User ${ws.data.userId} disconnected`)
     },
   },

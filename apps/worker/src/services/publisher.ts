@@ -31,7 +31,6 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
         },
       })
     }
-    }
     if (!execution) {
       logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
       throw new Error(`[DB]Execution not found: ${executionId}`)

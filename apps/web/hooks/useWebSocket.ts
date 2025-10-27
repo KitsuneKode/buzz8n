@@ -2,6 +2,9 @@ import type { Execution, ExecutionLog } from '@buzz8n/common/types'
 import { API_URL } from '@/utils/config'
 import axios from 'axios'
 
+let reconnectAttempts = 0
+const maxReconnectAttempts = 5
+
 // Helper function to fetch full execution details
 const fetchFullExecutionDetails = async (executionId: string): Promise<Execution | null> => {
   try {
@@ -145,8 +148,17 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     }
 
     websocket.onclose = () => {
+      const { connect } = get()
       set({ isConnected: false, isConnecting: false })
       console.log('❌ WebSocket disconnected')
+      // Auto-reconnect with exponential backoff
+      if (reconnectAttempts < maxReconnectAttempts) {
+        const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000)
+        setTimeout(() => {
+          reconnectAttempts++
+          connect()
+        }, delay)
+      }
     }
 
     websocket.onerror = (error) => {

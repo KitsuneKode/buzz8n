@@ -6,13 +6,13 @@ import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CredentialModal from '../credentials/CredentialModal'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
+import { ExecutionsTab } from './ExecutionsTab'
 import { useCallback, useEffect } from 'react'
 import { RightPanel } from './RightPanel'
 import { LogsDrawer } from './LogsDrawer'
 import { ExecuteBar } from './ExecuteBar'
 import { TopBar } from './TopBar'
 import { Canvas } from './Canvas'
-import { ExecutionsTab } from './ExecutionsTab'
 
 function WebSocketStatus() {
   const { isConnected, isConnecting, error } = useWebSocket()
@@ -70,7 +70,7 @@ export function WorkflowEditor() {
           data: {
             edges,
             nodes,
-            active: workflow.active,
+            active: undefined,
           },
         })
       }

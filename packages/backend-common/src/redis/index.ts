@@ -147,12 +147,12 @@ export class RedisClient {
   //   return this.redisClient.subscribe(channelName, callback)
   // }
   //
-  // async unsubscribe(channelName?: string[]) {
-  //   if (channelName) {
-  //     return this.redisClient.unsubscribe(...channelName)
-  //   }
-  //   return this.redisClient.unsubscribe()
-  // }
+  async unsubscribe(channelName?: string[]) {
+    if (channelName) {
+      return this.redisClient.unsubscribe(...channelName)
+    }
+    return this.redisClient.unsubscribe()
+  }
 
   async xGroupDestroy({
     streamKey = this.EXECUTION_QUEUE_KEY,

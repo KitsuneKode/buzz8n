@@ -70,7 +70,7 @@ model Webhook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // @@unique([method, path])
+  @@unique([method, path])
   @@map("webhook")
 }
 

@@ -139,8 +139,9 @@ export function useCreateWorkflow(): UseMutationResult<
     },
     onSuccess: (workflow) => {
       startTransition(() => {
-        // Invalidate workflows list
+        // Invalidate workflows list (including infinite queries)
         queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
+        queryClient.invalidateQueries({ queryKey: ['workflows', 'list', { infinite: true }] })
 
         // Add to cache
         queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(workflow.id), workflow)
@@ -183,8 +184,9 @@ export function useUpdateWorkflow(): UseMutationResult<
 
       queryClient.setQueryData(WORKFLOW_QUERY_KEYS.detail(workflow.id), workflow)
 
-      // Invalidate workflows list
+      // Invalidate workflows list (including infinite queries)
       queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
+      queryClient.invalidateQueries({ queryKey: ['workflows', 'list', { infinite: true }] })
 
       saveWorkflow(workflow)
       if (activeChange) {
@@ -220,8 +222,9 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
         // Remove from cache
         queryClient.removeQueries({ queryKey: WORKFLOW_QUERY_KEYS.detail(id) })
 
-        // Invalidate workflows list
+        // Invalidate workflows list (including infinite queries)
         queryClient.invalidateQueries({ queryKey: WORKFLOW_QUERY_KEYS.lists() })
+        queryClient.invalidateQueries({ queryKey: ['workflows', 'list', { infinite: true }] })
 
         toast.success('Workflow deleted successfully')
         router.push('/dashboard')
@@ -260,7 +263,6 @@ export function useExecuteWorkflow(): UseMutationResult<
 
     onSuccess: ({ payload }) => {
       // Subscribe to WebSocket for real-time updates
-      //TODO:Fix this we should only subscribe to the current execution
 
       subscribe(payload.workflowId, payload.executionId)
       const execution: Execution = {
@@ -272,55 +274,6 @@ export function useExecuteWorkflow(): UseMutationResult<
         logs: [],
       }
       setCurrentExecution(execution)
-
-      // // Simulate execution
-      // for (const node of nodes) {
-      //   // Update node status
-      //   set((state) => ({
-      //     nodes: state.nodes.map((n) =>
-      //       n.id === node.id ? { ...n, data: { ...n.data, status:
-      //       'loading' } } : n,
-      //     ),
-      //   }))
-
-      //   // Add log
-      //   get().addExecutionLog({
-      //     timestamp: new Date(),
-      //     nodeId: node.id,
-      //     level: 'info',
-      //     message: `Executing node: ${node.data.label}`,
-      //   })
-
-      //   // Simulate processing time
-      //   await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      //   // Update node status to success
-      //   set((state) => ({
-      //     nodes: state.nodes.map((n) =>
-      //       n.id === node.id ? { ...n, data: { ...n.data, status:
-      //       'success' } } : n,
-      //     ),
-      //   }))
-      // }
-
-      // // Complete execution
-      // const finishedAt = new Date()
-      // const durationMs = finishedAt.getTime() - execution.startedAt.
-      // getTime()
-
-      // set((state) => ({
-      //   currentExecution: state.currentExecution
-      //     ? {
-      //         ...state.currentExecution,
-      //         status: 'success',
-      //         finishedAt,
-      //         durationMs,
-      //         summary: `Workflow completed successfully in ${durationMs}
-      //         ms`,
-      //       }
-      //     : null,
-      // }))
-      // }
 
       toast.success('Workflow execution started')
     },

@@ -14,6 +14,9 @@ router.get('/credential', async (req, res, next: NextFunction) => {
     const limit = parseInt((req.query.limit as string) || '20')
     const cursor = req.query.cursor as string
 
+    if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
+      return res.status(400).json({ error: 'Invalid cursor format' })
+    }
     const credentials = await prisma.credential.findMany({
       take: limit + 1,
       ...(cursor && {

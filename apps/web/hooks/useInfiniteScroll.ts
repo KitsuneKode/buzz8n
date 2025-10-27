@@ -44,7 +44,8 @@ export function useInfiniteScroll({
     observer.observe(sentinel)
 
     return () => {
-      observer.unobserve(sentinel)
+      observer.disconnect()
+      if (sentinel) observer.unobserve(sentinel)
     }
   }, [handleIntersection, threshold, rootMargin])
 

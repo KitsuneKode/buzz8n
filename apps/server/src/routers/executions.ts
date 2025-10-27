@@ -64,6 +64,9 @@ router.get('/execution', async (req: Request, res: Response, next: NextFunction)
 
     const userId = req.user!.userId
 
+    if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
+      return res.status(400).json({ error: 'Invalid cursor format' })
+    }
     const executions = await prisma.execution.findMany({
       where: {
         userId,
