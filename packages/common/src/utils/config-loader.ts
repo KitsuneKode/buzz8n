@@ -59,6 +59,7 @@ const clientConfigSchema = {
   appUrl: () => process.env.NEXT_PUBLIC_APP_URL,
   apiBaseUrl: () => process.env.NEXT_PUBLIC_API_URL,
   nodeEnv: () => process.env.NODE_ENV || 'development',
+  wsUrl: () => process.env.NEXT_PUBLIC_WS_URL,
 }
 
 export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)

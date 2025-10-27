@@ -9,20 +9,23 @@ import {
 } from '@buzz8n/ui/components/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@buzz8n/ui/components/popover'
 
+import InputPassword from '../shadcn-studio/input/password-input'
 import { validateTemplates } from '@/utils/template-validation'
+import CopyButton from '../shadcn-studio/button/copy-button'
 import { HighlightedTextarea } from './HighlightedTextarea'
 import { Textarea } from '@buzz8n/ui/components/textarea'
+import { BASE_APP_URL, NODE_ENV } from '@/utils/config'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { HighlightedInput } from './HighlightedInput'
-import { Copy, Check, Sparkles } from 'lucide-react'
+import { CredentialRef } from '@buzz8n/common/types'
+import { Check, Copy, Sparkles } from 'lucide-react'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { VariablePicker } from './VariablePicker'
 // import { SmartTextarea } from './SmartTextarea'
 // import { SmartInput } from './SmartInput'
 import { useState } from 'react'
-import React from 'react'
 
 // Field configuration interface
 export interface FieldConfig {
@@ -40,6 +43,11 @@ export interface FieldConfig {
     maxLength?: number
     pattern?: string
   }
+  // Additional configuration for switch fields
+  showValueWhenEnabled?: boolean
+  valueLabel?: string
+  valueType?: 'text' | 'textarea'
+  valueRows?: number
 }
 
 // UI rendering configuration - how fields should be displayed
@@ -96,10 +104,15 @@ const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
     type: 'readonly',
     copyable: true,
   },
+
   secret: {
     label: 'Authenticated',
     type: 'switch',
     description: 'Enable authentication for this webhook',
+    showValueWhenEnabled: true,
+    valueLabel: 'Authentication Secret',
+    valueType: 'textarea',
+    valueRows: 2,
   },
 
   // AI Agent fields
@@ -223,6 +236,7 @@ function formatLabel(key: string): string {
 
 interface ConfigRendererProps {
   config: Record<string, unknown>
+  selectedCredential: CredentialRef | undefined
   onConfigChange: (key: string, value: unknown) => void
   defaultConfig: Record<string, unknown>
   nodeType: string
@@ -248,10 +262,11 @@ interface ConfigRendererProps {
 export function ConfigRenderer({
   config,
   onConfigChange,
+  selectedCredential,
   defaultConfig,
   nodeType,
   nodeId,
-  baseUrl = 'https://buzz8n.kitsulabs.xyz',
+  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080' : BASE_APP_URL,
 }: ConfigRendererProps) {
   const [copied, setCopied] = useState<string | null>(null)
   const [expressionMode, setExpressionMode] = useState<Record<string, boolean>>({})
@@ -328,32 +343,70 @@ export function ConfigRenderer({
                 <SelectValue placeholder={`Select ${label.toLowerCase()}`} />
               </SelectTrigger>
               <SelectContent>
-                {options?.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
+                {label === 'Model' ? (
+                  selectedCredential ? (
+                    options?.map(
+                      (option) =>
+                        selectedCredential.provider.toLowerCase() === option.type && (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ),
+                    )
+                  ) : (
+                    <SelectItem key="no-credential-selected" value="no-credential-selected">
+                      No model selected
+                    </SelectItem>
+                  )
+                ) : (
+                  options?.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           )
 
         case 'switch':
           return (
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-sm">{label}</Label>
-                {description && <p className="text-xs text-muted-foreground">{description}</p>}
+            <div className="space-y-2">
+              {/* Show secret value when authentication is enabled */}
+              {key === 'secret' && value && (
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm ">Authentication Secret</Label>
+                    <CopyButton
+                      copyTag="Copy Secret"
+                      copyContent={value as string}
+                      className="text-xs dark:bg-primary/50 dark:hover:bg-primary/40 "
+                    />
+                  </div>
+                  <div className="relative">
+                    <InputPassword
+                      defaultValue={value as string}
+                      className="h-10 row-4 caret-transparent focus-visible:ring-0 focus-visible:ring-offset-0 border-0 focus:outline-none pr-10 bg-muted/50"
+                    />
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <Label className="text-sm">{label}</Label>
+                  {description && <p className="text-xs text-muted-foreground">{description}</p>}
+                </div>
+                <Switch
+                  checked={!!value}
+                  onCheckedChange={(checked) => {
+                    if (key === 'secret' && checked) {
+                      handleChange(crypto.randomUUID())
+                    } else {
+                      handleChange(checked ? true : null)
+                    }
+                  }}
+                />
               </div>
-              <Switch
-                checked={!!value}
-                onCheckedChange={(checked) => {
-                  if (key === 'secret' && checked) {
-                    handleChange(crypto.randomUUID())
-                  } else {
-                    handleChange(checked ? true : null)
-                  }
-                }}
-              />
             </div>
           )
 
@@ -492,7 +545,7 @@ export function ConfigRenderer({
     }
 
     return (
-      <div key={key} className="space-y-2">
+      <div key={key} className="space-y-2 mt-4">
         <Label htmlFor={key} className="text-sm font-medium">
           {label}
           {validation?.required && <span className="text-red-500 ml-1">*</span>}

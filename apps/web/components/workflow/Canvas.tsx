@@ -4,7 +4,6 @@ import {
   Background,
   BackgroundVariant,
   ConnectionLineType,
-  MarkerType,
   Panel,
   ReactFlow,
   useReactFlow,

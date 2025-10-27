@@ -7,15 +7,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@buzz8n/ui/components/select'
+import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { getDefaultConfig } from '@/utils/node-templates'
+import { AlertCircle, Trash2, Eye } from 'lucide-react'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { AlertCircle, Trash2 } from 'lucide-react'
 import { ConfigRenderer } from './ConfigRenderer'
+import { useState } from 'react'
 import React from 'react'
 
 /**
@@ -34,8 +36,11 @@ export function PropertiesPanel() {
     updateSelectedNodeConfig,
     setSelectedNodeCredentialRef,
     deleteNode,
+    currentExecution,
+    getNodeExecutionLog,
   } = useWorkflowEditorStore()
   const { credentials, openCredentialModal } = useDashboardStore()
+  const [isExecutionDialogOpen, setIsExecutionDialogOpen] = useState(false)
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
   if (!selectedNode) {
@@ -53,6 +58,14 @@ export function PropertiesPanel() {
     if (!selectedNodeId) return
     deleteNode(selectedNodeId)
   }
+
+  const handleViewExecutionOutput = () => {
+    setIsExecutionDialogOpen(true)
+  }
+
+  // Check if we can show the execution output button
+  const canViewExecutionOutput =
+    currentExecution && selectedNodeId && getNodeExecutionLog(selectedNodeId) !== null
 
   // const handleSave = () => {
   //   if (!selectedNodeId) return
@@ -145,6 +158,7 @@ export function PropertiesPanel() {
         {/* Node-specific Configuration */}
         <ConfigRenderer
           config={nodeConfig}
+          selectedCredential={selectedNode.data.credentials}
           onConfigChange={handleConfigChange}
           defaultConfig={getDefaultConfig(selectedNode.data.type)}
           nodeType={selectedNode.data.type}
@@ -192,7 +206,7 @@ export function PropertiesPanel() {
             id="notes"
             placeholder="Add notes about this node..."
             rows={3}
-            value={nodeConfig.notes || ''}
+            value={nodeConfig.notes ? nodeConfig.notes : ''}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               handleConfigChange('notes', e.target.value)
             }
@@ -200,12 +214,23 @@ export function PropertiesPanel() {
         </div>
       </div>
 
-      {/* Footer Actions
-      <div className="p-4 border-t border-border flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Button onClick={handleSave}>Save</Button>
+      {/* Footer Actions */}
+      {canViewExecutionOutput && (
+        <div className="p-4 border-t border-border">
+          <Button onClick={handleViewExecutionOutput} className="w-full" variant="outline">
+            <Eye className="w-4 h-4 mr-2" />
+            View Execution Output
+          </Button>
         </div>
-      </div> */}
+      )}
+
+      {/* Node Execution Detail Dialog */}
+      <NodeExecutionDetailDialog
+        open={isExecutionDialogOpen}
+        onOpenChange={setIsExecutionDialogOpen}
+        log={selectedNodeId ? getNodeExecutionLog(selectedNodeId) : null}
+        nodeLabel={selectedNode?.data.label}
+      />
     </div>
   )
 }

@@ -5,6 +5,7 @@ import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
 import { getUpstreamNodes } from '@/utils/graph-helpers'
 import { ChevronRight, Sparkles, X } from 'lucide-react'
 import { Button } from '@buzz8n/ui/components/button'
+import { Node } from '@xyflow/react'
 import React from 'react'
 
 interface VariablePickerProps {
@@ -69,7 +70,7 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
   }
 
   // Output fields per node type
-  const getOutputFields = (node: any) => {
+  const getOutputFields = (node: Node) => {
     switch (node.data?.type) {
       case 'emailSend':
         return [

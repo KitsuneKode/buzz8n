@@ -1,4 +1,5 @@
 import { Router, type Request, type Response, type NextFunction } from 'express'
+import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { PrismaClientKnownRequestError } from '@buzz8n/store'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
@@ -10,7 +11,8 @@ import jwt from 'jsonwebtoken'
 
 const router = Router()
 
-router.post('/signup', async (req, res, next) => {
+// Apply rate limiting to auth endpoints
+router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
   try {
     const validated = signUpSchema.safeParse(req.body)
     if (!validated.success) {
@@ -50,7 +52,7 @@ router.post('/signup', async (req, res, next) => {
   }
 })
 
-router.post('/signin', async (req, res, next) => {
+router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
   const validated = signInSchema.safeParse(req.body)
 
   if (!validated.success) {
@@ -101,7 +103,7 @@ router.post('/signin', async (req, res, next) => {
 })
 
 // Get current user profile
-router.get('/me', auth, async (req, res, next) => {
+router.get('/me', rateLimitMiddleware.api, auth, async (req, res, next) => {
   try {
     const user = await prisma.user.findUnique({
       where: {

@@ -1,38 +1,48 @@
 'use client'
 
-import { X, Copy, Trash2, Info, AlertTriangle, XCircle, Bug } from 'lucide-react'
+import { X, Copy, Trash2, Info, XCircle, CheckCircle, Clock } from 'lucide-react'
+import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
 import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { ExecutionLog } from '@/lib/types/workflow'
+import { useState } from 'react'
 
-const getLevelIcon = (level: ExecutionLog['level']) => {
-  switch (level) {
-    case 'info':
-      return <Info className="w-4 h-4 text-blue-500" />
-    case 'warn':
-      return <AlertTriangle className="w-4 h-4 text-yellow-500" />
+// Legacy log format for backward compatibility
+type LegacyLog = {
+  id: string
+  timestamp: Date
+  nodeId: string
+  level: 'info' | 'warn' | 'error' | 'debug'
+  message: string
+  data?: unknown
+}
+
+type LogEntry = ExecutionLog | LegacyLog
+
+const getLogStatusIcon = (status: ExecutionLog['status']) => {
+  switch (status) {
+    case 'success':
+      return <CheckCircle className="w-4 h-4 text-green-500" />
     case 'error':
       return <XCircle className="w-4 h-4 text-red-500" />
-    case 'debug':
-      return <Bug className="w-4 h-4 text-gray-500" />
+    case 'loading':
+      return <Clock className="w-4 h-4 text-blue-500" />
     default:
-      return <Info className="w-4 h-4 text-blue-500" />
+      return <Info className="w-4 h-4 text-gray-500" />
   }
 }
 
-const getLevelColor = (level: ExecutionLog['level']) => {
-  switch (level) {
-    case 'info':
-      return 'border-l-blue-500'
-    case 'warn':
-      return 'border-l-yellow-500'
+const getLogStatusColor = (status: ExecutionLog['status']) => {
+  switch (status) {
+    case 'success':
+      return 'border-l-green-500'
     case 'error':
       return 'border-l-red-500'
-    case 'debug':
-      return 'border-l-gray-500'
+    case 'loading':
+      return 'border-l-blue-500'
     default:
       return 'border-l-blue-500'
   }
@@ -40,8 +50,32 @@ const getLevelColor = (level: ExecutionLog['level']) => {
 
 export function LogsDrawer() {
   const { currentExecution, nodes, toggleLogsDrawer, clearLogs } = useWorkflowEditorStore()
+  const [selectedLog, setSelectedLog] = useState<ExecutionLog | null>(null)
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
 
   if (!currentExecution) return null
+
+  const handleLogClick = (log: LogEntry) => {
+    // Convert old log format to new format if needed
+    const executionLog: ExecutionLog = {
+      id: log.id,
+      type: 'type' in log ? log.type : 'node_event',
+      timestamp: log.timestamp,
+      nodeId: log.nodeId,
+      status: 'status' in log ? log.status : 'success',
+      level: log.level,
+      message: log.message,
+      context:
+        'context' in log
+          ? log.context
+          : 'data' in log && log.data
+            ? { output: log.data }
+            : undefined,
+      metadata: 'metadata' in log ? log.metadata : undefined,
+    }
+    setSelectedLog(executionLog)
+    setIsDialogOpen(true)
+  }
 
   const handleCopyLogs = () => {
     const logsText = currentExecution.logs
@@ -51,13 +85,29 @@ export function LogsDrawer() {
     navigator.clipboard.writeText(logsText)
   }
 
-  const getNodeLabel = (nodeId: string) => {
+  const getNodeDisplayName = (nodeId: string) => {
     const node = nodes.find((n) => n.id === nodeId)
-    return node?.data.label || nodeId
+    const label = node?.data.label
+    if (label) {
+      return `${label} (${nodeId})`
+    }
+
+    // Fallback: try to extract node type from log messages
+    const logWithNodeId = currentExecution.logs.find((log) => log.nodeId === nodeId)
+    if (logWithNodeId) {
+      const message = logWithNodeId.message
+      // Extract node type from message like "Node nodeId (nodeType) message"
+      const match = message.match(/Node\s+\w+\s+\(([^)]+)\)/)
+      if (match && match[1]) {
+        return `${match[1]} (${nodeId})`
+      }
+    }
+
+    return nodeId
   }
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
+    return new Date(date).toLocaleTimeString('en-US', {
       hour12: false,
       hour: '2-digit',
       minute: '2-digit',
@@ -85,6 +135,12 @@ export function LogsDrawer() {
             >
               {currentExecution.status}
             </Badge>
+
+            <div className="flex items-center space-x-2">
+              {currentExecution.summary && (
+                <span className="text-sm text-muted-foreground">{currentExecution.summary}</span>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -129,47 +185,61 @@ export function LogsDrawer() {
         </div>
 
         {/* Logs Content */}
-        <ScrollArea className="flex-1">
-          <div className="p-4">
-            {currentExecution.logs.length === 0 ? (
-              <div className="text-center text-muted-foreground py-8">No logs available</div>
-            ) : (
-              <div className="space-y-2">
-                {currentExecution.logs.map((log, index) => (
-                  <div
-                    key={log.id}
-                    className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors ${getLevelColor(log.level)}`}
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start space-x-3 flex-1">
-                        {getLevelIcon(log.level)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 text-sm">
-                            <span className="font-medium">{getNodeLabel(log.nodeId)}</span>
-                            <Badge variant="outline" className="text-xs">
-                              {log.level}
-                            </Badge>
-                            <span className="text-muted-foreground">
-                              {formatTime(log.timestamp)}
-                            </span>
+        <div className="flex-1 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-4">
+              {currentExecution.logs.length === 0 ? (
+                <div className="text-center text-muted-foreground py-8">No logs available</div>
+              ) : (
+                <div className="space-y-2">
+                  {currentExecution.logs.reverse().map((log, index) => (
+                    <div
+                      key={log.id}
+                      className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-r-lg ${getLogStatusColor(log.status)}`}
+                      onClick={() => handleLogClick(log)}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start space-x-3 flex-1">
+                          {getLogStatusIcon(log.status)}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 text-sm">
+                              <span className="font-medium">{getNodeDisplayName(log.nodeId)}</span>
+                              <Badge variant="outline" className="text-xs">
+                                {log.status}
+                              </Badge>
+                              <span className="text-muted-foreground">
+                                {formatTime(log.timestamp)}
+                              </span>
+                            </div>
+                            <p className="text-sm text-foreground mt-1">{log.message}</p>
+                            {('context' in log && log.context?.output) ||
+                            ('data' in log && log.data) ? (
+                              <div className="mt-2">
+                                <span className="text-xs text-muted-foreground">
+                                  Has output data - click to view details
+                                </span>
+                              </div>
+                            ) : null}
                           </div>
-                          <p className="text-sm text-foreground mt-1">{log.message}</p>
-                          {log.data && (
-                            <pre className="text-xs text-muted-foreground mt-2 bg-muted p-2 rounded overflow-x-auto">
-                              {JSON.stringify(log.data, null, 2)}
-                            </pre>
-                          )}
                         </div>
                       </div>
+                      {index < currentExecution.logs.length - 1 && <Separator className="mt-2" />}
                     </div>
-                    {index < currentExecution.logs.length - 1 && <Separator className="mt-2" />}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </ScrollArea>
+                  ))}
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+        </div>
       </div>
+
+      {/* Node Detail Dialog */}
+      <NodeExecutionDetailDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        log={selectedLog}
+        nodeLabel={selectedLog ? getNodeDisplayName(selectedLog.nodeId) : undefined}
+      />
     </div>
   )
 }

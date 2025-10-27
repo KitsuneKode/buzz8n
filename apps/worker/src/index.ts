@@ -79,10 +79,11 @@ async function shutdown() {
   logger.info('Shutting down gracefully…')
 
   try {
-    await redis.unsubscribe()
+    await redis.unsubscribe([redis.CHANNELS.EXECUTION_EVENTS])
     await redis.xGroupDestroy({
       consumerGroup: REDIS_CONSUMER_GROUP,
     })
+
     await redis.cleanup()
     logger.info('Redis connection closed.')
   } catch (err) {

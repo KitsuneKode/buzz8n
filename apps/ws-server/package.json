@@ -1,0 +1,25 @@
+{
+  "name": "@buzz8n/ws-server",
+  "module": "src/index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
+    "check-types": "tsc --noEmit",
+    "dev": "bun run --watch src/index.ts",
+    "start": "bun run dist/index.js"
+  },
+  "devDependencies": {
+    "@buzz8n/typescript-config": "*",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@buzz8n/backend-common": "*",
+    "@buzz8n/common": "*",
+    "@buzz8n/store": "*",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

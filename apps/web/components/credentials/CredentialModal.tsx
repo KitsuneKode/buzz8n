@@ -11,10 +11,10 @@ import {
 } from '@/lib/types/credentials'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
 import { CredentialResponse } from '@buzz8n/common/types/credentials'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
-import { useMutation } from '@tanstack/react-query'
 import ProviderPicker from './ProviderPicker'
 import { useEffect, useState } from 'react'
 import axios, { isAxiosError } from 'axios'
@@ -34,6 +34,8 @@ const CredentialModal = () => {
     isCredentialModalOpen: isOpen,
     addCredential,
   } = useDashboardStore()
+
+  const queryClient = useQueryClient()
 
   const onClose = () => setCredentialModalOpen(false)
 
@@ -76,6 +78,12 @@ const CredentialModal = () => {
         config: responseData.data,
         createdAt: responseData.createdAt,
       })
+
+      // Invalidate infinite credentials cache to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ['credentials', 'infinite'],
+      })
+
       setCredentialModalOpen(false)
     },
     onError: (error) => {

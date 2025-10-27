@@ -5,7 +5,6 @@ import { useId, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 import { Button } from '@buzz8n/ui/components/button'
-import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { cn } from '@buzz8n/ui/lib/utils'
 
@@ -22,7 +21,7 @@ const InputPassword = ({
 
   return (
     <div className="w-full max-w-sm space-y-2">
-      <Label htmlFor={id}>Secret Key</Label>
+      {/* <Label htmlFor={id}>Secret Key</Label> */}
       <div className="relative">
         <Input
           id={id}

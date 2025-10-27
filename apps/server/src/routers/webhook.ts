@@ -1,23 +1,24 @@
 import { supportedMethodsSchema, type SupportedMethods } from '@buzz8n/common/types'
 import { Router, type Request, type Response, type NextFunction } from 'express'
+import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { enqueueExecution } from '@/redis/enqueue'
 import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
 
 const router = Router()
 
-//TODO:RateLimited
-// router.use('/webhook', rateLimitMiddleware)
+// Apply rate limiting to webhook endpoints
+router.use('/webhook', rateLimitMiddleware.webhook)
 
-router.all('/webhook/:webhookId', async (req: Request, res: Response, next: NextFunction) => {
+router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const webhookId = req.params.webhookId
+    const webhookPath = req.params.webhookPath
     const authorization = req.headers.authorization
     const secret_token = authorization?.trim().split(/\s+/).at(1)
 
     const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
 
-    if (!webhookId || !success) {
+    if (!webhookPath || !success) {
       logger.error('not parsed')
       res.status(422).send('Invalid Data')
       return
@@ -26,13 +27,14 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     const webhook = await prisma.webhook.findUnique({
       where: {
         method,
-        path: webhookId,
+        path: webhookPath,
       },
       select: {
         workflowId: true,
         workflow: {
           select: {
             userId: true,
+            active: true,
           },
         },
         secret: true,
@@ -47,7 +49,12 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
     }
 
     if (webhook.secret && webhook.secret !== secret_token) {
-      res.status(403).send('Not authorized')
+      res.status(403).send('Webhook called with invalid secret. Not authorized')
+      return
+    }
+
+    if (!webhook.workflow.active) {
+      res.status(409).send('Workflow is not active to execute. Please activate the workflow first.')
       return
     }
 
@@ -68,8 +75,8 @@ router.all('/webhook/:webhookId', async (req: Request, res: Response, next: Next
       },
     })
 
-    res.status(200).json({
-      message: 'Execution started',
+    res.status(202).json({
+      message: 'Execution accepted',
       executionId: execution.id,
     })
   } catch (error) {

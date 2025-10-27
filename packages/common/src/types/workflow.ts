@@ -9,6 +9,7 @@ export const nodeTypeSchema = z.enum([
   'aiAgent',
   'formSubmission',
   'chatMessage',
+  'exponent',
   'sum',
   'multiply',
   'other',
@@ -76,9 +77,9 @@ export const workflowSchema = z.object({
 // Workflow creation schema (without id, timestamps)
 export const createWorkflowSchema = z.object({
   name: z.string().min(1, 'Workflow name is required'),
-  active: z.boolean().default(false),
-  nodes: nodesSchema.default([]),
-  edges: edgesSchema.default([]),
+  active: z.boolean().optional().default(false),
+  nodes: nodesSchema.default([]).optional(),
+  edges: edgesSchema.default([]).optional(),
 })
 
 // Node template schema
@@ -97,19 +98,44 @@ export const nodeTemplateSchema = z.object({
 export const executionSchema = z.object({
   id: z.string(),
   workflowId: z.string(),
+  workflow: z
+    .object({
+      id: z.string(),
+      name: z.string(),
+      active: z.boolean(),
+    })
+    .optional(),
   status: executionStatusSchema,
   startedAt: z.date(),
   finishedAt: z.date().optional(),
   durationMs: z.number().optional(),
-  summary: z.string(),
+  summary: z.string().optional(),
   logs: z.array(
     z.object({
       id: z.string(),
+      type: z.enum(['execution_complete', 'node_event']),
       timestamp: z.date(),
       nodeId: z.string(),
+      status: z.enum(['loading', 'success', 'error']),
       level: z.enum(['info', 'warn', 'error', 'debug']),
+      executionSummary: z.string().optional(),
       message: z.string(),
-      data: z.any().optional(),
+      context: z
+        .object({
+          input: z.any().optional(),
+          output: z.any().optional(),
+          error: z.any().optional(),
+          duration: z.number().optional(),
+          retryCount: z.number().optional(),
+        })
+        .optional(),
+      metadata: z
+        .object({
+          userId: z.string().optional(),
+          workflowId: z.string().optional(),
+          executionId: z.string().optional(),
+        })
+        .optional(),
     }),
   ),
 })
@@ -129,6 +155,7 @@ export const workflowResponseSchema = z.object({
   active: z.boolean(),
   nodes: nodesSchema,
   edges: edgesSchema,
+  status: executionStatusSchema,
   userId: z.string(),
   archived: z.boolean(),
   createdAt: z.string(), // ISO string from API
@@ -140,6 +167,7 @@ export const workflowListItemSchema = z.object({
   id: z.string(),
   name: z.string(),
   active: z.boolean(),
+  status: executionStatusSchema,
   userId: z.string(),
   createdAt: z.string(),
   updatedAt: z.string(),
@@ -147,9 +175,19 @@ export const workflowListItemSchema = z.object({
 
 export const workflowsListResponseSchema = z.object({
   workflows: z.array(workflowListItemSchema),
-  total: z.number(),
-  page: z.number(),
-  limit: z.number(),
+  cursor: z.string().optional(),
+})
+
+// Infinite query response schemas (cursor-based pagination)
+export const workflowsInfiniteResponseSchema = z.object({
+  workflows: z.array(workflowListItemSchema),
+  cursor: z.string().optional(),
+  totalCount: z.number(),
+})
+
+export const executionsInfiniteResponseSchema = z.object({
+  executions: z.array(executionSchema),
+  cursor: z.string().optional(),
 })
 
 // Type exports
@@ -165,6 +203,8 @@ export type Execution = z.infer<typeof executionSchema>
 export type WorkflowResponse = z.infer<typeof workflowResponseSchema>
 export type WorkflowListItem = z.infer<typeof workflowListItemSchema>
 export type WorkflowsListResponse = z.infer<typeof workflowsListResponseSchema>
+export type WorkflowsInfiniteResponse = z.infer<typeof workflowsInfiniteResponseSchema>
+export type ExecutionsInfiniteResponse = z.infer<typeof executionsInfiniteResponseSchema>
 
 // Frontend-specific types (extended for React Flow)
 // export interface WorkflowData extends Omit<Workflow, 'nodes' | 'edges'> {
@@ -181,11 +221,25 @@ export type CredentialRef = z.infer<typeof credentialRefSchema>
 
 export interface ExecutionLog {
   id: string
+  type: 'execution_complete' | 'node_event'
   timestamp: Date
   nodeId: string
-  level: 'info' | 'warn' | 'error' | 'debug'
+  status: 'loading' | 'success' | 'error'
+  level: 'debug' | 'info' | 'warn' | 'error'
+  executionSummary?: string
   message: string
-  data?: any
+  context?: {
+    input?: any
+    output?: any
+    error?: any
+    duration?: number
+    retryCount?: number
+  }
+  metadata?: {
+    userId?: string
+    workflowId?: string
+    executionId?: string
+  }
 }
 
 export interface NodeCategory {
@@ -193,3 +247,39 @@ export interface NodeCategory {
   label: string
   nodes: NodeTemplate[]
 }
+
+// export const workflowEventSchema = z.object({
+//   type: z.enum(['subscribe', 'unsubscribe']),
+//   workflowId: z.string(),
+//   executionId: z.string().optional(),
+// })
+
+// export type WorkflowEvent = z.infer<typeof workflowEventSchema>
+
+// WebSocket message types for type safety
+export const subscribeMessageType = z.object({
+  type: z.literal('subscribe'),
+  workflowId: z.string(),
+  executionId: z.string(),
+})
+
+export const unsubscribeMessageType = z.object({
+  type: z.literal('unsubscribe'),
+})
+
+export const webSocketMessageSchema = z.discriminatedUnion('type', [
+  subscribeMessageType,
+  unsubscribeMessageType,
+])
+
+export type WebSocketMessage = z.infer<typeof webSocketMessageSchema>
+
+// Execution completion event
+export const executionCompleteSchema = z.object({
+  type: z.literal('execution_complete'),
+  executionId: z.string(),
+  status: executionStatusSchema,
+  timestamp: z.date(),
+})
+
+export type ExecutionComplete = z.infer<typeof executionCompleteSchema>

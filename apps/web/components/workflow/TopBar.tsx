@@ -6,36 +6,44 @@ import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useUpdateWorkflow } from '@/hooks/useWorkflow'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
 import { Label } from '@buzz8n/ui/components/label'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
-//TODO:Fix the functionality of the top bar
+
 export function TopBar() {
   const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
-  const handleToggleActive = () => {
-    // Toggle workflow active state
-    console.log('Toggle active state')
+  const handleToggleActive = (checked: boolean) => {
+    if (!workflow || isSaving) return
+
+    saveWorkflowMutate({
+      id: workflow.id,
+      data: {
+        active: checked,
+      },
+      activeChange: true,
+    })
   }
 
-  const handleShare = () => {
-    console.log('Share workflow')
+  const handleShare = async () => {
+    if (!workflow) return
+
+    const url = `${window.location}`
+    await navigator.clipboard.writeText(url)
+    toast.success('Copied workflow url to clipboard')
   }
 
   const handleSave = async () => {
     if (!workflow) return
-
-    const webhookNode = nodes.find((node) => node.data.type === 'webhook')
-
-    console.log(webhookNode)
 
     saveWorkflowMutate({
       id: workflow.id,
       data: {
         nodes,
         edges,
-        active: workflow.active,
+        active: undefined,
       },
     })
   }
@@ -58,11 +66,14 @@ export function TopBar() {
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as 'editor' | 'executions')}
+          >
             <TabsList className="bg-muted">
               <TabsTrigger value="editor">Editor</TabsTrigger>
               <TabsTrigger value="executions">Executions</TabsTrigger>
-              <TabsTrigger value="evaluations">Evaluations</TabsTrigger>
+              {/* <TabsTrigger value="evaluations">Evaluations</TabsTrigger> */}
             </TabsList>
           </Tabs>
         </div>
@@ -70,15 +81,20 @@ export function TopBar() {
         {/* Right: Controls */}
         <div className="flex items-center space-x-4">
           {/* Active/Inactive toggle */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 relative w-fit">
             <Label htmlFor="active-toggle" className="text-sm">
               {workflow.active ? 'Active' : 'Inactive'}
             </Label>
-            <Switch
-              id="active-toggle"
-              checked={workflow.active}
-              onCheckedChange={handleToggleActive}
-            />
+            {isSaving ? (
+              <Spinner className="size-4 " />
+            ) : (
+              <Switch
+                id="active-toggle"
+                checked={workflow.active}
+                onCheckedChange={handleToggleActive}
+                disabled={isSaving}
+              />
+            )}
           </div>
 
           {/* Share button */}

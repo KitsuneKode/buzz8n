@@ -1,7 +1,7 @@
 'use client'
 
 import {
-  BarChart3,
+  ChevronUp,
   Clock,
   Database,
   FileText,
@@ -108,8 +108,8 @@ const getNodeIcon = (iconType: string) => {
       return <GitBranch className="w-5 h-5" />
     case 'message-square':
       return <MessageSquare className="w-5 h-5" />
-    case 'bar-chart-3':
-      return <BarChart3 className="w-5 h-5" />
+    case 'chevron-up':
+      return <ChevronUp className="size-5" />
     case 'sparkles':
       return <Sparkles className="w-5 h-5" />
     case 'database':

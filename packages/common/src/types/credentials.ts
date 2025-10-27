@@ -1,8 +1,7 @@
-import { Platforms } from '@buzz8n/store'
-import z from 'zod'
+import { z } from 'zod'
 
 // Map the database enum to our supported platforms
-export const SupportedPlatforms = z.enum(Platforms)
+export const SupportedPlatforms = z.enum(['Telegram', 'Email', 'OpenAI', 'Gemini', 'Anthropic'])
 
 export const credentialSchema = z.object({
   title: z.string(),
@@ -19,6 +18,14 @@ export const credentialResponse = z.object({
 })
 
 export type CredentialResponse = z.infer<typeof credentialResponse>
+
+// Infinite query response schema (cursor-based pagination)
+export const credentialsInfiniteResponseSchema = z.object({
+  credentials: z.array(credentialResponse),
+  cursor: z.string().optional(),
+})
+
+export type CredentialsInfiniteResponse = z.infer<typeof credentialsInfiniteResponseSchema>
 
 export const telegramFormSchema = z.object({
   name: z.string().trim().min(1, 'Credential name is required'),

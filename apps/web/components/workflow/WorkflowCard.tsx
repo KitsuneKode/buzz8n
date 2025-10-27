@@ -1,20 +1,27 @@
 'use client'
-
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@buzz8n/ui/components/dropdown-menu'
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@buzz8n/ui/components/alert-dialog'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
-import { MoreHorizontal, Play, Pause, Trash2, Copy } from 'lucide-react'
+import { CheckCircle, Clock, Trash, XCircle } from 'lucide-react'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { WorkflowListData } from '@buzz8n/common/types'
 import { useDeleteWorkflow } from '@/hooks/useWorkflow'
 import { Button } from '@buzz8n/ui/components/button'
+import { toast } from '@buzz8n/ui/components/sonner'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { useState, useTransition } from 'react'
 import { formatDistanceToNow } from 'date-fns'
 import { useRouter } from 'next/navigation'
+import { useTransition } from 'react'
 
 interface WorkflowCardProps {
   workflow: WorkflowListData
@@ -22,34 +29,24 @@ interface WorkflowCardProps {
 
 export function WorkflowCard({ workflow }: WorkflowCardProps) {
   const router = useRouter()
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [isPending, startTransition] = useTransition()
+  const [isDeleting, startTransition] = useTransition()
+  const [isPending, startTransitionResume] = useTransition()
   const deleteWorkflowMutation = useDeleteWorkflow()
 
   const handleResume = () => {
-    startTransition(() => {
+    startTransitionResume(() => {
       router.push(`/workflow/${workflow.id}`)
     })
   }
 
   const handleDelete = async () => {
-    if (!confirm(`Are you sure you want to delete "${workflow.name}"?`)) {
-      return
-    }
-
-    setIsDeleting(true)
     try {
-      await deleteWorkflowMutation.mutateAsync(workflow.id)
+      startTransition(async () => {
+        await deleteWorkflowMutation.mutateAsync(workflow.id)
+      })
     } catch {
-      // Error handling is done in the mutation
-    } finally {
-      setIsDeleting(false)
+      toast.error('Failed to delete workflow')
     }
-  }
-
-  const handleDuplicate = () => {
-    // TODO: Implement duplicate functionality
-    console.log('Duplicate workflow:', workflow.id)
   }
 
   const formatLastModified = () => {
@@ -66,11 +63,11 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
 
   return (
     <Card className="hover:shadow-md transition-shadow cursor-pointer group">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3 pr-3">
         <div className="flex items-start justify-between">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pr-3">
             <CardTitle
-              className="text-lg font-semibold truncate group-hover:text-primary transition-colors"
+              className="text-lg max-w-[200px] font-semibold truncate overflow-hidden text-ellipsis group-hover:text-primary transition-colors"
               onClick={handleResume}
             >
               {workflow.name}
@@ -78,10 +75,31 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
             <p className="text-sm text-muted-foreground mt-1">Modified {formatLastModified()}</p>
           </div>
 
-          <div className="flex items-center gap-2 ml-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
             {getStatusBadge()}
 
-            <DropdownMenu>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="destructive" size="icon" disabled={isDeleting} className="h-8 w-8">
+                  {isDeleting ? <Spinner className="size-4" /> : <Trash className="size-4" />}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete the workflow and all
+                    its data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+
+            {/* <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                   <MoreHorizontal className="h-4 w-4" />
@@ -105,30 +123,42 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
                   {isDeleting ? 'Deleting...' : 'Delete'}
                 </DropdownMenuItem>
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="pt-0">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {workflow.active ? (
-              <Button variant="outline" size="sm" disabled>
-                <Pause className="mr-2 h-4 w-4" />
-                Paused
-              </Button>
-            ) : (
-              <Button variant="outline" size="sm" disabled>
-                <Play className="mr-2 h-4 w-4" />
-                Stopped
-              </Button>
-            )}
-
-            <Button variant="default" size="sm" onClick={handleResume} disabled={isPending}>
-              {isPending ? 'Opening...' : 'Open'}
+          {workflow.status == 'loading' && (
+            <Button variant="outline" size="sm" disabled>
+              <Spinner className="mr-2 size-4 animate-spin text-blue-600" />
+              Running
             </Button>
-          </div>
+          )}
+          {workflow.status == 'initial' && (
+            <Button variant="outline" size="sm" disabled>
+              <Clock className="mr-2 size-4" />
+              Not Executed
+            </Button>
+          )}
+          {workflow.status == 'success' && (
+            <Button variant="outline" size="sm" disabled className="bg-green-600/40 text-green-300">
+              <CheckCircle className="mr-2 size-4" />
+              Success
+            </Button>
+          )}
+
+          {workflow.status == 'error' && (
+            <Button variant="destructive" size="sm" disabled>
+              <XCircle className="mr-2 size-4 text-red-600" />
+              Failed
+            </Button>
+          )}
+
+          <Button variant="default" size="sm" onClick={handleResume} disabled={isPending}>
+            {isPending ? <Spinner className="mr-2 size-4 animate-spin text-blue-600" /> : 'Open'}
+          </Button>
         </div>
       </CardContent>
     </Card>

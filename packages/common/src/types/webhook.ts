@@ -1,6 +1,5 @@
-import { Methods } from '@buzz8n/store'
 import { z } from 'zod'
 
-export const supportedMethodsSchema = z.enum(Methods)
+export const supportedMethodsSchema = z.enum(['POST', 'GET', 'PUT'])
 
 export type SupportedMethods = z.infer<typeof supportedMethodsSchema>

@@ -52,6 +52,17 @@ export const sendResendEMail = async (
     if (error) {
       throw new Error(error.message)
     }
+
+    // const execution = await prisma.execution.update({
+    //   where: {
+    //     id: context.$json.executionId,
+
+    //   },
+    //   data: {
+
+    //   }
+    // })
+
     logger.info('Email sent successfully', resp)
 
     return { status: 'ok', data: resp }

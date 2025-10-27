@@ -1,8 +1,11 @@
 import { backendLogger, workerLogger } from '../utils/logger'
 import { backendConfig, workerConfig } from '../utils/config'
+import type { ExecutionLog } from '@buzz8n/common/types'
 import { createClient } from 'redis'
 
-type ServiceType = 'server' | 'worker'
+export type { RedisClientType } from 'redis'
+
+type ServiceType = 'server' | 'worker' | 'ws-server'
 
 const getEnvironment = (service: ServiceType) => {
   if (service === 'worker') {
@@ -25,6 +28,11 @@ export class RedisClient {
   private EXECUTION_GROUP = 'workflow:executors'
   private logger
   public LOG_GROUP = '[REDIS]'
+  // Channel names for different event types
+  public readonly CHANNELS = {
+    // WORKFLOW_EVENTS: 'workflow:events',
+    EXECUTION_EVENTS: 'workflow:execution:events',
+  } as const
 
   constructor(service: ServiceType) {
     const REDIS_URL = getEnvironment(service)
@@ -109,10 +117,36 @@ export class RedisClient {
     return this.redisClient.xAck(streamKey, consumerGroup, messageID)
   }
 
-  async publish() {}
+  async publish(channelName: string, message: string) {
+    return this.redisClient.publish(channelName, message)
+  }
 
-  async subscribe() {}
+  async duplicate() {
+    return this.redisClient.duplicate()
+  }
 
+  async destroy() {
+    return this.redisClient.destroy()
+  }
+
+  // async publishWorkflowEvent(workflowId: string, event: any) {
+  //   const channel = `${this.CHANNELS.WORKFLOW_EVENTS}:${workflowId}`
+  //   const message = JSON.stringify(event)
+  //   await this.publish(channel, message)
+  //   this.logger.debug(`${this.LOG_GROUP} Published workflow event`, { channel, message })
+  // }
+
+  async publishExecutionEvent(executionId: string, log: ExecutionLog) {
+    const channel = `${this.CHANNELS.EXECUTION_EVENTS}:${executionId}`
+
+    const message = JSON.stringify(log)
+    await this.publish(channel, message)
+    this.logger.debug(`${this.LOG_GROUP} Published execution event`, { channel })
+  }
+  // async subscribe(channelName: string, callback: (message: string) => void) {
+  //   return this.redisClient.subscribe(channelName, callback)
+  // }
+  //
   async unsubscribe(channelName?: string[]) {
     if (channelName) {
       return this.redisClient.unsubscribe(...channelName)
@@ -132,5 +166,34 @@ export class RedisClient {
 
   async cleanup() {
     return this.redisClient.quit()
+  }
+
+  // Rate limiting methods
+  async zAdd(key: string, score: number, member: string) {
+    return this.redisClient.zAdd(key, { score, value: member })
+  }
+
+  async zCard(key: string) {
+    return this.redisClient.zCard(key)
+  }
+
+  async zRemRangeByScore(key: string, min: number, max: number) {
+    return this.redisClient.zRemRangeByScore(key, min, max)
+  }
+
+  async sAdd(key: string, ...members: string[]) {
+    return this.redisClient.sAdd(key, members)
+  }
+
+  async sRem(key: string, ...members: string[]) {
+    return this.redisClient.sRem(key, members)
+  }
+
+  async sCard(key: string) {
+    return this.redisClient.sCard(key)
+  }
+
+  async keys(pattern: string) {
+    return this.redisClient.keys(pattern)
   }
 }

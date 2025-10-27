@@ -12,6 +12,7 @@ import {
   EdgeData,
   Execution,
   ExecutionLog,
+  ExecutionStatus,
   NodeData,
   NodeTemplate,
   WorkflowData,
@@ -39,7 +40,7 @@ interface WorkflowEditorState {
   handleId: string | null
 
   // Execution state
-  isExecuting: boolean
+  setCurrentExecution: (execution: Execution | null) => void
   currentExecution: Execution | null
   executionHistory: Execution[]
 
@@ -64,7 +65,6 @@ interface WorkflowEditorState {
   updateNodeConfig: (id: string, patch: Record<string, unknown>) => void
   updateSelectedNodeConfig: (patch: Record<string, unknown>) => void
   setSelectedNodeCredentialRef: (credential: CredentialRef | null) => void
-  resendEmail: (nodeId: string) => Promise<void>
 
   // UI actions
   toggleNodePalette: () => void
@@ -76,12 +76,13 @@ interface WorkflowEditorState {
 
   // Workflow actions
   saveWorkflow: (updatedWorkflow: WorkflowData) => void
-  executeWorkflow: () => void
-  stopExecution: () => void
 
   // Execution actions
-  addExecutionLog: (log: Omit<ExecutionLog, 'id'>) => void
+  addExecutionLog: (log: ExecutionLog) => void
+  updateNodeStatus: (nodeId: string, status: string) => void
   clearLogs: () => void
+  loadExecutionHistory: (executions: Execution[]) => void
+  getNodeExecutionLog: (nodeId: string) => ExecutionLog | null
 }
 
 // Sample node templates
@@ -139,7 +140,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   isLogsDrawerOpen: false,
   isPropertiesPanelOpen: false,
   selectedNodeId: null,
-  isExecuting: false,
   currentExecution: null,
   executionHistory: [],
   pendingConnectFromNodeId: null,
@@ -159,11 +159,19 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   // Canvas actions
   onNodesChange: (changes) => {
     // Filter out selection-only changes to avoid setting isDirty on node selection
+
     const meaningfulChanges = changes.filter((change) => {
       if (change.type === 'select') {
         return false // Don't mark as dirty for selection changes
       }
-      return true // Keep all other changes (add, remove, position, etc.)
+
+      // Filter out position and dimension changes that don't affect workflow logic
+      // These are typically triggered by React Flow's internal state management
+      if (change.type === 'position' || change.type === 'dimensions') {
+        return false
+      }
+
+      return true // Keep all other changes (add, remove, etc.)
     })
 
     set((state) => ({
@@ -361,90 +369,42 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
     })
   },
 
-  executeWorkflow: async () => {
-    const { nodes, workflow } = get()
-    if (!workflow || nodes.length === 0) return
-
-    const execution: Execution = {
-      id: `exec_${Date.now()}`,
-      workflowId: workflow.id,
-      status: 'loading',
-      startedAt: new Date(),
-      summary: 'Workflow execution started',
-      logs: [],
-    }
-
-    set({
-      isExecuting: true,
-      currentExecution: execution,
-      executionHistory: [execution, ...get().executionHistory],
-    })
-
-    // Simulate execution
-    for (const node of nodes) {
-      // Update node status
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, status: 'loading' } } : n,
-        ),
-      }))
-
-      // Add log
-      get().addExecutionLog({
-        timestamp: new Date(),
-        nodeId: node.id,
-        level: 'info',
-        message: `Executing node: ${node.data.label}`,
-      })
-
-      // Simulate processing time
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Update node status to success
-      set((state) => ({
-        nodes: state.nodes.map((n) =>
-          n.id === node.id ? { ...n, data: { ...n.data, status: 'success' } } : n,
-        ),
-      }))
-    }
-
-    // Complete execution
-    const finishedAt = new Date()
-    const durationMs = finishedAt.getTime() - execution.startedAt.getTime()
-
-    set((state) => ({
-      isExecuting: false,
-      currentExecution: state.currentExecution
-        ? {
-            ...state.currentExecution,
-            status: 'success',
-            finishedAt,
-            durationMs,
-            summary: `Workflow completed successfully in ${durationMs}ms`,
-          }
-        : null,
-    }))
-  },
-
-  stopExecution: () => {
-    set({ isExecuting: false })
-  },
-
   // Execution actions
-  addExecutionLog: (logData) => {
-    const log: ExecutionLog = {
-      id: `log_${Date.now()}`,
-      ...logData,
-    }
 
+  setCurrentExecution: (execution) => {
+    set((state) => ({
+      currentExecution: execution,
+      executionHistory: execution ? [execution, ...state.executionHistory] : state.executionHistory,
+    }))
+  },
+
+  addExecutionLog: (logData) => {
     set((state) => ({
       currentExecution: state.currentExecution
         ? {
             ...state.currentExecution,
-            logs: [...state.currentExecution.logs, log],
+            logs: [...state.currentExecution.logs, logData],
           }
         : null,
     }))
+  },
+
+  updateNodeStatus: (nodeId, status) => {
+    set((state) => {
+      const updatedNodes = state.nodes.map((node) =>
+        node.id === nodeId
+          ? { ...node, data: { ...node.data, status: status as ExecutionStatus } }
+          : node,
+      )
+
+      // Check if status actually changed to avoid unnecessary re-renders
+      const node = state.nodes.find((n) => n.id === nodeId)
+      if (node?.data.status === status) {
+        return state // No change, return current state
+      }
+
+      return { nodes: updatedNodes }
+    })
   },
 
   clearLogs: () => {
@@ -456,6 +416,19 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
           }
         : null,
     }))
+  },
+
+  loadExecutionHistory: (executions) => {
+    set((state) => ({
+      executionHistory: [...state.executionHistory, ...executions],
+    }))
+  },
+
+  getNodeExecutionLog: (nodeId) => {
+    const { currentExecution } = get()
+    if (!currentExecution) return null
+
+    return currentExecution.logs.find((log) => log.nodeId === nodeId) || null
   },
   updateNodeConfig: (id, patch) => {
     set((state) => ({
@@ -489,41 +462,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       ),
       isDirty: true,
     }))
-  },
-
-  resendEmail: async (nodeId: string) => {
-    const node = get().nodes.find((n) => n.id === nodeId)
-    if (!node || node.data.type !== 'emailSend') return
-
-    // Set loading status
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, status: 'loading' } } : n,
-      ),
-    }))
-
-    get().addExecutionLog({
-      timestamp: new Date(),
-      nodeId,
-      level: 'info',
-      message: `Resending email for node: ${node.data.label}`,
-    })
-
-    // Simulate
-    await new Promise((r) => setTimeout(r, 800))
-
-    set((state) => ({
-      nodes: state.nodes.map((n) =>
-        n.id === nodeId ? { ...n, data: { ...n.data, status: 'success' } } : n,
-      ),
-    }))
-
-    get().addExecutionLog({
-      timestamp: new Date(),
-      nodeId,
-      level: 'info',
-      message: 'Email resent successfully',
-    })
   },
 }))
 

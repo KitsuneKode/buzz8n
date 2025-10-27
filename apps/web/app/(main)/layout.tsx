@@ -1,44 +1,37 @@
+import { prefetchInfiniteWorkflowsList, prefetchInfiniteExecutions } from '@/hooks/useWorkflow'
+import { prefetchInfiniteCredentials } from '@/utils/prefetchServerCredentials'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
-import { prefetchWorkflowsList } from '@/hooks/useWorkflow'
 import { getQueryClient } from '@/utils/get-query-client'
 import DataBootStrap from '@/components/DataBootStrap'
-import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
-import axios from 'axios'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient()
 
   const cookieHeader = (await cookies()).toString()
 
-  const credentialPrefetch = queryClient.prefetchQuery({
-    queryKey: ['credentials'],
-    queryFn: async () => {
-      try {
-        const response = await axios.get(`${API_URL}/credential`, {
-          headers: {
-            Cookie: cookieHeader, // Add this line
-          },
-        })
-        return response.data.credentials
-      } catch {
-        return []
-      }
-    },
+  // Prefetch first page of credentials for infinite query
+  const credentialPrefetch = queryClient.prefetchInfiniteQuery({
+    queryKey: ['credentials', 'list', { infinite: true, limit: 10 }],
+    queryFn: () => prefetchInfiniteCredentials(10, cookieHeader),
+    initialPageParam: undefined,
   })
 
-  const workflowListPrefetch = queryClient.prefetchQuery({
-    queryKey: ['workflows', 'list', { filters: { limit: 20 } }],
-    queryFn: () =>
-      prefetchWorkflowsList(
-        {
-          limit: 20,
-        },
-        cookieHeader,
-      ),
+  // Prefetch first page of workflows for infinite query
+  const workflowListPrefetch = queryClient.prefetchInfiniteQuery({
+    queryKey: ['workflows', 'list', { infinite: true, limit: 10 }],
+    queryFn: () => prefetchInfiniteWorkflowsList(10, cookieHeader),
+    initialPageParam: undefined,
   })
 
-  await Promise.all([credentialPrefetch, workflowListPrefetch])
+  // Prefetch first page of executions for infinite query
+  const executionsPrefetch = queryClient.prefetchInfiniteQuery({
+    queryKey: ['executions', 'infinite', { limit: 10 }],
+    queryFn: () => prefetchInfiniteExecutions(10, cookieHeader),
+    initialPageParam: undefined,
+  })
+
+  await Promise.all([credentialPrefetch, workflowListPrefetch, executionsPrefetch])
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>

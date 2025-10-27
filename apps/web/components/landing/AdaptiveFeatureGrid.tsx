@@ -175,7 +175,7 @@ export function AdaptiveFeatureGrid({ className = '' }: AdaptiveFeatureGridProps
           </h2>
 
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Our AI doesn't just automate—it thinks, learns, and evolves with your workflows.
+            Our AI doesn&apos;t just automate—it thinks, learns, and evolves with your workflows.
             Experience the next generation of intelligent process automation.
           </p>
         </motion.div>
@@ -187,7 +187,7 @@ export function AdaptiveFeatureGrid({ className = '' }: AdaptiveFeatureGridProps
           viewport={{ once: true }}
           className="grid md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
-          {features.map((feature, index) => (
+          {features.map((feature) => (
             <motion.div
               key={feature.id}
               variants={itemVariants}

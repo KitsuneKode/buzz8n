@@ -1,11 +1,9 @@
 'use client'
-import { CredentialResponse } from '@buzz8n/common/types'
-import { useSuspenseQuery } from '@tanstack/react-query'
+import { CredentialsInfiniteResponse } from '@buzz8n/common/types'
+import { useInfiniteCredentials } from '@/hooks/useCredentials'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Credential } from '@/lib/types/credentials'
-import { API_URL } from '@/utils/config'
 import { useEffect } from 'react'
-import axios from 'axios'
 
 /**
  * Fetches credential data on the client, maps it into local `Credential` objects, and stores them in the dashboard store.
@@ -15,31 +13,27 @@ import axios from 'axios'
  * @returns `null` (renders nothing)
  */
 export default function DataBootstrap() {
-  const { data: initialCredentials } = useSuspenseQuery({
-    queryKey: ['credentials'],
-    queryFn: async () => {
-      const response = await axios.get(`${API_URL}/credential`, {
-        withCredentials: true,
-      })
-
-      return response.data.credentials
-    },
-  })
+  // Use infinite credentials query to get initial data
+  const { data: infiniteData } = useInfiniteCredentials(10)
 
   useEffect(() => {
-    if (initialCredentials) {
-      const credentials: Credential[] = initialCredentials.map(
-        (credential: CredentialResponse) => ({
+    if (infiniteData?.pages && infiniteData.pages.length > 0) {
+      // Flatten all pages and transform to frontend format
+      const allCredentials = infiniteData.pages.flatMap((page: CredentialsInfiniteResponse) =>
+        page.credentials.map((credential) => ({
           config: credential.data,
           id: credential.id,
           name: credential.title,
           provider: credential.platform,
           createdAt: new Date(credential.createdAt),
-        }),
+        })),
       )
-      useDashboardStore.setState({ credentials })
+
+      // Only store the first 10 credentials in the dashboard store for backward compatibility
+      const firstPageCredentials: Credential[] = allCredentials.slice(0, 10)
+      useDashboardStore.setState({ credentials: firstPageCredentials })
     }
-  }, [initialCredentials])
+  }, [infiniteData])
 
   return null
 }

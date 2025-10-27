@@ -1,9 +1,23 @@
 'use client'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@buzz8n/ui/components/alert-dialog'
 import { Trash2, Eye, EyeOff, Copy, Check, Loader2, ChevronDown } from 'lucide-react'
 import { getProviderIcon } from '@/components/credentials/ProviderPicker'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteCredentials } from '@/hooks/useCredentials'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { CredentialResponse } from '@buzz8n/common/types'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useDashboardStore } from '@/stores/dashboard'
 import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@buzz8n/ui/components/button'
@@ -16,14 +30,50 @@ import { useState } from 'react'
 import axios from 'axios'
 
 interface CredentialsListProps {
-  credentials: Credential[]
+  credentials?: Credential[]
 }
 
-const CredentialsList = ({ credentials }: CredentialsListProps) => {
+const CredentialsList = ({ credentials: initialCredentials }: CredentialsListProps) => {
   const { removeCredential, openCredentialModal } = useDashboardStore()
   const [visibleSecrets, setVisibleSecrets] = useState<Set<string>>(new Set())
   const [copiedFields, setCopiedFields] = useState<Set<string>>(new Set())
   const [expandedCredential, setExpandedCredential] = useState<string | null>(null)
+
+  // Skip infinite query when initial credentials are provided
+  const shouldUseInfiniteQuery = !initialCredentials
+
+  // Use infinite query for credentials only when needed
+  const {
+    data: infiniteCredentialsData,
+    isLoading,
+    error,
+    isError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteCredentials(10, { enabled: shouldUseInfiniteQuery })
+
+  // Flatten credentials data and transform to frontend format
+  const credentials =
+    infiniteCredentialsData?.pages.flatMap((page) =>
+      page.credentials.map((credential) => ({
+        config: credential.data,
+        id: credential.id,
+        name: credential.title,
+        provider: credential.platform,
+        createdAt: new Date(credential.createdAt),
+      })),
+    ) || []
+
+  // Use infinite scroll hook with conditional values
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage: shouldUseInfiniteQuery ? hasNextPage : false,
+    isFetchingNextPage: shouldUseInfiniteQuery ? isFetchingNextPage : false,
+    fetchNextPage: shouldUseInfiniteQuery ? fetchNextPage : () => {},
+  })
+
+  // Use initial credentials if provided, otherwise use infinite query data
+  const displayCredentials = initialCredentials || credentials
 
   const toggleSecretVisibility = (credentialId: string, field: string) => {
     const key = `${credentialId}-${field}`
@@ -42,7 +92,7 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
 
   const { isPending, mutate: handleDeleteCredential } = useMutation({
     mutationFn: async (credentialId: string) => {
-      const response = await axios.delete(`${API_URL}/credential`, {
+      const response = await axios.delete<CredentialResponse>(`${API_URL}/credential`, {
         data: {
           id: credentialId,
         },
@@ -57,8 +107,13 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
 
       removeCredential(responseData.id)
 
-      queryClient.setQueryData(['credential'], (old: Array<CredentialResponse>) =>
-        old.filter((c) => c.id !== responseData.id),
+      // Invalidate infinite credentials cache to refresh the list
+      queryClient.invalidateQueries({
+        queryKey: ['credentials', 'infinite'],
+      })
+
+      queryClient.setQueryData(['credentials'], (old: Array<CredentialResponse>) =>
+        old?.filter((c) => c?.id !== responseData.id),
       )
     },
     onError: () => {
@@ -174,99 +229,160 @@ const CredentialsList = ({ credentials }: CredentialsListProps) => {
       </div>
 
       <div className="space-y-2 flex flex-col items-center ">
-        {credentials.map((credential) => {
-          const isExpanded = expandedCredential === credential.id
+        {isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+            <span>Loading credentials...</span>
+          </div>
+        ) : displayCredentials.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-4xl mb-4">🔑</div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No credentials yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Add your first credential to get started with integrations
+            </p>
+            <Button onClick={openCredentialModal}>Add First Credential</Button>
+          </div>
+        ) : (
+          <>
+            {displayCredentials.map((credential) => {
+              const isExpanded = expandedCredential === credential.id
 
-          return (
-            <Card key={credential.id} className="relative overflow-hidden w-xl">
-              <motion.div layout initial={false} transition={{ duration: 0.3, ease: 'easeInOut' }}>
-                {/* List Item - Always Visible */}
-                <div
-                  className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
-                  onClick={() => setExpandedCredential(isExpanded ? null : credential.id)}
-                >
-                  {/* Provider Icon */}
-                  {/* <div
-                    className={`w-10 h-10 ${getProviderColor(credential.provider)} rounded-lg flex items-center justify-center shrink-0`}
+              return (
+                <Card key={credential.id} className="relative overflow-hidden w-xl">
+                  <motion.div
+                    layout
+                    initial={false}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
-                    <span className="text-white text-sm font-bold uppercase">
-                      {credential.provider?.charAt(0).toUpperCase() +
-                        credential.provider?.charAt(1).toLowerCase()}
-                    </span>
-                    </div> */}
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
-                    {getProviderIcon(credential.provider)}
-                  </div>
-                  {/* Content Area */}
-                  <div className="flex-1 min-w-0 flex items-center gap-4">
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <h3 className="font-semibold text-foreground truncate">
-                          {credential.name}
-                        </h3>
-                        <Badge variant="outline" className="text-xs shrink-0">
-                          {credential.provider}
-                        </Badge>
+                    {/* List Item - Always Visible */}
+                    <div
+                      className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => setExpandedCredential(isExpanded ? null : credential.id)}
+                    >
+                      {/* Provider Icon */}
+                      <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
+                        {getProviderIcon(credential.provider)}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        Created {formatDate(credential.createdAt)}
-                      </p>
-                    </div>
-                  </div>
-                  {/* Action Buttons */}
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      disabled={isPending}
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDeleteCredential(credential.id)
-                      }}
-                    >
-                      {isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <Trash2 className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <motion.div
-                      animate={{ rotate: isExpanded ? 180 : 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="shrink-0"
-                    >
-                      <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                    </motion.div>
-                  </div>
-                </div>
-
-                {/* Expanded Details */}
-                <AnimatePresence initial={false}>
-                  {isExpanded && credential.config && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.3, ease: 'easeInOut' }}
-                    >
-                      <div className="border-t border-border px-4 pb-4 space-y-1">
-                        <div className="pt-4 pb-2">
-                          <h4 className="text-sm font-semibold text-foreground mb-3">
-                            Configuration Details
-                          </h4>
+                      {/* Content Area */}
+                      <div className="flex-1 min-w-0 flex items-center gap-4">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h3 className="font-semibold text-foreground truncate">
+                              {credential.name}
+                            </h3>
+                            <Badge variant="outline" className="text-xs shrink-0">
+                              {credential.provider}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-1 truncate">
+                            Created {formatDate(credential.createdAt)}
+                          </p>
                         </div>
-                        {Object.entries(credential.config).map(([key, value]) =>
-                          renderConfigField(credential, key, value),
-                        )}
                       </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            </Card>
-          )
-        })}
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={isPending}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            >
+                              {isPending ? (
+                                <Spinner className="size-4" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the
+                                credential.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (isPending) return
+                                  handleDeleteCredential(credential.id)
+                                }}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
+                        <motion.div
+                          animate={{ rotate: isExpanded ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="shrink-0"
+                        >
+                          <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                        </motion.div>
+                      </div>
+                    </div>
+
+                    {/* Expanded Details */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && credential.config && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: 'easeInOut' }}
+                        >
+                          <div className="border-t border-border px-4 pb-4 space-y-1">
+                            <div className="pt-4 pb-2">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">
+                                Configuration Details
+                              </h4>
+                            </div>
+                            {Object.entries(credential.config).map(([key, value]) =>
+                              renderConfigField(credential, key, value),
+                            )}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </Card>
+              )
+            })}
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="py-4">
+              {isError && (
+                <div className="text-center text-sm text-destructive">
+                  Error loading more credentials: {error?.message}
+                </div>
+              )}
+              {isFetchingNextPage && (
+                <div className="flex items-center justify-center">
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  <span className="text-sm text-muted-foreground">Loading more credentials...</span>
+                </div>
+              )}
+              {!hasNextPage && displayCredentials.length > 0 && (
+                <div className="text-center text-sm text-muted-foreground">
+                  No more credentials to load
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

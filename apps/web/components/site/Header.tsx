@@ -136,7 +136,6 @@ export function Header({
   }
 
   // Calculate dynamic island effect
-  const scrollProgress = Math.min(scrollY / 200, 1)
   const isCompact = scrollY > 100
 
   return (

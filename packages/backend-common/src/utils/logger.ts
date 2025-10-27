@@ -25,34 +25,39 @@ const baseFormat = printf((info) => {
   // Access error stack
   const stack = info.stack ? `\n  error: ${info.stack}` : ''
 
-  // Access the SPLAT symbol for additional arguments
+  // Handle additional data - prioritize SPLAT args over metadata to avoid duplication
   const splatArgs = (info[SPLAT as any] || []) as any[]
   let additionalData = ''
 
   if (splatArgs.length > 0) {
+    // If we have SPLAT args, use those and ignore metadata to avoid duplication
     additionalData = splatArgs
       .map((arg) => {
-        if (typeof arg === 'object') {
-          return `\n  ${JSON.stringify(arg, null, 2)}`
+        if (typeof arg === 'object' && arg !== null) {
+          // Compact object representation for better readability
+          return ` ${JSON.stringify(arg)}`
         }
         return ` ${arg}`
       })
       .join('')
+  } else {
+    // Only use metadata if no SPLAT args to avoid duplication
+    const {
+      timestamp: _ts,
+      level: _lvl,
+      message: _msg,
+      service: _svc,
+      stack: _stack,
+      [SPLAT]: _splat,
+      ...meta
+    } = info
+
+    if (Object.keys(meta).length > 0) {
+      additionalData = ` ${JSON.stringify(meta)}`
+    }
   }
 
-  // Also handle metadata passed as second argument (non-splat style)
-  const {
-    timestamp: _ts,
-    level: _lvl,
-    message: _msg,
-    service: _svc,
-    stack: _stack,
-    [SPLAT]: _splat,
-    ...meta
-  } = info
-  const metaData = Object.keys(meta).length > 0 ? `\n  meta: ${JSON.stringify(meta, null, 2)}` : ''
-
-  return `([${colorizer(info.level, ts)}]) [${lvl}] [${info.service}] ${msg}${additionalData}${metaData}${stack}`
+  return `[${colorizer(info.level, ts)}] [${lvl}] [${info.service}] ${msg}${additionalData}${stack}`
 })
 
 /**
@@ -114,6 +119,9 @@ export function createLogger(serviceName: string) {
 // logger.info("Hello there. How are you?");
 //
 // logger.info("Logger initialized", { payload });
+//
+// Note: Objects are logged compactly in one line to avoid duplication and excessive verbosity
 
 export const backendLogger = createLogger('buzz8n-server')
 export const workerLogger = createLogger('buzz8n-worker')
+export const wsServerLogger = createLogger('buzz8n-ws-server')

@@ -1,20 +1,17 @@
 'use client'
 
 import {
-  BarChart3,
-  CheckIcon,
+  Check,
+  ChevronUp,
   CircleX,
-  Clock,
-  CrossIcon,
   FileText,
-  GitBranch,
   MessageSquare,
   MoreHorizontal,
   Play,
   PlayCircle,
   Plus,
   Sigma,
-  Zap,
+  X,
 } from 'lucide-react'
 import {
   NodeTooltip,
@@ -33,6 +30,7 @@ import { BaseHandle } from '@/components/react-flow/nodes/base-handle'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeProps, NodeToolbar, Position } from '@xyflow/react'
 import { NodeData, NodeType } from '@/lib/types/workflow'
+import { useExecuteWorkflow } from '@/hooks/useWorkflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { cn } from '@buzz8n/ui/lib/utils'
@@ -48,8 +46,8 @@ const getNodeIcon = (type: NodeType) => {
       return <IconMail size={48} />
     case 'webhook':
       return <IconWebhook size={48} />
-    // case 'schedule':
-    //   return <Clock size={48} />
+    case 'exponent':
+      return <ChevronUp size={48} />
     // case 'appEvent':
     //   return <Zap size={48} />
     case 'formSubmission':
@@ -74,30 +72,30 @@ const getNodeIcon = (type: NodeType) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'loading':
-      return 'text-yellow-500 '
+      return 'text-blue-500'
     case 'success':
-      return 'text-green-500 '
+      return 'text-green-500'
     case 'error':
-      return 'text-red-500 '
+      return 'text-red-500'
     default:
-      return 'bg-gray-500 '
+      return 'text-gray-500'
   }
 }
+
 const getStatusIcon = (status: string) => {
   switch (status) {
-    case 'loading':
-      return <Spinner className={`size-4 ${getStatusColor(status)}`} />
     case 'success':
-      return <CheckIcon className={`size-4 ${getStatusColor(status)}`} />
+      return <Check className={`relative size-3 ${getStatusColor(status)}`} />
     case 'error':
-      return <CrossIcon className={`size-4 ${getStatusColor(status)}`} />
+      return <X className={`relative size-3 ${getStatusColor(status)}`} />
     default:
       return <></>
   }
 }
 
 const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
-  const { edges, selectNode, openNodePaletteFor } = useWorkflowEditorStore()
+  const { edges, selectNode, currentExecution, openNodePaletteFor, workflow } =
+    useWorkflowEditorStore()
 
   // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
   const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
@@ -105,47 +103,81 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
   const hasOutgoing = edges.some(
     (e) =>
       e.source === id &&
-      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-handle`),
+      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-left-handle`) &&
+      !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-right-handle`),
   )
 
   const handleClick = () => {
     selectNode(id)
   }
-
+  const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
   return (
     <NodeTooltip>
       <NodeTooltipContent position={Position.Top} className="text-white">
         {data?.description}
       </NodeTooltipContent>
       <NodeTooltipTrigger>
-        <NodeStatusIndicator status={data.status} variant="border">
+        <NodeStatusIndicator status={data.status} variant="border" initial={isFirstNode}>
           <NodeToolbar
             className="flex flex-col items-center gap-2"
-            isVisible={selected && (data.type === 'manualTrigger' || data.type === 'webhook')}
+            isVisible={selected && data.type === 'manualTrigger'}
             position={Position.Left}
             align="center"
           >
-            <Button variant="ghost" size="icon">
-              <PlayCircle className="size-6 text-primary" />
-            </Button>
+            {currentExecution?.status === 'loading' ? (
+              <Spinner className="text-primary size-6 ml-4 mb-0 mt-6 inline-block" />
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={isPending}
+                onClick={() => {
+                  if (isPending || !workflow) return
+                  executeWorkflowMutate(workflow.id)
+                }}
+              >
+                {isPending ? (
+                  <Spinner className="text-primary size-6" />
+                ) : (
+                  <PlayCircle className="size-6 text-primary" />
+                )}
+              </Button>
+            )}
           </NodeToolbar>
           <BaseNode
             onClick={handleClick}
             className={cn(
-              'flex flex-col bg-secondary/10 items-center gap-2 p-4 cursor-pointer transition-all duration-200',
-              selected && 'ring-2 ring-primary shadow-lg',
+              'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-300 ease-in-out',
+              selected && 'border border-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
               data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
               data.category === 'ai-agent-tools' && 'p-2 rounded-3xl bg-muted-foreground/20',
+              data.status == 'loading' && 'm-0.5',
+              // Enhanced status-based styling
+              // data.status === 'loading' &&
+              //   'bg-blue-50 border-2 border-blue-200 shadow-lg shadow-blue-100 animate-pulse ring-2 ring-blue-200/50',
+              // data.status === 'success' &&
+              //   'bg-green-50 border-2 border-green-200 shadow-lg shadow-green-100 ring-2 ring-green-200/50',
+              // data.status === 'error' &&
+              //   'bg-red-50 border-2 border-red-200 shadow-lg shadow-red-100 ring-2 ring-red-200/50',
+              // !data.status && 'bg-secondary/10',
             )}
           >
-            <div
-              className={`
-              rounded-full text-xs absolute top-2  right-1
-            `}
-            >
-              {data.status && getStatusIcon(data.status)}
-            </div>
+            {/* Enhanced Status Indicator */}
+            {data.status &&
+              (data.status === 'loading' ? (
+                <Spinner className={`absolute top-3 z-10 -right-1 text-blue-500 size-4`} />
+              ) : (
+                <div
+                  className={cn(
+                    'absolute top-1 right-1 z-10  rounded-full size-4 flex items-center justify-center',
+                    data.status !== 'initial' && getStatusColor(data.status),
+                    data.status !== 'initial' && 'ring-2',
+                  )}
+                >
+                  {getStatusIcon(data.status)}
+                </div>
+              ))}
             <BaseNodeContent className={cn('flex items-center justify-center gap-3 p-6')}>
               {/* Input Handle */}
               {!isFirstNode && (
@@ -160,37 +192,32 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               {getNodeIcon(data.type)}
 
               {/* Output Handle */}
-              {
-                data.category !== 'ai-agent-tools' &&
-                  (!hasOutgoing ? (
-                    <ButtonHandle
-                      type="source"
-                      position={Position.Right}
-                      className="bg-muted-foreground border-2 border-background"
+              {data.category !== 'ai-agent-tools' &&
+                (!hasOutgoing ? (
+                  <ButtonHandle
+                    type="source"
+                    position={Position.Right}
+                    className="bg-muted-foreground border-2 border-background"
+                  >
+                    <Button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        openNodePaletteFor(id)
+                      }}
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-sm border"
                     >
-                      <Button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          openNodePaletteFor(id)
-                        }}
-                        size="sm"
-                        variant="secondary"
-                        className="rounded-sm border"
-                      >
-                        <Plus size={10} />
-                      </Button>
-                    </ButtonHandle>
-                  ) : (
-                    <BaseHandle
-                      type="source"
-                      position={Position.Right}
-                      className="bg-muted-foreground border-2 border-background"
-                    ></BaseHandle>
-                  ))
-                // : (
-                //   <></>
-                // )
-              }
+                      <Plus size={10} />
+                    </Button>
+                  </ButtonHandle>
+                ) : (
+                  <BaseHandle
+                    type="source"
+                    position={Position.Right}
+                    className="bg-muted-foreground border-2 border-background"
+                  ></BaseHandle>
+                ))}
 
               {data.type === 'aiAgent' && (
                 <>

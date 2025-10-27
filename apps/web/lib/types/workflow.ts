@@ -21,20 +21,20 @@ export interface WorkflowData extends Workflow {
 }
 
 export interface NodeData extends Node {
-  [key: string]: any
+  [key: string]: unknown
   data: {
     label: string
     type: NodeType
     description?: string
     category?: string
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     config: Record<string, any>
     credentials?: CredentialRef
     status?: ExecutionStatus
-    [key: string]: any
+    [key: string]: unknown
+
     requiredCredentials?: string[]
   }
 }
 
-export interface EdgeData extends Edge {
-  // Additional edge properties can be added here
-}
+export type EdgeData = Edge
