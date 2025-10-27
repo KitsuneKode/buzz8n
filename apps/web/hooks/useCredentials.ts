@@ -8,10 +8,12 @@ import axios from 'axios'
 /**
  * Fetches credentials with infinite scrolling support
  * @param limit - Number of credentials per page (default: 10)
+ * @param options - Additional query options
  * @returns Infinite query result with flattened credentials array
  */
 export function useInfiniteCredentials(
   limit: number = 10,
+  options?: { enabled?: boolean },
 ): UseInfiniteQueryResult<InfiniteData<CredentialsInfiniteResponse>, Error> {
   return useInfiniteQuery({
     queryKey: ['credentials', 'infinite', { limit }],
@@ -33,6 +35,7 @@ export function useInfiniteCredentials(
     getNextPageParam: (lastPage): string | undefined => lastPage.cursor || undefined,
     initialPageParam: undefined as string | undefined,
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled: options?.enabled,
   })
 }
 

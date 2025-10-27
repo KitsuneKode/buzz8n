@@ -1,6 +1,8 @@
 import express from 'express'
 
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
+import { rateLimitMiddleware } from './middlewares/rate-limiter-middleware'
+import { rateLimitStatusRouter } from '@/routers/rate-limit-status'
 import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { backendConfig } from '@buzz8n/backend-common/config'
 import { credentialRouter } from '@/routers/credential'
@@ -12,6 +14,8 @@ import { authRouter } from '@/routers/auth'
 import cookieParser from 'cookie-parser'
 import { logger } from '@/utils/logger'
 import { PORT } from '@/utils/config'
+import morgan from 'morgan'
+import helmet from 'helmet'
 import cors from 'cors'
 
 backendConfig.validateAll()
@@ -20,6 +24,17 @@ const app = express()
 
 app.use(express.json())
 app.use(cookieParser())
+
+// Security and logging middleware
+app.use(helmet())
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message) => logger.http(message.trim()),
+    },
+  }),
+)
+
 app.use(cors(corsConfig))
 app.use(timingMiddleware)
 
@@ -27,11 +42,18 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK')
 })
 
-const routers = [authRouter, credentialRouter, workflowRouter, executionRouter]
+const routers = [
+  authRouter,
+  credentialRouter,
+  workflowRouter,
+  executionRouter,
+  rateLimitStatusRouter,
+]
 
 routers.forEach((router) => app.use('/api/v1', router))
 
 app.use(webhookRouter)
+app.use(rateLimitMiddleware.api)
 app.use('{/*splat}', timingMiddleware, (req, res) => {
   logger.info(`[404] ${req.originalUrl} ${req.method}  was called`)
   res.status(404).send('Page not Found')

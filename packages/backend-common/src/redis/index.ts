@@ -167,4 +167,33 @@ export class RedisClient {
   async cleanup() {
     return this.redisClient.quit()
   }
+
+  // Rate limiting methods
+  async zAdd(key: string, score: number, member: string) {
+    return this.redisClient.zAdd(key, { score, value: member })
+  }
+
+  async zCard(key: string) {
+    return this.redisClient.zCard(key)
+  }
+
+  async zRemRangeByScore(key: string, min: number, max: number) {
+    return this.redisClient.zRemRangeByScore(key, min, max)
+  }
+
+  async sAdd(key: string, ...members: string[]) {
+    return this.redisClient.sAdd(key, members)
+  }
+
+  async sRem(key: string, ...members: string[]) {
+    return this.redisClient.sRem(key, members)
+  }
+
+  async sCard(key: string) {
+    return this.redisClient.sCard(key)
+  }
+
+  async keys(pattern: string) {
+    return this.redisClient.keys(pattern)
+  }
 }

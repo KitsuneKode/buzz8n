@@ -11,8 +11,8 @@ import {
   AlertDialogTrigger,
 } from '@buzz8n/ui/components/alert-dialog'
 
-import { CheckCircle, Clock, Pause, Play, RotateCcw, Trash, XCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
+import { CheckCircle, Clock, Trash, XCircle } from 'lucide-react'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { WorkflowListData } from '@buzz8n/common/types'
 import { useDeleteWorkflow } from '@/hooks/useWorkflow'
@@ -48,11 +48,6 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
       toast.error('Failed to delete workflow')
     }
   }
-
-  // const handleDuplicate = () => {
-  //   // TODO: Implement duplicate functionality
-  //   console.log('Duplicate workflow:', workflow.id)
-  // }
 
   const formatLastModified = () => {
     return formatDistanceToNow(workflow.updatedAt, { addSuffix: true })

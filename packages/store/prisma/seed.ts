@@ -20,16 +20,16 @@ async function main() {
   console.log('🌱 Starting database seeding...')
 
   // Clear existing data
-  console.log('🗑️  Clearing existing data...')
-  await prisma.execution.deleteMany()
-  await prisma.webhook.deleteMany()
-  await prisma.workflow.deleteMany()
-  await prisma.credential.deleteMany()
-  await prisma.user.deleteMany()
+  // console.log('🗑️  Clearing existing data...')
+  // await prisma.execution.deleteMany()
+  // await prisma.webhook.deleteMany()
+  // await prisma.workflow.deleteMany()
+  // await prisma.credential.deleteMany()
+  // await prisma.user.deleteMany()
 
-  return
+  // return
   // Generate single test user
-  console.log('👥 Creating test user...')
+  // console.log('👥 Creating test user...')
 
   // Alternative: Generate 50 users (commented out)
   // const userCount = 50
@@ -43,24 +43,30 @@ async function main() {
     cost: 10,
   })
 
-  const user = await prisma.user.create({
-    data: {
-      name: 'Test User',
+  const user = await prisma.user.findUnique({
+    where: {
       email: 'testuser@me.com',
-      password_hash: passwordHash,
+      // password_hash: passwordHash,
     },
   })
+  //
+  //
+
+  if (!user) {
+    console.log('no user found')
+    return
+  }
 
   const users = [user]
 
-  console.log('\n' + '='.repeat(60))
-  console.log('🔑 LOGIN CREDENTIALS')
-  console.log('='.repeat(60))
-  console.log(`Email:    ${user.email}`)
-  console.log(`Password: 1232@Password`)
-  console.log('='.repeat(60) + '\n')
-
-  console.log(`✅ Created test user`)
+  // console.log('\n' + '='.repeat(60))
+  // console.log('🔑 LOGIN CREDENTIALS')
+  // console.log('='.repeat(60))
+  // console.log(`Email:    ${user.email}`)
+  // console.log(`Password: 1232@Password`)
+  // console.log('='.repeat(60) + '\n')
+  //
+  // console.log(`✅ Created test user`)
 
   // Generate credentials for each user
   console.log('🔑 Creating credentials...')
@@ -141,6 +147,7 @@ async function main() {
             label: 'Email Received',
             type: 'trigger',
             config: {},
+            // toISOString,
           },
         },
         {

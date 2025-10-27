@@ -2,6 +2,7 @@
 
 import {
   Check,
+  ChevronUp,
   CircleX,
   FileText,
   MessageSquare,
@@ -45,8 +46,8 @@ const getNodeIcon = (type: NodeType) => {
       return <IconMail size={48} />
     case 'webhook':
       return <IconWebhook size={48} />
-    // case 'schedule':
-    //   return <Clock size={48} />
+    case 'exponent':
+      return <ChevronUp size={48} />
     // case 'appEvent':
     //   return <Zap size={48} />
     case 'formSubmission':

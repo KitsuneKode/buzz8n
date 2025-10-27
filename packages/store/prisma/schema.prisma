@@ -59,7 +59,7 @@ model Workflow {
 model Webhook {
   id     String  @id @default(cuid())
   method Methods
-  path   String  @unique
+  path   String
   secret String?
 
   archived Boolean @default(false)

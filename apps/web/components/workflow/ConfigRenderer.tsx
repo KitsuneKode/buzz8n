@@ -347,7 +347,7 @@ export function ConfigRenderer({
                   selectedCredential ? (
                     options?.map(
                       (option) =>
-                        selectedCredential.name === option.type && (
+                        selectedCredential.provider.toLowerCase() === option.type && (
                           <SelectItem key={option.value} value={option.value}>
                             {option.label}
                           </SelectItem>

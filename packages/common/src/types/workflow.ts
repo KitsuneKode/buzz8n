@@ -9,6 +9,7 @@ export const nodeTypeSchema = z.enum([
   'aiAgent',
   'formSubmission',
   'chatMessage',
+  'exponent',
   'sum',
   'multiply',
   'other',
@@ -181,6 +182,7 @@ export const workflowsListResponseSchema = z.object({
 export const workflowsInfiniteResponseSchema = z.object({
   workflows: z.array(workflowListItemSchema),
   cursor: z.string().optional(),
+  totalCount: z.number(),
 })
 
 export const executionsInfiniteResponseSchema = z.object({

@@ -7465,6 +7465,7 @@ export namespace Prisma {
     id?: string
     path?: string
     workflowId?: string
+    method_path?: WebhookMethodPathCompoundUniqueInput
     AND?: WebhookWhereInput | WebhookWhereInput[]
     OR?: WebhookWhereInput[]
     NOT?: WebhookWhereInput | WebhookWhereInput[]
@@ -7474,7 +7475,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeFilter<"Webhook"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
-  }, "id" | "path" | "workflowId">
+  }, "id" | "path" | "workflowId" | "method_path">
 
   export type WebhookOrderByWithAggregationInput = {
     id?: SortOrder
@@ -8319,6 +8320,11 @@ export namespace Prisma {
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
+  }
+
+  export type WebhookMethodPathCompoundUniqueInput = {
+    method: $Enums.Methods
+    path: string
   }
 
   export type WebhookCountOrderByAggregateInput = {

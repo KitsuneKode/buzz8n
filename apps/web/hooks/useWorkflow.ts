@@ -117,8 +117,6 @@ export function useWorkflowsList(
   })
 }
 
-//TODO:Add activate workflow mutation
-
 // Create workflow mutation
 export function useCreateWorkflow(): UseMutationResult<
   WorkflowData,

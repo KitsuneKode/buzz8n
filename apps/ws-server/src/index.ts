@@ -1,3 +1,9 @@
+import {
+  webSocketRateLimiter,
+  generateConnectionId,
+  getClientIP,
+  WEBSOCKET_RATE_LIMITS,
+} from '@/rate-limiter'
 import { webSocketMessageSchema } from '@buzz8n/common/types'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
 import { JWT_SECRET, PORT, logger } from '@/utils'
@@ -7,8 +13,11 @@ import { redis } from '@/redis'
 type WebSocketData = {
   userId: string
   subscriber: Awaited<ReturnType<typeof redis.duplicate>> | null
-
   subscribedChannel: string | null
+  connectionId: string
+  ip: string
+  messageCount: number
+  lastMessageAt: number
 }
 
 const connectionLimits = new Map<string, number>()
@@ -16,8 +25,10 @@ const MAX_CONNECTIONS_PER_USER = 2
 
 Bun.serve<WebSocketData>({
   port: PORT,
-  fetch(req, server) {
+  async fetch(req, server) {
     const cookieHeader = req.headers.get('cookie')
+    const clientIP = getClientIP(req)
+
     try {
       const cookies =
         cookieHeader?.split('; ').reduce(
@@ -41,17 +52,48 @@ Bun.serve<WebSocketData>({
 
       const { userId } = jwt.verify(token, JWT_SECRET!) as JwtPayload
 
-      const currentConnections = connectionLimits.get(userId) || 0
-      if (currentConnections >= MAX_CONNECTIONS_PER_USER) {
-        return new Response('Too many connections', { status: 429 })
+      // Check WebSocket rate limits
+      const rateLimitResult = await webSocketRateLimiter.checkConnectionAllowed(userId, clientIP)
+
+      if (!rateLimitResult.allowed) {
+        logger.warn('WebSocket connection blocked by rate limit', {
+          userId,
+          ip: clientIP,
+          reason: rateLimitResult.reason,
+        })
+
+        return new Response(`Connection blocked: ${rateLimitResult.reason}`, {
+          status: 429,
+        })
       }
-      connectionLimits.set(userId, currentConnections + 1)
+
+      const connectionId = generateConnectionId()
+
+      // Register the connection
+      await webSocketRateLimiter.registerConnection(userId, clientIP, connectionId)
 
       const success = server.upgrade(req, {
-        data: { userId, subscribedChannel: null, subscriber: null },
+        data: {
+          userId,
+          subscribedChannel: null,
+          subscriber: null,
+          connectionId,
+          ip: clientIP,
+          messageCount: 0,
+          lastMessageAt: Date.now(),
+        },
       })
-      if (success) return undefined
+
+      if (success) {
+        logger.info('WebSocket connection established', {
+          userId,
+          ip: clientIP,
+          connectionId,
+        })
+        return undefined
+      }
     } catch (error) {
+      logger.error('WebSocket connection error', { error, ip: clientIP })
       return new Response('Invalid token or expired token', {
         status: 401,
       })
@@ -63,14 +105,39 @@ Bun.serve<WebSocketData>({
     // Increase backpressure limit for high-volume messages
     backpressureLimit: 2 * 1024 * 1024, // 2MB
     open(ws) {
-      logger.info(`User ${ws.data.userId} connected`)
+      logger.info(`User ${ws.data.userId} connected`, {
+        connectionId: ws.data.connectionId,
+        ip: ws.data.ip,
+      })
     },
     async message(ws, message) {
       try {
         console.log('📡 WebSocket server received message:', message)
 
-        if (message.length > 1024 * 100) {
-          // 100KB limit
+        // Check message rate limits
+        const messageSize = message.length
+        const rateLimitResult = await webSocketRateLimiter.checkMessageAllowed(
+          ws.data.connectionId,
+          messageSize,
+        )
+
+        if (!rateLimitResult.allowed) {
+          logger.warn('WebSocket message blocked by rate limit', {
+            userId: ws.data.userId,
+            connectionId: ws.data.connectionId,
+            reason: rateLimitResult.reason,
+            messageSize,
+          })
+
+          ws.close(1008, `Message blocked: ${rateLimitResult.reason}`)
+          return
+        }
+
+        // Update message count
+        ws.data.messageCount++
+        ws.data.lastMessageAt = Date.now()
+
+        if (message.length > WEBSOCKET_RATE_LIMITS.maxMessageSize) {
           ws.close(1009, 'Message too large')
           return
         }
@@ -144,8 +211,19 @@ Bun.serve<WebSocketData>({
         ws.data.subscriber = null
         ws.data.subscribedChannel = null
       }
-      connectionLimits.set(ws.data.userId, (connectionLimits.get(ws.data.userId) || 0) - 1)
-      logger.info(`User ${ws.data.userId} disconnected`)
+
+      // Unregister connection from rate limiter
+      await webSocketRateLimiter.unregisterConnection(
+        ws.data.userId,
+        ws.data.ip,
+        ws.data.connectionId,
+      )
+
+      logger.info(`User ${ws.data.userId} disconnected`, {
+        connectionId: ws.data.connectionId,
+        ip: ws.data.ip,
+        messageCount: ws.data.messageCount,
+      })
     },
   },
 })

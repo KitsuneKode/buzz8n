@@ -1,13 +1,14 @@
 import { supportedMethodsSchema, type SupportedMethods } from '@buzz8n/common/types'
 import { Router, type Request, type Response, type NextFunction } from 'express'
+import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { enqueueExecution } from '@/redis/enqueue'
 import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
 
 const router = Router()
 
-//TODO:RateLimited
-// router.use('/webhook', rateLimitMiddleware)
+// Apply rate limiting to webhook endpoints
+router.use('/webhook', rateLimitMiddleware.webhook)
 
 router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -22,11 +23,6 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
       res.status(422).send('Invalid Data')
       return
     }
-
-    console.log(webhookPath, method)
-    const all = await prisma.webhook.findMany()
-
-    console.log(all)
 
     const webhook = await prisma.webhook.findUnique({
       where: {

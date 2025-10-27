@@ -1,11 +1,23 @@
 'use client'
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@buzz8n/ui/components/alert-dialog'
 import { Trash2, Eye, EyeOff, Copy, Check, Loader2, ChevronDown } from 'lucide-react'
 import { getProviderIcon } from '@/components/credentials/ProviderPicker'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useInfiniteCredentials } from '@/hooks/useCredentials'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { CredentialResponse } from '@buzz8n/common/types'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useDashboardStore } from '@/stores/dashboard'
 import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@buzz8n/ui/components/button'
@@ -27,14 +39,19 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
   const [copiedFields, setCopiedFields] = useState<Set<string>>(new Set())
   const [expandedCredential, setExpandedCredential] = useState<string | null>(null)
 
-  // Use infinite query for credentials
+  // Skip infinite query when initial credentials are provided
+  const shouldUseInfiniteQuery = !initialCredentials
+
+  // Use infinite query for credentials only when needed
   const {
     data: infiniteCredentialsData,
     isLoading,
+    error,
+    isError,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteCredentials(10)
+  } = useInfiniteCredentials(10, { enabled: shouldUseInfiniteQuery })
 
   // Flatten credentials data and transform to frontend format
   const credentials =
@@ -48,14 +65,14 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
       })),
     ) || []
 
-  // Use infinite scroll hook
+  // Use infinite scroll hook with conditional values
   const { sentinelRef } = useInfiniteScroll({
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
+    hasNextPage: shouldUseInfiniteQuery ? hasNextPage : false,
+    isFetchingNextPage: shouldUseInfiniteQuery ? isFetchingNextPage : false,
+    fetchNextPage: shouldUseInfiniteQuery ? fetchNextPage : () => {},
   })
 
-  // Use initial credentials if provided (for backward compatibility), otherwise use infinite query data
+  // Use initial credentials if provided, otherwise use infinite query data
   const displayCredentials = initialCredentials || credentials
 
   const toggleSecretVisibility = (credentialId: string, field: string) => {
@@ -75,7 +92,7 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
 
   const { isPending, mutate: handleDeleteCredential } = useMutation({
     mutationFn: async (credentialId: string) => {
-      const response = await axios.delete(`${API_URL}/credential`, {
+      const response = await axios.delete<CredentialResponse>(`${API_URL}/credential`, {
         data: {
           id: credentialId,
         },
@@ -95,8 +112,8 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
         queryKey: ['credentials', 'infinite'],
       })
 
-      queryClient.setQueryData(['credential'], (old: Array<CredentialResponse>) =>
-        old.filter((c) => c.id !== responseData.id),
+      queryClient.setQueryData(['credentials'], (old: Array<CredentialResponse>) =>
+        old?.filter((c) => c?.id !== responseData.id),
       )
     },
     onError: () => {
@@ -265,22 +282,49 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                       </div>
                       {/* Action Buttons */}
                       <div className="flex items-center gap-1 shrink-0">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          disabled={isPending}
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            handleDeleteCredential(credential.id)
-                          }}
-                        >
-                          {isPending ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
-                          )}
-                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              disabled={isPending}
+                              className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                              }}
+                            >
+                              {isPending ? (
+                                <Spinner className="size-4" />
+                              ) : (
+                                <Trash2 className="size-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the
+                                credential.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel onClick={(e) => e.stopPropagation()}>
+                                Cancel
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (isPending) return
+                                  handleDeleteCredential(credential.id)
+                                }}
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+
                         <motion.div
                           animate={{ rotate: isExpanded ? 180 : 0 }}
                           transition={{ duration: 0.3 }}
@@ -320,6 +364,11 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
 
             {/* Infinite scroll sentinel */}
             <div ref={sentinelRef} className="py-4">
+              {isError && (
+                <div className="text-center text-sm text-destructive">
+                  Error loading more credentials: {error?.message}
+                </div>
+              )}
               {isFetchingNextPage && (
                 <div className="flex items-center justify-center">
                   <Loader2 className="w-4 h-4 animate-spin mr-2" />

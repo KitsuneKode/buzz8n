@@ -6,9 +6,9 @@ import { redis } from '@/redis'
 export const publishNodeEvent = async (executionId: string, log: ExecutionLog) => {
   try {
     await redis.publishExecutionEvent(executionId, log)
-    let execution = null
+    // let execution = null
     if (log.type === 'execution_complete') {
-      execution = await prisma.execution.update({
+      await prisma.execution.update({
         where: {
           id: executionId,
         },
@@ -20,21 +20,21 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
         },
       })
     } else {
-      execution = await prisma.execution.update({
+      await prisma.execution.update({
         where: {
           id: executionId,
         },
         data: {
           logs: {
-            push: log as unknown as any, // or Prisma.JsonValue
+            push: { ...log, timestamp: log.timestamp.toISOString() } as unknown as any, // or Prisma.JsonValue
           },
         },
       })
     }
-    if (!execution) {
-      logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
-      throw new Error(`[DB]Execution not found: ${executionId}`)
-    }
+    // if (!execution) {
+    //   logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
+    //   throw new Error(`[DB]Execution not found: ${executionId}`)
+    // }
   } catch (err) {
     if (err instanceof PrismaClientKnownRequestError) {
       if (err.code === 'P2025') {

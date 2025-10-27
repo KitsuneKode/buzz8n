@@ -35,14 +35,16 @@ const DashboardPage = () => {
   } = useInfiniteWorkflowsList(10)
 
   // Flatten workflows data
+  let totalCount: null | number = null
   const workflows =
-    infiniteWorkflowsData?.pages.flatMap((page: WorkflowsInfiniteResponse) =>
-      page.workflows.map((workflow) => ({
+    infiniteWorkflowsData?.pages.flatMap((page: WorkflowsInfiniteResponse) => {
+      totalCount = page.totalCount
+      return page.workflows.map((workflow) => ({
         ...workflow,
         createdAt: new Date(workflow.createdAt),
         updatedAt: new Date(workflow.updatedAt),
-      })),
-    ) || []
+      }))
+    }) || []
 
   // Use infinite scroll hook for workflows
   const { sentinelRef: workflowsSentinelRef } = useInfiniteScroll({
@@ -171,10 +173,10 @@ const DashboardPage = () => {
                   {workflowsLoading ? (
                     <Spinner />
                   ) : (
-                    workflows &&
-                    workflows.length > 0 && (
+                    totalCount &&
+                    totalCount > 0 && (
                       <span className="text-sm text-muted-foreground">
-                        {workflows.length} workflow{workflows.length !== 1 && 's'}
+                        {totalCount} workflow{totalCount !== 1 && 's'}
                       </span>
                     )
                   )}

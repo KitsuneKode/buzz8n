@@ -84,6 +84,15 @@ export const NODE_TEMPLATES: Record<string, NodeTemplate> = {
     category: 'ai-agent-tools',
     defaultConfig: {},
   },
+  exponentialTool: {
+    id: 'agent-tool-exponential',
+    type: 'exponent',
+    label: 'Exponential Tool',
+    description: 'Do exponential of a number to a given number',
+    icon: 'chevron-up',
+    category: 'ai-agent-tools',
+    defaultConfig: {},
+  },
 }
 
 /**
