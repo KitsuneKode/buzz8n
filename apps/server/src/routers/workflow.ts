@@ -87,9 +87,6 @@ router.get(
           id,
           userId,
         },
-        include: {
-          webhook: true,
-        },
       })
 
       if (!workflow) {

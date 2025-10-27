@@ -66,7 +66,10 @@ export function TopBar() {
             </div>
           </div>
 
-          <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as any)}>
+          <Tabs
+            value={activeTab}
+            onValueChange={(value) => setActiveTab(value as 'editor' | 'executions')}
+          >
             <TabsList className="bg-muted">
               <TabsTrigger value="editor">Editor</TabsTrigger>
               <TabsTrigger value="executions">Executions</TabsTrigger>

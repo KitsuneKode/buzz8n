@@ -46,7 +46,7 @@ export function PropertiesPanel() {
   if (!selectedNode) {
     return <div className="p-4 text-center text-muted-foreground">No node selected</div>
   }
-  const nodeConfig = selectedNode.data.config || {}
+  const nodeConfig = selectedNode.data.config || ''
 
   const requiredCredentials = selectedNode.data.requiredCredentials || []
 
@@ -206,7 +206,7 @@ export function PropertiesPanel() {
             id="notes"
             placeholder="Add notes about this node..."
             rows={3}
-            value={nodeConfig.notes || ''}
+            value={nodeConfig.notes ? nodeConfig.notes : ''}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               handleConfigChange('notes', e.target.value)
             }

@@ -296,7 +296,7 @@ export function DashboardExecutions({ workflowId }: DashboardExecutionsProps) {
           <div className="mt-6">
             {selectedExecutionId && executions?.find((e) => e.id === selectedExecutionId) ? (
               <ExecutionDetailView
-                execution={executions?.find((e) => e.id === selectedExecutionId)!}
+                execution={executions.find((e) => e.id === selectedExecutionId)!}
               />
             ) : (
               <div className="text-center text-muted-foreground py-8">

@@ -8,6 +8,8 @@ import { Input } from '@buzz8n/ui/components/input'
 
 interface Props {
   id: string
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field?: any
   enabled?: boolean
 }

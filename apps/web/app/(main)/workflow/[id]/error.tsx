@@ -22,8 +22,8 @@ export default function WorkflowError({ error, reset }: WorkflowErrorProps) {
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold">Something went wrong</h2>
           <p className="text-muted-foreground">
-            We couldn't load your workflow. This might be due to a network issue or the workflow
-            might not exist.
+            We couldn&apos;t load your workflow. This might be due to a network issue or the
+            workflow might not exist.
           </p>
         </div>
 

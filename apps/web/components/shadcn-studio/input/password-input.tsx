@@ -5,7 +5,6 @@ import { useId, useState } from 'react'
 import { Eye, EyeOff } from 'lucide-react'
 
 import { Button } from '@buzz8n/ui/components/button'
-import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { cn } from '@buzz8n/ui/lib/utils'
 

@@ -1,15 +1,6 @@
 'use client'
 
-import {
-  Copy,
-  ChevronDown,
-  ChevronRight,
-  Clock,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Info,
-} from 'lucide-react'
+import { Copy, ChevronDown, ChevronRight, Clock, CheckCircle, XCircle, Info } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
 import { Separator } from '@buzz8n/ui/components/separator'

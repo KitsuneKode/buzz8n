@@ -21,8 +21,6 @@ type WebSocketData = {
 }
 
 Bun.serve<WebSocketData>({
-
-Bun.serve<WebSocketData>({
   port: PORT,
   async fetch(req, server) {
     const cookieHeader = req.headers.get('cookie')

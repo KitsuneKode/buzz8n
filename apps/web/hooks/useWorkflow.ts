@@ -308,7 +308,6 @@ export async function prefetchWorkflow(
       notFound()
     }
     notFound()
-    return null
   }
 }
 
@@ -374,7 +373,7 @@ export async function prefetchInfiniteWorkflowsList(
     )
     return response.data
   } catch {
-    return { workflows: [], cursor: undefined }
+    return { workflows: [], cursor: undefined, totalCount: 0 }
   }
 }
 

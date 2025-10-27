@@ -1,11 +1,9 @@
 import { prefetchInfiniteWorkflowsList, prefetchInfiniteExecutions } from '@/hooks/useWorkflow'
-import { prefetchInfiniteCredentials } from '@/hooks/useCredentials'
+import { prefetchInfiniteCredentials } from '@/utils/prefetchServerCredentials'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import DataBootStrap from '@/components/DataBootStrap'
-import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
-import axios from 'axios'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient()
