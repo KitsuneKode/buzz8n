@@ -7463,19 +7463,19 @@ export namespace Prisma {
 
   export type WebhookWhereUniqueInput = Prisma.AtLeast<{
     id?: string
-    path?: string
     workflowId?: string
     method_path?: WebhookMethodPathCompoundUniqueInput
     AND?: WebhookWhereInput | WebhookWhereInput[]
     OR?: WebhookWhereInput[]
     NOT?: WebhookWhereInput | WebhookWhereInput[]
     method?: EnumMethodsFilter<"Webhook"> | $Enums.Methods
+    path?: StringFilter<"Webhook"> | string
     secret?: StringNullableFilter<"Webhook"> | string | null
     archived?: BoolFilter<"Webhook"> | boolean
     createdAt?: DateTimeFilter<"Webhook"> | Date | string
     updatedAt?: DateTimeFilter<"Webhook"> | Date | string
     workflow?: XOR<WorkflowScalarRelationFilter, WorkflowWhereInput>
-  }, "id" | "path" | "workflowId" | "method_path">
+  }, "id" | "workflowId" | "method_path">
 
   export type WebhookOrderByWithAggregationInput = {
     id?: SortOrder

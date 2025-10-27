@@ -46,7 +46,7 @@ export function PropertiesPanel() {
   if (!selectedNode) {
     return <div className="p-4 text-center text-muted-foreground">No node selected</div>
   }
-  const nodeConfig = selectedNode.data.config || ''
+  const nodeConfig = selectedNode.data.config || {}
 
   const requiredCredentials = selectedNode.data.requiredCredentials || []
 
