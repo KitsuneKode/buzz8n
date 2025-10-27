@@ -23,8 +23,6 @@ import { Check, Copy, Sparkles } from 'lucide-react'
 import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { VariablePicker } from './VariablePicker'
-// import { SmartTextarea } from './SmartTextarea'
-// import { SmartInput } from './SmartInput'
 import { useState } from 'react'
 
 // Field configuration interface
