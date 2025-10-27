@@ -20,8 +20,7 @@ type WebSocketData = {
   lastMessageAt: number
 }
 
-const connectionLimits = new Map<string, number>()
-const MAX_CONNECTIONS_PER_USER = 2
+Bun.serve<WebSocketData>({
 
 Bun.serve<WebSocketData>({
   port: PORT,
