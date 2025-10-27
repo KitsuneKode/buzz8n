@@ -36,12 +36,7 @@ Bun.serve<WebSocketData>({
         })
       }
 
-      const isValidated = jwt.verify(token, JWT_SECRET!)
-      if (!isValidated) {
-        return new Response('User not authenticated', {
-          status: 401,
-        })
-      }
+      const { userId } = jwt.verify(token, JWT_SECRET!) as JwtPayload
 
       const { userId } = isValidated as JwtPayload
 
