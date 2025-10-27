@@ -16,7 +16,7 @@ router.get('/execution/:executionId', async (req: Request, res: Response, next: 
 
     const userId = req.user!.userId
 
-    const execution = await prisma.execution.findUnique({
+    const execution = await prisma.execution.findFirst({
       where: {
         id: executionId,
         userId,
