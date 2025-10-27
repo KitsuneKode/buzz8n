@@ -24,6 +24,7 @@
     "@buzz8n/common": "*",
     "@buzz8n/store": "*",
     "@types/cookie-parser": "^1.4.9",
+    "@types/helmet": "^4.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
