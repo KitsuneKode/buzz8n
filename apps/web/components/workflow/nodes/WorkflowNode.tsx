@@ -94,7 +94,8 @@ const getStatusIcon = (status: string) => {
 }
 
 const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
-  const { edges, selectNode, openNodePaletteFor, workflow } = useWorkflowEditorStore()
+  const { edges, selectNode, currentExecution, openNodePaletteFor, workflow } =
+    useWorkflowEditorStore()
 
   // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
   const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
@@ -123,16 +124,25 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             position={Position.Left}
             align="center"
           >
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => {
-                if (isPending || !workflow) return
-                executeWorkflowMutate(workflow.id)
-              }}
-            >
-              <PlayCircle className="size-6 text-primary" />
-            </Button>
+            {currentExecution?.status === 'loading' ? (
+              <Spinner className="text-primary size-6 ml-4 mb-0 mt-6 inline-block" />
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                disabled={isPending}
+                onClick={() => {
+                  if (isPending || !workflow) return
+                  executeWorkflowMutate(workflow.id)
+                }}
+              >
+                {isPending ? (
+                  <Spinner className="text-primary size-6" />
+                ) : (
+                  <PlayCircle className="size-6 text-primary" />
+                )}
+              </Button>
+            )}
           </NodeToolbar>
           <BaseNode
             onClick={handleClick}

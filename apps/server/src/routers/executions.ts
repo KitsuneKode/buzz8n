@@ -54,7 +54,6 @@ router.get(
         }),
       }
 
-      console.log('execution', parsedExecution)
       res.status(200).json(parsedExecution)
     } catch (error) {
       next(error)
