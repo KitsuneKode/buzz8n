@@ -28,7 +28,9 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
           logs: {
             push: log as unknown as any, // or Prisma.JsonValue
           },
+        },
       })
+    }
     }
     if (!execution) {
       logger.error(`${redis.LOG_GROUP} Execution not found`, { executionId })
