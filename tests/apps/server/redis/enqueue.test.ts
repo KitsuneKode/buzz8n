@@ -97,7 +97,10 @@ describe('enqueueExecution', () => {
       workflowId: 'workflow-complex',
       payload: {
         user: { id: 1, name: 'John' },
-        items: [{ id: 'a', qty: 5 }, { id: 'b', qty: 10 }],
+        items: [
+          { id: 'a', qty: 5 },
+          { id: 'b', qty: 10 },
+        ],
         metadata: { timestamp: '2024-01-01', source: 'api' },
       },
     }
@@ -120,7 +123,7 @@ describe('enqueueExecution', () => {
     }
 
     await expect(enqueueExecution(payload)).rejects.toThrow(
-      '[REDIS] Error queuing execution: exec-error , workflow-error'
+      '[REDIS] Error queuing execution: exec-error , workflow-error',
     )
 
     expect(mockLoggerError).toHaveBeenCalledWith(
@@ -129,7 +132,7 @@ describe('enqueueExecution', () => {
         executionId: 'exec-error',
         workflowId: 'workflow-error',
         error: expect.any(Error),
-      })
+      }),
     )
   })
 

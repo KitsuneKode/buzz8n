@@ -1,12 +1,12 @@
 # Multi-stage build for Express server application
-FROM oven/bun:1.2.18-alpine AS base
+FROM oven/bun:1.2.23-alpine AS base
 
 # Install system dependencies
 RUN apk add --no-cache curl
 
 # Install dependencies only when needed
 FROM base AS deps
-WORKDIR /app
+WORKDIR /usr/src/app
 
 # Copy package files
 COPY package.json bun.lockb ./
@@ -66,7 +66,7 @@ ENV PORT=3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:3001/health || exit 1
+  CMD curl -f http://localhost:3001/health || exit 1
 
 # Start the application
 CMD ["bun", "run", "apps/server/dist/index.js"]

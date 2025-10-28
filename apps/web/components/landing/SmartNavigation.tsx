@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo } from 'react'
 import { Button } from '@buzz8n/ui/components/button'
+import { useState, useEffect, useMemo } from 'react'
 import { Menu, X, Zap, Brain } from 'lucide-react'
 
 interface SmartNavigationProps {
@@ -13,22 +13,25 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
   const [activeSection, setActiveSection] = useState('hero')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  const navItems = useMemo(() => [
-    { id: 'hero', label: 'Home', href: '#hero' },
-    { id: 'features', label: 'AI Features', href: '#features' },
-    { id: 'demo', label: 'Demo', href: '#demo' },
-    { id: 'showcase', label: 'Intelligence', href: '#showcase' },
-    { id: 'pricing', label: 'Pricing', href: '#pricing' },
-    { id: 'faq', label: 'FAQ', href: '#faq' }
-  ], [])
+  const navItems = useMemo(
+    () => [
+      { id: 'hero', label: 'Home', href: '#hero' },
+      { id: 'features', label: 'AI Features', href: '#features' },
+      { id: 'demo', label: 'Demo', href: '#demo' },
+      { id: 'showcase', label: 'Intelligence', href: '#showcase' },
+      { id: 'pricing', label: 'Pricing', href: '#pricing' },
+      { id: 'faq', label: 'FAQ', href: '#faq' },
+    ],
+    [],
+  )
 
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20)
-      
+
       // Update active section based on scroll position
-      const sections = navItems.map(item => item.id)
-      const currentSection = sections.find(section => {
+      const sections = navItems.map((item) => item.id)
+      const currentSection = sections.find((section) => {
         const element = document.getElementById(section)
         if (element) {
           const rect = element.getBoundingClientRect()
@@ -36,7 +39,7 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
         }
         return false
       })
-      
+
       if (currentSection) {
         setActiveSection(currentSection)
       }
@@ -55,10 +58,10 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
   }
 
   return (
-    <nav 
+    <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-background/80 backdrop-blur-md border-b border-border shadow-sm' 
+        isScrolled
+          ? 'bg-background/80 backdrop-blur-md border-b border-border shadow-sm'
           : 'bg-transparent'
       } ${className}`}
     >
@@ -70,9 +73,7 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
               <Brain className="h-8 w-8 text-primary transition-transform duration-200 group-hover:scale-110" />
               <Zap className="h-3 w-3 text-primary absolute -top-1 -right-1 animate-pulse" />
             </div>
-            <span className="text-xl font-bold text-foreground">
-              Buzz8n
-            </span>
+            <span className="text-xl font-bold text-foreground">Buzz8n</span>
           </div>
 
           {/* Desktop Navigation */}
@@ -97,11 +98,15 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-muted-foreground hover:text-foreground"
+            >
               Sign In
             </Button>
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className="bg-primary hover:bg-primary/90 text-primary-foreground transition-all duration-200 hover:scale-105 active:scale-95"
             >
               Start Building
@@ -115,11 +120,7 @@ export function SmartNavigation({ className = '' }: SmartNavigationProps) {
             className="md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
 

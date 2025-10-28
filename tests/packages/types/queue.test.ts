@@ -1,5 +1,5 @@
-import { describe, test, expect } from 'bun:test'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
+import { describe, test, expect } from 'bun:test'
 
 describe('EnqueueExecutionPayload Type', () => {
   test('should accept valid payload with all required fields', () => {

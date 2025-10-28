@@ -1,21 +1,12 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { Check, Zap, Brain, Sparkles, ArrowRight, Users, Building, Rocket } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/card'
-import { Badge } from '@buzz8n/ui/components/badge'
-import { Button } from '@buzz8n/ui/components/button'
 import { Switch } from '@buzz8n/ui/components/switch'
-import { 
-  Check, 
-  Zap, 
-  Brain, 
-  Sparkles, 
-  ArrowRight, 
-  Users, 
-  Building, 
-  Rocket 
-} from 'lucide-react'
+import { Button } from '@buzz8n/ui/components/button'
+import { Badge } from '@buzz8n/ui/components/badge'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 interface PricingTier {
   id: string
@@ -52,14 +43,10 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
         'Visual workflow builder',
         'Basic integrations (50+)',
         'Community support',
-        'Standard templates'
+        'Standard templates',
       ],
-      aiFeatures: [
-        'AI workflow suggestions',
-        'Smart node connections',
-        'Basic error detection'
-      ],
-      cta: 'Start Free Trial'
+      aiFeatures: ['AI workflow suggestions', 'Smart node connections', 'Basic error detection'],
+      cta: 'Start Free Trial',
     },
     {
       id: 'professional',
@@ -75,17 +62,17 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
         'Priority support',
         'Custom templates',
         'Team collaboration',
-        'Version control'
+        'Version control',
       ],
       aiFeatures: [
         'Advanced AI optimization',
         'Predictive error handling',
         'Natural language workflow creation',
         'Performance auto-tuning',
-        'Smart debugging assistant'
+        'Smart debugging assistant',
       ],
       recommended: true,
-      cta: 'Start Professional'
+      cta: 'Start Professional',
     },
     {
       id: 'enterprise',
@@ -102,7 +89,7 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
         'Custom AI models',
         'Advanced security',
         'SLA guarantees',
-        'On-premise deployment'
+        'On-premise deployment',
       ],
       aiFeatures: [
         'Custom AI model training',
@@ -110,10 +97,10 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
         'Predictive scaling',
         'AI-powered analytics',
         'Intelligent monitoring',
-        'Custom AI assistants'
+        'Custom AI assistants',
       ],
-      cta: 'Contact Sales'
-    }
+      cta: 'Contact Sales',
+    },
   ]
 
   const getPrice = (tier: PricingTier) => {
@@ -136,26 +123,25 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <Badge 
-            variant="secondary" 
-            className="bg-primary/10 text-primary border-primary/20 mb-4"
-          >
+          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mb-4">
             <Zap className="w-3 h-3 mr-1" />
             AI Usage Tiers
           </Badge>
-          
+
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Pricing That Scales With Your AI Needs
           </h2>
-          
+
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            Choose the perfect AI intelligence level for your workflows. 
-            All plans include our core AI features with increasing sophistication.
+            Choose the perfect AI intelligence level for your workflows. All plans include our core
+            AI features with increasing sophistication.
           </p>
 
           {/* Billing Toggle */}
           <div className="flex items-center justify-center space-x-4">
-            <span className={`text-sm ${!isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${!isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+            >
               Monthly
             </span>
             <Switch
@@ -163,7 +149,9 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
               onCheckedChange={setIsYearly}
               className="data-[state=checked]:bg-primary"
             />
-            <span className={`text-sm ${isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}>
+            <span
+              className={`text-sm ${isYearly ? 'text-foreground font-medium' : 'text-muted-foreground'}`}
+            >
               Yearly
             </span>
             <Badge variant="secondary" className="bg-primary/10 text-primary text-xs">
@@ -193,51 +181,43 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
                 </div>
               )}
 
-              <Card 
+              <Card
                 className={`h-full transition-all duration-300 ${
-                  tier.recommended 
-                    ? 'border-primary/40 shadow-lg shadow-primary/10 bg-card' 
+                  tier.recommended
+                    ? 'border-primary/40 shadow-lg shadow-primary/10 bg-card'
                     : 'border-border bg-card/50 backdrop-blur-sm'
-                } ${
-                  hoveredTier === tier.id ? 'scale-105 shadow-xl' : ''
-                }`}
+                } ${hoveredTier === tier.id ? 'scale-105 shadow-xl' : ''}`}
               >
                 <CardHeader className="text-center pb-4">
                   <div className="flex items-center justify-center space-x-2 mb-4">
-                    <div className={`p-2 rounded-lg ${
-                      tier.recommended ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-                    }`}>
+                    <div
+                      className={`p-2 rounded-lg ${
+                        tier.recommended
+                          ? 'bg-primary/10 text-primary'
+                          : 'bg-muted text-muted-foreground'
+                      }`}
+                    >
                       {tier.icon}
                     </div>
                   </div>
-                  
-                  <CardTitle className="text-xl text-foreground">
-                    {tier.name}
-                  </CardTitle>
-                  
-                  <p className="text-sm text-muted-foreground">
-                    {tier.description}
-                  </p>
+
+                  <CardTitle className="text-xl text-foreground">{tier.name}</CardTitle>
+
+                  <p className="text-sm text-muted-foreground">{tier.description}</p>
 
                   <div className="mt-6">
                     <div className="flex items-baseline justify-center space-x-1">
-                      <span className="text-3xl font-bold text-foreground">
-                        ${getPrice(tier)}
-                      </span>
-                      <span className="text-muted-foreground">
-                        /{isYearly ? 'year' : 'month'}
-                      </span>
+                      <span className="text-3xl font-bold text-foreground">${getPrice(tier)}</span>
+                      <span className="text-muted-foreground">/{isYearly ? 'year' : 'month'}</span>
                     </div>
-                    
+
                     {isYearly && (
                       <div className="text-sm text-primary font-medium mt-1">
                         Save {getSavings(tier)}% annually
                       </div>
                     )}
-                    
-                    <div className="text-sm text-muted-foreground mt-2">
-                      {tier.aiCredits}
-                    </div>
+
+                    <div className="text-sm text-muted-foreground mt-2">{tier.aiCredits}</div>
                   </div>
                 </CardHeader>
 
@@ -246,9 +226,7 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
                   <div>
                     <div className="flex items-center space-x-2 mb-3">
                       <Brain className="w-4 h-4 text-primary" />
-                      <h4 className="text-sm font-medium text-foreground">
-                        AI Intelligence
-                      </h4>
+                      <h4 className="text-sm font-medium text-foreground">AI Intelligence</h4>
                     </div>
                     <ul className="space-y-2">
                       {tier.aiFeatures.map((feature, featureIndex) => (
@@ -269,9 +247,7 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
 
                   {/* Core Features */}
                   <div>
-                    <h4 className="text-sm font-medium text-foreground mb-3">
-                      Core Features
-                    </h4>
+                    <h4 className="text-sm font-medium text-foreground mb-3">Core Features</h4>
                     <ul className="space-y-2">
                       {tier.features.map((feature, featureIndex) => (
                         <motion.li
@@ -289,10 +265,10 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
                     </ul>
                   </div>
 
-                  <Button 
+                  <Button
                     className={`w-full ${
-                      tier.recommended 
-                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground' 
+                      tier.recommended
+                        ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
                         : 'bg-background hover:bg-accent text-foreground border border-border'
                     } group transition-all duration-200 hover:scale-105 active:scale-95`}
                     variant={tier.recommended ? 'default' : 'outline'}
@@ -317,7 +293,7 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
           <p className="text-muted-foreground">
             All plans include 14-day free trial • No setup fees • Cancel anytime
           </p>
-          
+
           <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-primary" />

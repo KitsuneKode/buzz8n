@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createLogger as winstonCreateLogger, format, transports } from 'winston'
 import { format as dateFormat, parseISO } from 'date-fns'
 import { SPLAT } from 'triple-beam'
@@ -26,6 +27,7 @@ const baseFormat = printf((info) => {
   const stack = info.stack ? `\n  error: ${info.stack}` : ''
 
   // Handle additional data - prioritize SPLAT args over metadata to avoid duplication
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const splatArgs = (info[SPLAT as any] || []) as any[]
   let additionalData = ''
 
@@ -79,6 +81,7 @@ function formatTimestamp(timestamp: string) {
  */
 export function createLogger(serviceName: string) {
   const logger = winstonCreateLogger({
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
     level: process.env.LOG_LEVEL || 'debug', // Set log level (debug shows everything)
     defaultMeta: { service: serviceName },
     format: combine(

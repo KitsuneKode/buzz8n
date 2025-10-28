@@ -5,6 +5,7 @@ This directory contains a comprehensive database seeding script that generates r
 ## Overview
 
 The seed script generates:
+
 - **50 users** with realistic names and email addresses
 - **200-400 credentials** (2-8 per user) across different platforms
 - **150-750 workflows** (3-15 per user) with realistic node/edge configurations
@@ -14,12 +15,15 @@ The seed script generates:
 ## What Gets Generated
 
 ### Users
+
 - All users have the password: `Test123!@#`
 - Names are randomly generated from predefined lists
 - Email addresses use various domains (example.com, test.com, etc.)
 
 ### Credentials
+
 Generates credentials for all supported platforms:
+
 - **OpenAI**: API keys with organization IDs
 - **Anthropic**: API keys with version information
 - **Gemini**: API keys with project IDs
@@ -27,24 +31,29 @@ Generates credentials for all supported platforms:
 - **Telegram**: Bot tokens with chat IDs
 
 ### Workflows
+
 Three different workflow templates:
+
 1. Customer Support Automation
 2. Content Generation Pipeline
 3. Data Processing Workflow
 
 Each workflow includes:
+
 - Nodes and edges configuration
 - Random active/inactive status
 - Some workflows are archived (10% chance)
 - Execution status (initial, success, or error)
 
 ### Webhooks
+
 - Created for ~30% of active workflows
 - Random HTTP methods (POST, GET, PUT)
 - Unique paths and secrets
 - Linked to their parent workflows
 
 ### Executions
+
 - 5-50 executions per non-archived workflow
 - Multiple statuses (initial, loading, success, error)
 - Timestamps spanning the last 3 months
@@ -54,17 +63,20 @@ Each workflow includes:
 ## Running the Seed Script
 
 ### From the root directory:
+
 ```bash
 bun run db:seed
 ```
 
 ### From the store package:
+
 ```bash
 cd packages/store
 bun run db:seed
 ```
 
 ### Direct execution:
+
 ```bash
 bun run packages/store/prisma/seed.ts
 ```
@@ -72,6 +84,7 @@ bun run packages/store/prisma/seed.ts
 ## Prerequisites
 
 1. Database must be initialized and migrated:
+
    ```bash
    bun run db:migrate
    ```
@@ -88,6 +101,7 @@ bun run packages/store/prisma/seed.ts
 ## Customizing the Seed Data
 
 You can modify the seed script to adjust:
+
 - Number of users (`userCount` variable)
 - Credentials per user (range: 2-8)
 - Workflows per user (range: 3-15)
@@ -134,6 +148,7 @@ After running the seed script, you can test the application with realistic data:
 ## Reset and Reseed
 
 To start fresh:
+
 ```bash
 bun run db:reset  # Drops database and reapplies migrations
 bun run db:seed   # Seeds the database with test data

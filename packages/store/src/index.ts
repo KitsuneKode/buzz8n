@@ -12,9 +12,10 @@ export const prisma =
 
 declare global {
   var prisma:
-    | PrismaClient<{
-        // omit: { user: { : true } }
-      }>
+    | PrismaClient
+    // <{
+    // omit: { user: { : true } }
+    // }>
     | undefined
 }
 

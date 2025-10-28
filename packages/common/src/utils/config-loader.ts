@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clientLogger, type LoggerType } from './client-logger'
 
 export class ConfigLoader<T extends Record<string, any>> {

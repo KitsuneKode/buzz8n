@@ -6,6 +6,7 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
+    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
     "check-types": "tsc --noEmit",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"

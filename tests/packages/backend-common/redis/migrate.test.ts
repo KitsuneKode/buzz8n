@@ -30,18 +30,20 @@ describe('Redis Migrate Script', () => {
     const client = createClient()
     await (client as any).on('error', () => {}).connect()
 
-    const result = await (client as any).xGroupCreate('workflow:execution', 'workflow:executors', '$', {
-      MKSTREAM: true,
-    })
-
-    expect(result).toBe('OK')
-    expect(mockXGroupCreate).toHaveBeenCalledTimes(1)
-    expect(mockXGroupCreate).toHaveBeenCalledWith(
+    const result = await (client as any).xGroupCreate(
       'workflow:execution',
       'workflow:executors',
       '$',
-      { MKSTREAM: true },
+      {
+        MKSTREAM: true,
+      },
     )
+
+    expect(result).toBe('OK')
+    expect(mockXGroupCreate).toHaveBeenCalledTimes(1)
+    expect(mockXGroupCreate).toHaveBeenCalledWith('workflow:execution', 'workflow:executors', '$', {
+      MKSTREAM: true,
+    })
   })
 
   test('should handle error when stream already exists', async () => {

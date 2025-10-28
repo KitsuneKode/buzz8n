@@ -53,6 +53,7 @@ export class RedisClient {
     streamKey = this.EXECUTION_QUEUE_KEY,
     maxlen = this.EXECUTION_QUEUE_MAX_LENGTH,
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: Record<string, any>
     streamKey?: string
     maxlen?: number

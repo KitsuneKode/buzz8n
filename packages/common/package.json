@@ -3,6 +3,10 @@
   "module": "src/index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
+    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
+  },
   "exports": {
     "./types": "./src/types/index.ts",
     "./config": "./src/utils/config-loader.ts",
@@ -10,6 +14,8 @@
   },
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
+    "@buzz8n/eslint-config": "*",
+    "eslint": "^9.34.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {

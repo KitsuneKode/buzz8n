@@ -13,7 +13,9 @@ const ActionBar = ({ onCreateWorkflow, onNewCredential }: ActionBarProps) => {
     <div className="flex items-center  justify-between">
       <div>
         <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-        <p className="text-muted-foreground mt-1">Manage your workflows, credentials, and executions</p>
+        <p className="text-muted-foreground mt-1">
+          Manage your workflows, credentials, and executions
+        </p>
       </div>
 
       <div className="flex items-center space-x-3">

@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import { Button } from '@buzz8n/ui/components/button'
 import { HelpCircle, Home as HomeIcon, LayoutDashboard, Plus } from 'lucide-react'
+import { Button } from '@buzz8n/ui/components/button'
+import Link from 'next/link'
 
 export default function NotFound() {
   return (
