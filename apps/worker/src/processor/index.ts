@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module processor/index
  * Process a single workflow execution request:
@@ -17,8 +18,8 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
-import { beginExecutionSetStatus, collapsePropertyNodes, endExecutionSetStatus } from './helper'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
+import { beginExecutionSetStatus, collapsePropertyNodes } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store'
@@ -72,6 +73,7 @@ export const processResponse = async ({
     const edges = (edgesAny ?? []) as RFEdge[]
 
     // Check if payload.triggerType is 'workflow' or 'manualTrigger'; only proceed if so
+
     const triggerType = ((data: any) =>
       data?.triggerType === 'webhook' || data.triggerType === 'manualTrigger'
         ? [data.triggerType]

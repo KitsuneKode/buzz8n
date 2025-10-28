@@ -1,6 +1,8 @@
 {
   "name": "buzz8n",
   "devDependencies": {
+    "@buzz8n/typescript-config": "*",
+    "@buzz8n/eslint-config": "*",
     "prettier": "^3.6.2",
     "prettier-plugin-sort-imports": "^1.8.8",
     "turbo": "^2.5.8",

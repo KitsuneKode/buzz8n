@@ -59,7 +59,7 @@ model Workflow {
 model Webhook {
   id     String  @id @default(cuid())
   method Methods
-  path   String
+  path   String  @unique
   secret String?
 
   archived Boolean @default(false)
@@ -70,7 +70,7 @@ model Webhook {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@unique([method, path])
+  // @@unique([method, path])
   @@map("webhook")
 }
 

@@ -5,6 +5,7 @@
   "private": true,
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
+    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "check-types": "tsc --noEmit",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
@@ -12,7 +13,9 @@
   "devDependencies": {
     "@types/mustache": "^4.2.6",
     "@types/bun": "latest",
-    "@buzz8n/typescript-config": "*"
+    "@buzz8n/eslint-config": "*",
+    "@buzz8n/typescript-config": "*",
+    "eslint": "^9.34.0"
   },
   "peerDependencies": {
     "typescript": "^5"

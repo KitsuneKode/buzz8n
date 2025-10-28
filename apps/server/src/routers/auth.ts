@@ -1,12 +1,11 @@
-import { Router, type Request, type Response, type NextFunction } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
+import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
-import { PrismaClientKnownRequestError } from '@buzz8n/store'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { auth } from '@/middlewares/auth-middleware'
 import { password as Password } from 'bun'
 import { logger } from '@/utils/logger'
-import { prisma } from '@buzz8n/store'
+import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 
 const router = Router()

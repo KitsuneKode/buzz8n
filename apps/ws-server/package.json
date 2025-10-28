@@ -6,11 +6,14 @@
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
     "check-types": "tsc --noEmit",
+    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
   },
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
+    "@buzz8n/eslint-config": "*",
+    "eslint": "^9.34.0",
     "@types/bun": "latest"
   },
   "peerDependencies": {

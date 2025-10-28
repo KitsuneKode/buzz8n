@@ -1,12 +1,7 @@
-import type { NextFunction, Request, Response } from 'express'
+import type { Request, Response } from 'express'
 import { logger } from '@/utils/logger'
 
-export const errorHandlerMiddleware = async (
-  error: Error,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
+export const errorHandlerMiddleware = async (error: Error, req: Request, res: Response) => {
   const errorDetails = {
     message: error.message,
     stack: error.stack,

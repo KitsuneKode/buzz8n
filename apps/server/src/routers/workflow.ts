@@ -1,5 +1,5 @@
-import { createWorkflowSchema, updateWorkflowSchema, workflowSchema } from '@buzz8n/common/types'
-import { Router, type Request, type Response, type NextFunction } from 'express'
+import { createWorkflowSchema, updateWorkflowSchema } from '@buzz8n/common/types'
+import { Router, type NextFunction, type Request, type Response } from 'express'
 import { Methods, PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
@@ -479,7 +479,7 @@ router.get(
       // Parse logs from JSON strings to objects for each execution
       const parsedExecutions = actualExecutions.map((execution) => ({
         ...execution,
-        logs: execution.logs.map((log: any) => {
+        logs: execution.logs.map((log) => {
           try {
             return typeof log === 'string' ? JSON.parse(log) : log
           } catch (error) {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { sendTelegramMessage } from '@/nodes/telegram/send'
 import type { ExecutionLog } from '@buzz8n/common/types'
 import { nodeDataSchema } from '@buzz8n/common/types'

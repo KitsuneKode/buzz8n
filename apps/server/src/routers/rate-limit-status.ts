@@ -50,7 +50,7 @@ async function getRateLimitStatus(key: string, type: 'api' | 'list' | 'auth') {
       remaining: Math.max(0, config.maxRequests - count),
       resetTime: now + config.windowMs,
     }
-  } catch (error) {
+  } catch {
     return { limit: 0, remaining: 0, resetTime: Date.now() }
   }
 }

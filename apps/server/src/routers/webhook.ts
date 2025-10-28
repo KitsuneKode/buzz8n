@@ -1,13 +1,12 @@
-import { supportedMethodsSchema, type SupportedMethods } from '@buzz8n/common/types'
-import { Router, type Request, type Response, type NextFunction } from 'express'
+import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
+import { supportedMethodsSchema } from '@buzz8n/common/types'
 import { enqueueExecution } from '@/redis/enqueue'
 import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
 
 const router = Router()
 
-// Apply rate limiting to webhook endpoints
 router.use('/webhook', rateLimitMiddleware.webhook)
 
 router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: NextFunction) => {
@@ -24,7 +23,7 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
       return
     }
 
-    const webhook = await prisma.webhook.findUnique({
+    const webhook = await prisma.webhook.findFirst({
       where: {
         method,
         path: webhookPath,

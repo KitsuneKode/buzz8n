@@ -44,7 +44,7 @@ router.get(
       // Parse logs from JSON strings to objects
       const parsedExecution = {
         ...execution,
-        logs: execution.logs.map((log: any) => {
+        logs: execution.logs.map((log) => {
           try {
             return typeof log === 'string' ? JSON.parse(log) : log
           } catch (error) {
@@ -104,7 +104,7 @@ router.get(
       // Parse logs from JSON strings to objects for each execution
       const parsedExecutions = actualExecutions.map((execution) => ({
         ...execution,
-        logs: execution.logs.map((log: any) => {
+        logs: execution.logs.map((log) => {
           try {
             return typeof log === 'string' ? JSON.parse(log) : log
           } catch (error) {

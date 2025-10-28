@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  *
  * @module processor/dag
@@ -43,6 +44,7 @@ import Mustache from 'mustache'
  */
 export type RFNode = {
   id: string
+
   data?: { type?: string; config?: Record<string, any> }
 } & Record<string, any>
 /**
@@ -255,6 +257,7 @@ export async function executeGraphConcurrent(
   opts?: {
     maxConcurrency?: number
     failFast?: boolean
+
     logger?: any // Winston instance with info/debug/error
     onEvent?: (e: DagEvent) => void | Promise<void>
     printGraph?: boolean // optional: print ASCII DAG structure
@@ -283,7 +286,7 @@ export async function executeGraphConcurrent(
   const startTimes = new Map<string, number>()
   const finishTimes = new Map<string, number>()
   const executionOrder: string[] = []
-  const timeline: Array<{ t: number; ev: string; id?: string; info?: any }> = []
+  const timeline: Array<{ t: number; ev: string; id?: string; info?: unknown }> = []
 
   // Log initial ready
   timeline.push({ t: Date.now(), ev: 'ready_init', info: [...ready] })
@@ -360,7 +363,7 @@ export async function executeGraphConcurrent(
             try {
               const resolved = Mustache.render(value, ctx)
               ctx.$json[key][field] = resolved
-            } catch (err) {
+            } catch {
               // If template resolution fails, store original value
               ctx.$json[key][field] = value
             }

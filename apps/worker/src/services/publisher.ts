@@ -26,7 +26,8 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
         },
         data: {
           logs: {
-            push: { ...log, timestamp: log.timestamp.toISOString() } as unknown as any, // or Prisma.JsonValue
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            push: { ...log, timestamp: log.timestamp.toISOString() } as any, // or Prisma.JsonValue
           },
         },
       })

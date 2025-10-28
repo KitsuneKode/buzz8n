@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { ExecutionStatus } from '@buzz8n/common/types'
 import type { RFEdge, RFNode } from '@/processor/dag'
 import { prisma } from '@buzz8n/store'
