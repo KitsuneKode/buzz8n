@@ -23,6 +23,7 @@
     "test:packages": "turbo run -F @buzz8n/tests test:packages",
     "test:ci": "turbo run test:ci -F @buzz8n/tests",
     "build": "turbo run build",
+    "clean": "find . -name node_modules -o -name .next -o -name .turbo -o -name dist -type d -prune | xargs rm -rf",
     "dev": "turbo run dev",
     "dev:web": "turbo run -F @buzz8n/web dev",
     "dev:server": "turbo run -F @buzz8n/server dev",
@@ -40,8 +41,7 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",
     "preinstall": "bunx only-allow bun",
-    "postinstall": "turbo run db:generate && husky",
-    "prepare": "husky",
+    "prepare": "husky || true",
     "lint-staged": "lint-staged"
   },
   "workspaces": [

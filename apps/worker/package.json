@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap --production",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
     "check-types": "tsc --noEmit",

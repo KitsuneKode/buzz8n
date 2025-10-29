@@ -45,6 +45,11 @@ export class ConfigLoader<T extends Record<string, any>> {
 
       process.exit(1)
     }
+    if (!errors || errors.length === 0) {
+      this.logger.info(
+        `All configuration Validated and loaded in ${this.config['nodeEnv']} environment`,
+      )
+    }
   }
 
   public validateAll(): void {

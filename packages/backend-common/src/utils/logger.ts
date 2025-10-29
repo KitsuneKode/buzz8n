@@ -97,12 +97,10 @@ export function createLogger(serviceName: string) {
       new transports.File({
         filename: path.join('logs', 'server.log'),
       }),
+
+      new transports.Console(),
     ],
   })
-
-  if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console())
-  }
 
   return logger
 }
