@@ -2,18 +2,18 @@
   "name": "buzz8n",
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
+    "eslint": "^9.34.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.5",
     "prettier": "^3.6.2",
-    "eslint": "^9.34.0",
     "prettier-plugin-sort-imports": "^1.8.8",
-    "turbo": "^2.5.8",
+    "turbo": "^2.5.9-canary.10",
     "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "bun@1.2.18",
+  "packageManager": "bun@1.2.23",
   "private": true,
   "scripts": {
     "test": "turbo run test -F @buzz8n/tests",
