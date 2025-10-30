@@ -90,15 +90,26 @@ export function createLogger(serviceName: string) {
       baseFormat, // Removed splat() and align() - handle manually
     ),
     transports: [
-      new transports.File({
-        filename: path.join('logs', 'error.log'),
-        level: 'error',
-      }),
-      new transports.File({
-        filename: path.join('logs', 'server.log'),
-      }),
+      // NOTE: This part is removed for better production level app practices.
+      // A twelve-factor app never concerns itself with routing or storage of its output stream. It should not attempt to write to or manage logfiles.
+      //    Why stdout Wins in Production?
+      //    Separation of Concerns
+      //      Your app writes logs (its only job)
+      //      The execution environment routes logs (Docker/Kubernetes/cloud provider)
+      //      Log aggregators store/analyze logs (Splunk, Loki, CloudWatch
+      //
+      // new transports.File({
+      //   filename: path.join('logs', 'error.log'),
+      //   level: 'error',
+      // }),
+      // new transports.File({
+      //   filename: path.join('logs', 'server.log'),
+      // }),
 
-      new transports.Console(),
+      new transports.Console({
+        handleExceptions: true,
+        handleRejections: true,
+      }),
     ],
   })
 

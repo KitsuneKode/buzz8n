@@ -6,6 +6,7 @@
   "main": "./src/index.ts",
   "private": true,
   "scripts": {
+    "redis:migrate": "bun run src/redis/migrate.ts",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
   },

@@ -4,12 +4,15 @@ services:
     image: postgres:14-alpine
     container_name: buzz8n-postgres
     environment:
-      POSTGRES_USER: user
+      POSTGRES_USER: buzz8n
       POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: buzz8n
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - '5432:5432'
+    networks:
+      - buzz8n-network
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U buzz8n -d buzz8n']
       interval: 10s
@@ -25,8 +28,10 @@ services:
       - redis_data:/data
     ports:
       - '6379:6379'
+    networks:
+      - buzz8n-network
     healthcheck:
-      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 3s
       retries: 5
@@ -34,3 +39,7 @@ services:
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  buzz8n-network:
+    driver: bridge

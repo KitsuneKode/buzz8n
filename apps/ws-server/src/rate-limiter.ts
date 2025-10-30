@@ -13,16 +13,16 @@ export interface WebSocketRateLimitResult {
   reason?: string
 }
 
-class WebSocketRateLimiter {
-  private redis = redis
+await redis.connect()
 
+class WebSocketRateLimiter {
   // Check if a new connection is allowed
   async checkConnectionAllowed(userId: string, ip: string): Promise<WebSocketRateLimitResult> {
     try {
       // Check user connections
       const userKey = `ws:user:${userId}`
       const userConnections = await redis.sCard(userKey)
-
+      console.log('')
       // Check IP connections
       const ipKey = `ws:ip:${ip}`
       const ipConnections = await redis.sCard(ipKey)

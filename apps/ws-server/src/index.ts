@@ -5,8 +5,8 @@ import {
   WEBSOCKET_RATE_LIMITS,
 } from '@/rate-limiter'
 import { webSocketMessageSchema } from '@buzz8n/common/types'
+import { JWT_SECRET, PORT, config, logger } from '@/utils'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
-import { JWT_SECRET, PORT, logger } from '@/utils'
 import { prisma } from '@buzz8n/store'
 import { redis } from '@/redis'
 
@@ -19,12 +19,31 @@ type WebSocketData = {
   messageCount: number
   lastMessageAt: number
 }
+config.validateAll()
 
 Bun.serve<WebSocketData>({
   port: PORT,
   async fetch(req, server) {
-    const cookieHeader = req.headers.get('cookie')
+    const url = new URL(req.url)
     const clientIP = getClientIP(req)
+
+    // Unauthenticated health check endpoint
+    if (url.pathname === '/health') {
+      logger.info('WebSocket Server health check by IP ', { clientIP })
+      return new Response(
+        JSON.stringify({
+          status: 'ok',
+          timestamp: new Date().toISOString(),
+          connections: server.pendingWebSockets,
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      )
+    }
+
+    const cookieHeader = req.headers.get('cookie')
 
     try {
       const cookies =
@@ -42,6 +61,7 @@ Bun.serve<WebSocketData>({
       const token = cookies?.['buzz8n_auth']
 
       if (!token || !cookies) {
+        logger.warn('User not authenticated', { clientIP, cookieHeader })
         return new Response('User not authenticated', {
           status: 401,
         })
@@ -95,8 +115,7 @@ Bun.serve<WebSocketData>({
         status: 401,
       })
     }
-
-    return new Response('Upgrade failed', { status: 500 })
+    return new Response('Expected WebSocket connection', { status: 426 })
   },
   websocket: {
     // Increase backpressure limit for high-volume messages
