@@ -92,7 +92,8 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
         secure: NODE_ENV !== 'development',
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
-        sameSite: 'lax',
+        sameSite: 'none',
+        domain: '.buzz8n.kitsunelabs.xyz',
         path: '/',
       })
       .send('Signed in sucessfully')

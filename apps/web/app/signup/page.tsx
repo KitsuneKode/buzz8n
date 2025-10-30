@@ -79,7 +79,7 @@ export default function SignUpPage() {
               <Link href="/" aria-label="go home" className="mx-auto block w-fit">
                 <Dog />
               </Link>
-              <h1 className="mb-1 mt-4 text-xl font-semibold">Create a Tailark Account</h1>
+              <h1 className="mb-1 mt-4 text-xl font-semibold">Create a Buzz8n Account</h1>
               <p className="text-sm">Welcome! Create an account to get started</p>
             </div>
 
