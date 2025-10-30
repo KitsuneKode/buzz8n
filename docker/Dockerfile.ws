@@ -5,21 +5,18 @@ FROM oven/bun:1.3.1-alpine AS base
 RUN apk update
 RUN apk add --no-cache libc6-compat
 
+RUN bun install --global turbo@canary
 
 # Prune project
 FROM base AS pruner
 
 # Set working directory
 WORKDIR /app
-RUN bun install --global turbo@canary
 COPY . .
 RUN turbo prune @buzz8n/ws-server --docker
 
 # Build stage
 FROM base AS builder
-RUN apk update
-RUN apk add --no-cache libc6-compat
-
 WORKDIR /app
 
 # First install dependencies (as they change less often)
@@ -30,8 +27,8 @@ RUN --mount=type=cache,target=/root/.bun/install/cache bun ci --frozen-lockfile 
 # Build the project and its dependencies
 COPY --from=pruner /app/out/full/ .
 # Generate the prisma client
-# RUN bun db:generate
-RUN bun --filter @buzz8n/ws-server build
+RUN bun db:generate
+RUN bun run build
 
 # Remove source code from image
 RUN rm -rf ./**/*/src

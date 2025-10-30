@@ -67,6 +67,16 @@ export class RedisClient {
     })
   }
 
+  async xGroupCreate({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup,
+  }: {
+    streamKey?: string
+    consumerGroup: string
+  }) {
+    return this.redisClient.xGroupCreate(streamKey, consumerGroup, '$', { MKSTREAM: true })
+  }
+
   async xReadGroup({
     readGroup = this.EXECUTION_GROUP,
     consumerGroup,

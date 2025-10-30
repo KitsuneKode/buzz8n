@@ -1,0 +1,40 @@
+services:
+  # Express API Server
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    image: 'buzz8n-server:latest'
+    container_name: buzz8n-server-prod
+    environment:
+      - PORT=8080
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    restart: unless-stopped
+
+  # Background Worker
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    image: 'buzz8n-worker:latest'
+    container_name: buzz8n-worker-prod
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  # Websocket Server
+  ws-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ws
+    image: 'buzz8n-ws-server:latest'
+    container_name: buzz8n-ws-server-prod
+
+    environment:
+      - PORT=8082
+    env_file:
+      - .env
+    restart: unless-stopped

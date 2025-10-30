@@ -27,6 +27,20 @@ const { signal } = controller
  * @param signal - AbortSignal used to stop the worker loop and trigger graceful shutdown
  */
 async function main(signal: AbortSignal) {
+  try {
+    const seed = await redis.xGroupCreate({
+      consumerGroup: REDIS_CONSUMER_GROUP,
+    })
+    logger.info('Successfully created consumer group for this worker', seed)
+  } catch (err: unknown) {
+    const msg = (err as Error)?.message ?? String(err)
+    if (msg.includes('BUSYGROUP')) {
+      console.info('Consumer group already exists; skipping creation')
+    } else {
+      logger.error('Failed to create Consumer group', msg)
+      process.exit(1)
+    }
+  }
   logger.info('Worker Started! Beginning processing')
 
   while (!signal.aborted) {

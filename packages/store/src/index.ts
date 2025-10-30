@@ -1,6 +1,6 @@
-import { PrismaClient } from './generated/client'
-export { Methods, SupportedPlatforms as Platforms } from './generated/client'
-export { PrismaClientKnownRequestError } from './generated/runtime/library'
+import { PrismaClient } from '../generated/client'
+export { Methods, SupportedPlatforms as Platforms } from '../generated/client'
+export { PrismaClientKnownRequestError } from '../generated/runtime/library'
 
 export const prisma =
   globalThis.prisma ||

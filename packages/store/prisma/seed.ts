@@ -1,5 +1,6 @@
-import { PrismaClient, SupportedPlatforms, Methods, ExecutionStatus } from '../src/generated/client'
-import { password as Password } from 'bun'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { PrismaClient, SupportedPlatforms, Methods, ExecutionStatus } from '../generated/client'
+// import { password as Password } from 'bun'
 
 const prisma = new PrismaClient()
 
@@ -38,10 +39,10 @@ async function main() {
   // const domains = ['example.com', 'test.com', ...]
   // for (let i = 0; i < userCount; i++) { ... }
 
-  const passwordHash = await Password.hash('1232@Password', {
-    algorithm: 'bcrypt',
-    cost: 10,
-  })
+  // const passwordHash = await Password.hash('1232@Password', {
+  //   algorithm: 'bcrypt',
+  //   cost: 10,
+  // })
 
   const user = await prisma.user.findUnique({
     where: {
