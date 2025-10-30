@@ -66,6 +66,7 @@ const clientConfigSchema = {
   apiBaseUrl: () => process.env.NEXT_PUBLIC_API_URL,
   nodeEnv: () => process.env.NODE_ENV || 'development',
   wsUrl: () => process.env.NEXT_PUBLIC_WS_URL,
+  webhookUrl: () => process.env.NEXT_PUBLIC_WEBHOOK_URL,
 }
 
 export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)

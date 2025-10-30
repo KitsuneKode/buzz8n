@@ -14,7 +14,7 @@ import { validateTemplates } from '@/utils/template-validation'
 import CopyButton from '../shadcn-studio/button/copy-button'
 import { HighlightedTextarea } from './HighlightedTextarea'
 import { Textarea } from '@buzz8n/ui/components/textarea'
-import { BASE_APP_URL, NODE_ENV } from '@/utils/config'
+import { WEBHOOK_URL, NODE_ENV } from '@/utils/config'
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { HighlightedInput } from './HighlightedInput'
@@ -264,7 +264,7 @@ export function ConfigRenderer({
   defaultConfig,
   nodeType,
   nodeId,
-  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080' : BASE_APP_URL,
+  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080' : WEBHOOK_URL,
 }: ConfigRendererProps) {
   const [copied, setCopied] = useState<string | null>(null)
   const [expressionMode, setExpressionMode] = useState<Record<string, boolean>>({})
