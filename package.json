@@ -2,16 +2,18 @@
   "name": "buzz8n",
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
-    "@buzz8n/eslint-config": "*",
+    "eslint": "^9.34.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.5",
     "prettier": "^3.6.2",
     "prettier-plugin-sort-imports": "^1.8.8",
-    "turbo": "^2.5.8",
+    "turbo": "^2.5.9-canary.10",
     "typescript": "5.9.2"
   },
   "engines": {
     "node": ">=18"
   },
-  "packageManager": "bun@1.2.18",
+  "packageManager": "bun@1.2.23",
   "private": true,
   "scripts": {
     "test": "turbo run test -F @buzz8n/tests",
@@ -21,22 +23,26 @@
     "test:packages": "turbo run -F @buzz8n/tests test:packages",
     "test:ci": "turbo run test:ci -F @buzz8n/tests",
     "build": "turbo run build",
+    "clean": "find . -name node_modules -o -name .next -o -name .turbo -o -name dist -type d -prune | xargs rm -rf",
     "dev": "turbo run dev",
     "dev:web": "turbo run -F @buzz8n/web dev",
     "dev:server": "turbo run -F @buzz8n/server dev",
     "dev:worker": "turbo run -F @buzz8n/worker dev",
     "dev:ws-server": "turbo run -F @buzz8n/ws-server dev",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
     "db:generate": "turbo run db:generate",
     "db:migrate": "turbo run db:migrate",
     "db:reset": "turbo run db:reset",
     "db:seed": "turbo run db:seed",
     "db:studio": "turbo run db:studio",
     "redis:migrate": "turbo run redis:migrate",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json}\"",
     "check-types": "turbo run check-types",
     "preinstall": "bunx only-allow bun",
-    "postinstall": "turbo run db:generate"
+    "prepare": "husky || true",
+    "lint-staged": "lint-staged"
   },
   "workspaces": [
     "apps/*",

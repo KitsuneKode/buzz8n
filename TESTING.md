@@ -111,10 +111,10 @@ describe('Dashboard flow', () => {
   test('should do something specific', () => {
     // Arrange
     const state = {}
-    
+
     // Act
     // render(...)
-    
+
     // Assert
     expect(true).toBe(true)
   })
@@ -128,11 +128,13 @@ See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practica
 ## Test Scenarios Covered
 
 ### Happy Path Tests
+
 - Valid inputs produce expected outputs
 - Normal user interactions work correctly
 - Standard workflows complete successfully
 
 ### Edge Cases
+
 - Empty inputs
 - Null/undefined values
 - Large inputs (1000+ character strings)
@@ -140,6 +142,7 @@ See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practica
 - Boundary conditions
 
 ### Error Handling
+
 - Network failures
 - Database errors
 - Invalid input validation
@@ -147,6 +150,7 @@ See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practica
 - Resource cleanup on errors
 
 ### Accessibility Tests
+
 - ARIA labels are correct
 - Screen reader text is present
 - Keyboard navigation works
@@ -173,18 +177,22 @@ Add the test step to CI/CD workflows:
 ## Troubleshooting
 
 ### Tests fail with import errors
+
 - Ensure all dependencies are installed: `bun install`
 - Check that tsconfig paths are configured correctly
 
 ### Mock.module() not working
+
 - Ensure mocks are defined before imports
 - Use dynamic imports: `await import()`
 
 ### React component tests fail
+
 - Ensure `happy-dom` preload is configured in `bunfig.toml`
 - Ensure `@testing-library/*` packages are installed via `bun install`
 
 ### Type errors in tests
+
 - Ensure @types/bun is installed
 - Check that test files have proper imports
 

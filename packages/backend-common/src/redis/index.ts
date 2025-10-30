@@ -53,6 +53,7 @@ export class RedisClient {
     streamKey = this.EXECUTION_QUEUE_KEY,
     maxlen = this.EXECUTION_QUEUE_MAX_LENGTH,
   }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: Record<string, any>
     streamKey?: string
     maxlen?: number
@@ -66,18 +67,29 @@ export class RedisClient {
     })
   }
 
+  async xGroupCreate({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup = this.EXECUTION_GROUP,
+  }: {
+    streamKey?: string
+    consumerGroup?: string
+  } = {}) {
+    return this.redisClient.xGroupCreate(streamKey, consumerGroup, '$', { MKSTREAM: true })
+  }
+
   async xReadGroup({
-    readGroup = this.EXECUTION_GROUP,
-    consumerGroup,
+    consumerGroup = this.EXECUTION_GROUP,
+    consumer,
     streamKey = this.EXECUTION_QUEUE_KEY,
   }: {
-    readGroup?: string
-    consumerGroup: string
+    consumerGroup?: string
+    consumer: string
     streamKey?: string
   }) {
     return this.redisClient.xReadGroup(
-      readGroup,
       consumerGroup,
+      consumer,
+
       {
         key: streamKey,
         id: '>',
@@ -87,6 +99,47 @@ export class RedisClient {
         COUNT: 10,
       },
     )
+  }
+
+  /**
+   *
+   *  Use XGROUP DESTROY when you want to completely remove the consumer group.
+   *  This automatically removes all consumers and pending messages, even if consumers are still active.
+   *   You don't need to delete individual consumers first
+   *
+   */
+  async xGroupDestroy({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup = this.EXECUTION_GROUP,
+  }: {
+    streamKey?: string
+    consumerGroup?: string
+  } = {}) {
+    return this.redisClient.xGroupDestroy(streamKey, consumerGroup)
+  }
+
+  async xGroupDelConsumer({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup = this.EXECUTION_GROUP,
+    consumer,
+  }: {
+    streamKey?: string
+    consumerGroup?: string
+    consumer: string
+  }) {
+    return this.redisClient.xGroupDelConsumer(streamKey, consumerGroup, consumer)
+  }
+
+  async xAck({
+    streamKey = this.EXECUTION_QUEUE_KEY,
+    consumerGroup = this.EXECUTION_GROUP,
+    messageID,
+  }: {
+    consumerGroup?: string
+    streamKey?: string
+    messageID: string
+  }) {
+    return this.redisClient.xAck(streamKey, consumerGroup, messageID)
   }
 
   async incr(key: string) {
@@ -103,18 +156,6 @@ export class RedisClient {
 
   async del(keys: string | string[]) {
     return this.redisClient.del(keys)
-  }
-
-  async xAck({
-    streamKey = this.EXECUTION_QUEUE_KEY,
-    consumerGroup = this.EXECUTION_GROUP,
-    messageID,
-  }: {
-    consumerGroup?: string
-    streamKey?: string
-    messageID: string
-  }) {
-    return this.redisClient.xAck(streamKey, consumerGroup, messageID)
   }
 
   async publish(channelName: string, message: string) {
@@ -152,16 +193,6 @@ export class RedisClient {
       return this.redisClient.unsubscribe(...channelName)
     }
     return this.redisClient.unsubscribe()
-  }
-
-  async xGroupDestroy({
-    streamKey = this.EXECUTION_QUEUE_KEY,
-    consumerGroup,
-  }: {
-    streamKey?: string
-    consumerGroup: string
-  }) {
-    return this.redisClient.xGroupDestroy(streamKey, consumerGroup)
   }
 
   async cleanup() {

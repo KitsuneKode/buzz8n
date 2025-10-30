@@ -2,10 +2,13 @@
   "name": "@buzz8n/backend-common",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "./src/index.ts",
   "private": true,
   "scripts": {
-    "redis:migrate": "bun run ./src/redis/migrate.ts"
+    "redis:migrate": "bun run src/redis/migrate.ts",
+    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
+    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -19,8 +22,10 @@
   "license": "ISC",
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
+    "@buzz8n/eslint-config": "*",
     "@types/bun": "latest",
-    "@types/winston": "^2.4.4"
+    "@types/winston": "^2.4.4",
+    "eslint": "^9.34.0"
   },
   "dependencies": {
     "@buzz8n/common": "*",

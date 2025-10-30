@@ -1,16 +1,14 @@
-import { createClient } from 'redis'
+import { RedisClient } from '.'
 
-const redis = await createClient()
-  .on('error', (err) => console.error('Redis Client Error', err))
-  .connect()
+const redis = new RedisClient('worker')
+await redis.connect()
 
-const STREAM_KEY = 'workflow:execution'
-const CONSUMER_GROUP = 'workflow:executors'
-
-async function migrate() {
+const migrate = async () => {
   try {
-    const seed = await redis.xGroupCreate(STREAM_KEY, CONSUMER_GROUP, '$', { MKSTREAM: true })
-    console.log(seed)
+    const seed = await redis.xGroupCreate()
+    console.info('Successfully created consumer group  =>\n -- workflow:executors -- ', {
+      seed,
+    })
   } catch (err: unknown) {
     const msg = (err as Error)?.message ?? String(err)
     if (msg.includes('BUSYGROUP')) {
@@ -18,12 +16,11 @@ async function migrate() {
     } else {
       console.error('seed failed')
       console.error(msg)
-      await redis.quit()
       process.exit(1)
     }
   } finally {
-    await redis.quit()
+    await redis.cleanup()
   }
 }
 
-migrate()
+await migrate()

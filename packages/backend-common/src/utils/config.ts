@@ -13,7 +13,7 @@ const workerSchema = {
   nodeEnv: () => process.env.NODE_ENV,
   dbUrl: () => process.env.DATABASE_URL,
   redisUrl: () => process.env.REDIS_URL,
-  redisConsumerGroup: () => `worker-${process.pid}`,
+  redisConsumer: () => `worker-${process.pid}`,
 }
 
 const wsServerSchema = {

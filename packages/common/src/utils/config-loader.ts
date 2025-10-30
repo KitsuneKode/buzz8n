@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { clientLogger, type LoggerType } from './client-logger'
 
 export class ConfigLoader<T extends Record<string, any>> {
@@ -44,6 +45,11 @@ export class ConfigLoader<T extends Record<string, any>> {
 
       process.exit(1)
     }
+    if (!errors || errors.length === 0) {
+      this.logger.info(
+        `All configuration Validated and loaded in ${this.config['nodeEnv']} environment`,
+      )
+    }
   }
 
   public validateAll(): void {
@@ -60,6 +66,7 @@ const clientConfigSchema = {
   apiBaseUrl: () => process.env.NEXT_PUBLIC_API_URL,
   nodeEnv: () => process.env.NODE_ENV || 'development',
   wsUrl: () => process.env.NEXT_PUBLIC_WS_URL,
+  webhookUrl: () => process.env.NEXT_PUBLIC_WEBHOOK_URL,
 }
 
 export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)

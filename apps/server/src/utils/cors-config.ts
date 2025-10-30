@@ -6,9 +6,11 @@ const parseAllowedOrigins = (): string[] | boolean => {
     // In development, allow all origins for easier development
     return NODE_ENV === 'development' ? true : []
   }
-  
+
   // Split comma-separated origins and trim whitespace
-  return ALLOWED_ORIGINS.split(',').map(origin => origin.trim()).filter(Boolean)
+  return ALLOWED_ORIGINS.split(',')
+    .map((origin) => origin.trim())
+    .filter(Boolean)
 }
 
 export const corsConfig = {

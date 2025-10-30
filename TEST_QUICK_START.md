@@ -28,17 +28,20 @@ bun test tests/apps/web/pages/dashboard.test.tsx
 ## What's Tested
 
 ✅ **Backend Services**
+
 - Redis client wrapper (connecting, adding, reading, acknowledging).
 - Redis migration script.
 - Execution queue functionality.
 - Webhook endpoints (authentication, authorization, execution).
 
 ✅ **Frontend Flows**
+
 - Dashboard page (tabs, empty states, workflows list, create modal via `?create=true`).
 - Utility functions (e.g., className merging with Tailwind).
   - Note: Unit tests for leaf UI components are de-emphasized in favor of flow tests.
 
 ✅ **Types**
+
 - EnqueueExecutionPayload interface validation.
 
 ## Test Files Created

@@ -1,66 +1,66 @@
 'use client'
 
-import Link from "next/link"
-import { motion } from "framer-motion"
-import { 
-  Github, 
-  Twitter, 
-  Linkedin, 
-  Mail, 
-  Brain, 
-  Zap, 
+import {
+  Github,
+  Twitter,
+  Linkedin,
+  Mail,
+  Brain,
+  Zap,
   ArrowRight,
   Sparkles,
   Globe,
   Shield,
-  Rocket
-} from "lucide-react"
-import { Button } from "@buzz8n/ui/components/button"
-import { Badge } from "@buzz8n/ui/components/badge"
-import { Separator } from "@buzz8n/ui/components/separator"
+  Rocket,
+} from 'lucide-react'
+import { Separator } from '@buzz8n/ui/components/separator'
+import { Button } from '@buzz8n/ui/components/button'
+import { Badge } from '@buzz8n/ui/components/badge'
+import { motion } from 'framer-motion'
+import Link from 'next/link'
 
 const footerSections = {
-  "AI Platform": [
-    { name: "AI Features", href: "#features", icon: <Brain className="w-3 h-3" /> },
-    { name: "Workflow Builder", href: "#demo", icon: <Zap className="w-3 h-3" /> },
-    { name: "Intelligence Hub", href: "#showcase", icon: <Sparkles className="w-3 h-3" /> },
-    { name: "AI Pricing", href: "#pricing", icon: <Rocket className="w-3 h-3" /> },
+  'AI Platform': [
+    { name: 'AI Features', href: '#features', icon: <Brain className="w-3 h-3" /> },
+    { name: 'Workflow Builder', href: '#demo', icon: <Zap className="w-3 h-3" /> },
+    { name: 'Intelligence Hub', href: '#showcase', icon: <Sparkles className="w-3 h-3" /> },
+    { name: 'AI Pricing', href: '#pricing', icon: <Rocket className="w-3 h-3" /> },
   ],
   Resources: [
-    { name: "Documentation", href: "/docs" },
-    { name: "API Reference", href: "/docs/api" },
-    { name: "AI Examples", href: "/examples" },
-    { name: "Community", href: "/community" },
-    { name: "Changelog", href: "/changelog" },
+    { name: 'Documentation', href: '/docs' },
+    { name: 'API Reference', href: '/docs/api' },
+    { name: 'AI Examples', href: '/examples' },
+    { name: 'Community', href: '/community' },
+    { name: 'Changelog', href: '/changelog' },
   ],
   Company: [
-    { name: "About", href: "/about" },
-    { name: "AI Blog", href: "/blog" },
-    { name: "Careers", href: "/careers" },
-    { name: "Contact", href: "/contact" },
-    { name: "Partners", href: "/partners" },
+    { name: 'About', href: '/about' },
+    { name: 'AI Blog', href: '/blog' },
+    { name: 'Careers', href: '/careers' },
+    { name: 'Contact', href: '/contact' },
+    { name: 'Partners', href: '/partners' },
   ],
   Legal: [
-    { name: "Privacy Policy", href: "/privacy" },
-    { name: "Terms of Service", href: "/terms" },
-    { name: "Security", href: "/security" },
-    { name: "Status", href: "/status" },
-    { name: "GDPR", href: "/gdpr" },
+    { name: 'Privacy Policy', href: '/privacy' },
+    { name: 'Terms of Service', href: '/terms' },
+    { name: 'Security', href: '/security' },
+    { name: 'Status', href: '/status' },
+    { name: 'GDPR', href: '/gdpr' },
   ],
 }
 
 const socialLinks = [
-  { name: "GitHub", href: "https://github.com", icon: Github },
-  { name: "Twitter", href: "https://twitter.com", icon: Twitter },
-  { name: "LinkedIn", href: "https://linkedin.com", icon: Linkedin },
-  { name: "Email", href: "mailto:hello@buzz8n.com", icon: Mail },
+  { name: 'GitHub', href: 'https://github.com', icon: Github },
+  { name: 'Twitter', href: 'https://twitter.com', icon: Twitter },
+  { name: 'LinkedIn', href: 'https://linkedin.com', icon: Linkedin },
+  { name: 'Email', href: 'mailto:hello@buzz8n.com', icon: Mail },
 ]
 
 const features = [
-  { name: "99.9% Uptime", icon: <Shield className="w-4 h-4" /> },
-  { name: "SOC 2 Compliant", icon: <Shield className="w-4 h-4" /> },
-  { name: "Global CDN", icon: <Globe className="w-4 h-4" /> },
-  { name: "24/7 AI Support", icon: <Brain className="w-4 h-4" /> },
+  { name: '99.9% Uptime', icon: <Shield className="w-4 h-4" /> },
+  { name: 'SOC 2 Compliant', icon: <Shield className="w-4 h-4" /> },
+  { name: 'Global CDN', icon: <Globe className="w-4 h-4" /> },
+  { name: '24/7 AI Support', icon: <Brain className="w-4 h-4" /> },
 ]
 
 export function Footer() {
@@ -69,7 +69,7 @@ export function Footer() {
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,oklch(0.7214_0.1337_49.9802/0.05),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,oklch(0.594_0.0443_196.0233/0.05),transparent_50%)]" />
-      
+
       <div className="relative container mx-auto px-4 py-16">
         {/* Newsletter Section */}
         <motion.div
@@ -80,15 +80,17 @@ export function Footer() {
           className="mb-16 text-center"
         >
           <div className="max-w-2xl mx-auto">
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mb-4">
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary border-primary/20 mb-4"
+            >
               <Sparkles className="w-3 h-3 mr-1" />
               Stay Updated
             </Badge>
-            <h3 className="text-2xl font-bold text-foreground mb-4">
-              Get AI Workflow Updates
-            </h3>
+            <h3 className="text-2xl font-bold text-foreground mb-4">Get AI Workflow Updates</h3>
             <p className="text-muted-foreground mb-6">
-              Subscribe to our newsletter for the latest AI features, workflow templates, and industry insights.
+              Subscribe to our newsletter for the latest AI features, workflow templates, and
+              industry insights.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
@@ -121,9 +123,10 @@ export function Footer() {
                 <span className="text-xl font-bold text-foreground">Buzz8n</span>
               </div>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                The most intelligent workflow builder powered by AI. Create, optimize, and scale your processes with artificial intelligence.
+                The most intelligent workflow builder powered by AI. Create, optimize, and scale
+                your processes with artificial intelligence.
               </p>
-              
+
               {/* Social Links */}
               <div className="flex space-x-3 mb-6">
                 {socialLinks.map((social) => {
@@ -159,9 +162,7 @@ export function Footer() {
                     viewport={{ once: true }}
                     className="flex items-center space-x-2 text-xs text-muted-foreground"
                   >
-                    <div className="text-primary">
-                      {feature.icon}
-                    </div>
+                    <div className="text-primary">{feature.icon}</div>
                     <span>{feature.name}</span>
                   </motion.div>
                 ))}
@@ -179,7 +180,7 @@ export function Footer() {
               viewport={{ once: true }}
             >
               <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center space-x-2">
-                {title === "AI Platform" && <Brain className="w-4 h-4 text-primary" />}
+                {title === 'AI Platform' && <Brain className="w-4 h-4 text-primary" />}
                 <span>{title}</span>
               </h3>
               <ul className="space-y-3">
@@ -225,7 +226,7 @@ export function Footer() {
               </span>
             </div>
           </div>
-          
+
           <div className="flex items-center space-x-4">
             <select className="bg-card border border-border rounded-lg px-3 py-1 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20">
               <option value="en">🇺🇸 English</option>
@@ -233,8 +234,11 @@ export function Footer() {
               <option value="fr">🇫🇷 Français</option>
               <option value="de">🇩🇪 Deutsch</option>
             </select>
-            
-            <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 text-xs">
+
+            <Badge
+              variant="secondary"
+              className="bg-primary/10 text-primary border-primary/20 text-xs"
+            >
               <Zap className="w-3 h-3 mr-1" />
               AI Powered
             </Badge>

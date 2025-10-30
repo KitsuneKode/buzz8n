@@ -1,0 +1,14 @@
+{
+  "log-driver": "local",
+  "log-opts": {
+    "max-size": "50m",
+    "max-file": "10",
+    "compress": true
+  },
+  "default-address-pools": [
+    {
+      "base": "172.17.0.0/16",
+      "size": 24
+    }
+  ]
+}

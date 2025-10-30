@@ -1,15 +1,15 @@
 'use client'
 
-import { Button } from '@buzz8n/ui/components/button'
-import { 
-  LayoutDashboard, 
-  User, 
-  FolderOpen, 
-  Settings, 
+import {
+  LayoutDashboard,
+  User,
+  FolderOpen,
+  Settings,
   HelpCircle,
   Lightbulb,
-  Star
+  Star,
 } from 'lucide-react'
+import { Button } from '@buzz8n/ui/components/button'
 import Link from 'next/link'
 
 const sidebarItems = [
@@ -17,9 +17,7 @@ const sidebarItems = [
   { icon: User, label: 'Personal', href: '/personal', active: true },
 ]
 
-const projectItems = [
-  { label: 'My project', href: '/project/my-project' },
-]
+const projectItems = [{ label: 'My project', href: '/project/my-project' }]
 
 const bottomItems = [
   { icon: Settings, label: 'Admin Panel', href: '/admin' },
@@ -63,9 +61,7 @@ export function Sidebar() {
 
         {/* Projects section */}
         <div className="px-3 py-2">
-          <div className="text-xs font-medium text-sidebar-foreground/70 mb-2 px-2">
-            Projects
-          </div>
+          <div className="text-xs font-medium text-sidebar-foreground/70 mb-2 px-2">Projects</div>
           <div className="space-y-1">
             {projectItems.map((item) => (
               <Link key={item.href} href={item.href}>

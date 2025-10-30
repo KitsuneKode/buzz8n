@@ -1,5 +1,5 @@
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
-import { REDIS_CONSUMER_GROUP, config, logger } from '@/utils'
+import { REDIS_CONSUMER, config, logger } from '@/utils'
 import { processResponse } from '@/processor'
 import { redis } from '@/redis'
 import { sleep } from 'bun'
@@ -32,7 +32,7 @@ async function main(signal: AbortSignal) {
   while (!signal.aborted) {
     try {
       const response = (await redis.xReadGroup({
-        consumerGroup: REDIS_CONSUMER_GROUP,
+        consumer: REDIS_CONSUMER,
       })) as ConsumerGroupResponseType[] | null
 
       if (!response || response.length < 1) {
@@ -62,8 +62,14 @@ async function main(signal: AbortSignal) {
       }
     } catch (error) {
       if (signal.aborted) break
-      console.error(error)
-      logger.error(`${redis.LOG_GROUP} Error reading the message`, { error })
+
+      const err = (error as Error)?.message ?? String(error)
+      if (err.includes('NOGROUP')) {
+        logger.error(`${redis.LOG_GROUP} Consumer Group not found`, { error })
+        break
+      } else {
+        logger.error(`${redis.LOG_GROUP} Error reading the message`, { error })
+      }
     }
   }
 
@@ -80,10 +86,16 @@ async function shutdown() {
 
   try {
     await redis.unsubscribe([redis.CHANNELS.EXECUTION_EVENTS])
-    await redis.xGroupDestroy({
-      consumerGroup: REDIS_CONSUMER_GROUP,
-    })
 
+    /**
+     * 
+    NOTE: COMMENT THIS xGroupDestroy and UNCOMMENT the xGroupDelConsumer in case you think of adding more workers. This deletes the whole consumer group, ideal for a single worker. But for multiple workers we only remove the consumer of the present worker.(ideally should check the pending list for the current consumer before destroying) 
+    */
+
+    await redis.xGroupDestroy()
+
+    // await redis.xGroupDelConsumer({
+    //   consumer: REDIS_CONSUMER,
     await redis.cleanup()
     logger.info('Redis connection closed.')
   } catch (err) {

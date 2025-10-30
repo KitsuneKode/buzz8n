@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { createLogger as winstonCreateLogger, format, transports } from 'winston'
 import { format as dateFormat, parseISO } from 'date-fns'
 import { SPLAT } from 'triple-beam'
@@ -26,6 +27,7 @@ const baseFormat = printf((info) => {
   const stack = info.stack ? `\n  error: ${info.stack}` : ''
 
   // Handle additional data - prioritize SPLAT args over metadata to avoid duplication
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const splatArgs = (info[SPLAT as any] || []) as any[]
   let additionalData = ''
 
@@ -79,6 +81,7 @@ function formatTimestamp(timestamp: string) {
  */
 export function createLogger(serviceName: string) {
   const logger = winstonCreateLogger({
+    // eslint-disable-next-line turbo/no-undeclared-env-vars
     level: process.env.LOG_LEVEL || 'debug', // Set log level (debug shows everything)
     defaultMeta: { service: serviceName },
     format: combine(
@@ -87,19 +90,28 @@ export function createLogger(serviceName: string) {
       baseFormat, // Removed splat() and align() - handle manually
     ),
     transports: [
-      new transports.File({
-        filename: path.join('logs', 'error.log'),
-        level: 'error',
-      }),
-      new transports.File({
-        filename: path.join('logs', 'server.log'),
+      // NOTE: This part is removed for better production level app practices.
+      // A twelve-factor app never concerns itself with routing or storage of its output stream. It should not attempt to write to or manage logfiles.
+      //    Why stdout Wins in Production?
+      //    Separation of Concerns
+      //      Your app writes logs (its only job)
+      //      The execution environment routes logs (Docker/Kubernetes/cloud provider)
+      //      Log aggregators store/analyze logs (Splunk, Loki, CloudWatch
+      //
+      // new transports.File({
+      //   filename: path.join('logs', 'error.log'),
+      //   level: 'error',
+      // }),
+      // new transports.File({
+      //   filename: path.join('logs', 'server.log'),
+      // }),
+
+      new transports.Console({
+        handleExceptions: true,
+        handleRejections: true,
       }),
     ],
   })
-
-  if (process.env.NODE_ENV !== 'production') {
-    logger.add(new transports.Console())
-  }
 
   return logger
 }

@@ -1,5 +1,5 @@
-import { describe, test, expect, mock } from 'bun:test'
 import { RedisClient } from '@packages/backend-common/src/redis'
+import { describe, test, expect, mock } from 'bun:test'
 
 // Mock the redis module
 mock.module('redis', () => ({

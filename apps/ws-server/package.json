@@ -4,9 +4,10 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap",
+    "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap --production",
     "check-types": "tsc --noEmit",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
+    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
     "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
   },

@@ -28,4 +28,3 @@ export function getUpstreamNodes(targetNodeId: string, allNodes: Node[], allEdge
 
   return allNodes.filter((n) => upstream.has(n.id))
 }
-

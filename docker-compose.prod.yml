@@ -1,0 +1,87 @@
+services:
+  # Express API Server
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.server
+    image: 'kitsunekode/buzz8n-server:latest'
+    container_name: buzz8n-server-prod
+    environment:
+      - PORT=8080
+    env_file:
+      - .env
+    ports:
+      - 8080:8080
+    networks:
+      - buzz8n-network
+    logging:
+      driver: 'local'
+      options:
+        max-size: '50m'
+        max-file: '10'
+        compress: 'true'
+        mode: 'non-blocking'
+        max-buffer-size: '4m'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:8080/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Background Worker
+  worker:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    image: 'kitsunekode/buzz8n-worker:latest'
+    container_name: buzz8n-worker-prod
+    env_file:
+      - .env
+    networks:
+      - buzz8n-network
+    logging:
+      driver: 'local'
+      options:
+        max-size: '50m'
+        max-file: '10'
+        compress: 'true'
+        mode: 'non-blocking'
+        max-buffer-size: '4m'
+    restart: unless-stopped
+
+  # Websocket Server
+  ws-server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ws
+    image: 'kitsunekode/buzz8n-ws-server:latest'
+    container_name: buzz8n-ws-server-prod
+    environment:
+      - PORT=8082
+    env_file:
+      - .env
+    ports:
+      - 8082:8082
+    networks:
+      - buzz8n-network
+    logging:
+      driver: 'local'
+      options:
+        max-size: '50m'
+        max-file: '10'
+        compress: 'true'
+        mode: 'non-blocking'
+        max-buffer-size: '4m'
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '--quiet', '--tries=1', '--spider', 'http://localhost:8082/health']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  buzz8n-network:
+    driver: bridge

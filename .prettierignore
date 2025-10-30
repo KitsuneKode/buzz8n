@@ -2,3 +2,7 @@ node_modules
 .github
 logs/**
 
+generated
+
+//TODO:remove this tests when tests are added
+tests

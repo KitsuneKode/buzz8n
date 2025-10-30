@@ -1,24 +1,24 @@
 'use client'
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Card, CardContent } from '@buzz8n/ui/components/card'
-import { Badge } from '@buzz8n/ui/components/badge'
-import { Button } from '@buzz8n/ui/components/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@buzz8n/ui/components/tabs'
-import { AnimatedCounter } from '../shared/AnimatedCounter'
-import { 
-  TrendingUp, 
-  Clock, 
-  Target, 
-  Zap, 
-  ArrowRight, 
-  CheckCircle, 
+import {
+  TrendingUp,
+  Clock,
+  Target,
+  Zap,
+  ArrowRight,
+  CheckCircle,
   XCircle,
   Brain,
   User,
-  Bot
+  Bot,
 } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@buzz8n/ui/components/tabs'
+import { Card, CardContent } from '@buzz8n/ui/components/card'
+import { AnimatedCounter } from '../shared/AnimatedCounter'
+import { Button } from '@buzz8n/ui/components/button'
+import { Badge } from '@buzz8n/ui/components/badge'
+import { motion } from 'framer-motion'
+import { useState } from 'react'
 
 interface Comparison {
   id: string
@@ -61,8 +61,8 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'Configure individual nodes manually',
           'Test connections and data flow',
           'Debug integration issues',
-          'Optimize performance manually'
-        ]
+          'Optimize performance manually',
+        ],
       },
       ai: {
         time: '15 minutes',
@@ -74,9 +74,9 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'AI suggests optimal architecture',
           'Auto-configure nodes and connections',
           'AI validates and optimizes flow',
-          'Deploy with built-in monitoring'
-        ]
-      }
+          'Deploy with built-in monitoring',
+        ],
+      },
     },
     {
       id: 'error-handling',
@@ -91,8 +91,8 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'Add try-catch blocks',
           'Configure retry logic',
           'Set up logging and monitoring',
-          'Test edge cases manually'
-        ]
+          'Test edge cases manually',
+        ],
       },
       ai: {
         time: '5 minutes',
@@ -103,9 +103,9 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'AI predicts potential failure points',
           'Auto-implement robust error handling',
           'Smart retry with exponential backoff',
-          'Integrated monitoring and alerts'
-        ]
-      }
+          'Integrated monitoring and alerts',
+        ],
+      },
     },
     {
       id: 'optimization',
@@ -120,8 +120,8 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'Manually adjust configurations',
           'Test different approaches',
           'Monitor and iterate',
-          'Document optimizations'
-        ]
+          'Document optimizations',
+        ],
       },
       ai: {
         time: 'Real-time',
@@ -132,17 +132,22 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           'Continuous performance monitoring',
           'AI identifies optimization opportunities',
           'Auto-adjust resource allocation',
-          'Dynamic load balancing'
-        ]
-      }
-    }
+          'Dynamic load balancing',
+        ],
+      },
+    },
   ]
 
   const metrics = [
     { label: 'Time Saved', value: 85, suffix: '%', icon: <Clock className="w-4 h-4" /> },
     { label: 'Accuracy Improved', value: 40, suffix: '%', icon: <Target className="w-4 h-4" /> },
     { label: 'Errors Reduced', value: 92, suffix: '%', icon: <CheckCircle className="w-4 h-4" /> },
-    { label: 'Faster Deployment', value: 10, suffix: 'x', icon: <TrendingUp className="w-4 h-4" /> }
+    {
+      label: 'Faster Deployment',
+      value: 10,
+      suffix: 'x',
+      icon: <TrendingUp className="w-4 h-4" />,
+    },
   ]
 
   // Get current comparison for potential future use
@@ -158,21 +163,18 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <Badge 
-            variant="secondary" 
-            className="bg-primary/10 text-primary border-primary/20 mb-4"
-          >
+          <Badge variant="secondary" className="bg-primary/10 text-primary border-primary/20 mb-4">
             <Brain className="w-3 h-3 mr-1" />
             Intelligence Showcase
           </Badge>
-          
+
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             Before vs After AI
           </h2>
-          
+
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            See the dramatic difference AI makes in workflow creation, debugging, 
-            and optimization. Real metrics from real workflows.
+            See the dramatic difference AI makes in workflow creation, debugging, and optimization.
+            Real metrics from real workflows.
           </p>
         </motion.div>
 
@@ -194,22 +196,14 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
                   viewport={{ once: true }}
                   className="inline-flex items-center justify-center w-12 h-12 bg-primary/10 rounded-lg mb-4"
                 >
-                  <div className="text-primary">
-                    {metric.icon}
-                  </div>
+                  <div className="text-primary">{metric.icon}</div>
                 </motion.div>
-                
+
                 <div className="text-2xl font-bold text-foreground mb-1">
-                  <AnimatedCounter 
-                    end={metric.value} 
-                    suffix={metric.suffix}
-                    trigger={true}
-                  />
+                  <AnimatedCounter end={metric.value} suffix={metric.suffix} trigger={true} />
                 </div>
-                
-                <p className="text-sm text-muted-foreground">
-                  {metric.label}
-                </p>
+
+                <p className="text-sm text-muted-foreground">{metric.label}</p>
               </CardContent>
             </Card>
           ))}
@@ -225,11 +219,7 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           <Tabs value={activeComparison} onValueChange={setActiveComparison} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               {comparisons.map((comparison) => (
-                <TabsTrigger 
-                  key={comparison.id} 
-                  value={comparison.id}
-                  className="text-sm"
-                >
+                <TabsTrigger key={comparison.id} value={comparison.id} className="text-sm">
                   {comparison.title}
                 </TabsTrigger>
               ))}
@@ -246,9 +236,7 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
                           <User className="w-5 h-5 text-muted-foreground" />
                         </div>
                         <div>
-                          <h3 className="text-lg font-semibold text-foreground">
-                            Manual Process
-                          </h3>
+                          <h3 className="text-lg font-semibold text-foreground">Manual Process</h3>
                           <p className="text-sm text-muted-foreground">
                             Traditional workflow creation
                           </p>
@@ -298,9 +286,7 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
                             <div className="w-6 h-6 bg-muted rounded-full flex items-center justify-center text-xs font-medium text-muted-foreground mt-0.5">
                               {index + 1}
                             </div>
-                            <p className="text-sm text-muted-foreground flex-1">
-                              {step}
-                            </p>
+                            <p className="text-sm text-muted-foreground flex-1">{step}</p>
                           </motion.div>
                         ))}
                       </div>
@@ -318,18 +304,14 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
                           <h3 className="text-lg font-semibold text-foreground">
                             AI-Powered Process
                           </h3>
-                          <p className="text-sm text-muted-foreground">
-                            Intelligent automation
-                          </p>
+                          <p className="text-sm text-muted-foreground">Intelligent automation</p>
                         </div>
                       </div>
 
                       {/* Metrics */}
                       <div className="grid grid-cols-2 gap-4 mb-6">
                         <div className="text-center p-3 bg-primary/10 rounded-lg">
-                          <div className="text-lg font-bold text-primary">
-                            {comparison.ai.time}
-                          </div>
+                          <div className="text-lg font-bold text-primary">{comparison.ai.time}</div>
                           <div className="text-xs text-muted-foreground">Time Required</div>
                         </div>
                         <div className="text-center p-3 bg-primary/10 rounded-lg">
@@ -367,9 +349,7 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
                             <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center text-xs font-medium text-primary mt-0.5">
                               {index + 1}
                             </div>
-                            <p className="text-sm text-muted-foreground flex-1">
-                              {step}
-                            </p>
+                            <p className="text-sm text-muted-foreground flex-1">{step}</p>
                           </motion.div>
                         ))}
                       </div>
@@ -389,7 +369,7 @@ export function IntelligenceShowcase({ className = '' }: IntelligenceShowcasePro
           viewport={{ once: true }}
           className="text-center mt-16"
         >
-          <Button 
+          <Button
             size="lg"
             className="bg-primary hover:bg-primary/90 text-primary-foreground group"
           >
