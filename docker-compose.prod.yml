@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.server
-    image: 'buzz8n-server:latest'
+    image: 'kitsunekode/buzz8n-server:latest'
     container_name: buzz8n-server-prod
     environment:
       - PORT=8080
@@ -35,7 +35,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.worker
-    image: 'buzz8n-worker:latest'
+    image: 'kitsunekode/buzz8n-worker:latest'
     container_name: buzz8n-worker-prod
     env_file:
       - .env
@@ -56,7 +56,7 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile.ws
-    image: 'buzz8n-ws-server:latest'
+    image: 'kitsunekode/buzz8n-ws-server:latest'
     container_name: buzz8n-ws-server-prod
     environment:
       - PORT=8082
