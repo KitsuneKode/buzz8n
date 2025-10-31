@@ -14,11 +14,12 @@ import { Share, Save, Circle } from 'lucide-react'
 export function TopBar() {
   const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
+  const { mutate: toggleActiveWorkflowMutate, isPending: isToggling } = useUpdateWorkflow()
 
   const handleToggleActive = (checked: boolean) => {
-    if (!workflow || isSaving) return
+    if (!workflow || isSaving || isToggling) return
 
-    saveWorkflowMutate({
+    toggleActiveWorkflowMutate({
       id: workflow.id,
       data: {
         active: checked,
@@ -36,7 +37,7 @@ export function TopBar() {
   }
 
   const handleSave = async () => {
-    if (!workflow) return
+    if (!workflow || isSaving || isToggling) return
 
     saveWorkflowMutate({
       id: workflow.id,
@@ -69,9 +70,11 @@ export function TopBar() {
           <Tabs
             value={activeTab}
             onValueChange={(value) => setActiveTab(value as 'editor' | 'executions')}
+            className="text-green-600"
           >
-            <TabsList className="bg-muted">
+            <TabsList className="text-green-600">
               <TabsTrigger value="editor">Editor</TabsTrigger>
+
               <TabsTrigger value="executions">Executions</TabsTrigger>
               {/* <TabsTrigger value="evaluations">Evaluations</TabsTrigger> */}
             </TabsList>
@@ -109,7 +112,7 @@ export function TopBar() {
             size="sm"
             onClick={handleSave}
             className="relative"
-            disabled={isSaving || !isDirty}
+            disabled={isSaving || !isDirty || isToggling}
           >
             {isSaving ? (
               <Spinner />
