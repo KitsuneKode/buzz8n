@@ -2,7 +2,7 @@ import { NextResponse, NextRequest } from 'next/server'
 
 // This function can be marked `async` if using `await` inside
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const isAuthenticated = !!request.cookies.get('buzz8n_auth')?.value
 
   const pathName = request.nextUrl.pathname

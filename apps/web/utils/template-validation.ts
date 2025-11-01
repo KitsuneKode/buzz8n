@@ -16,8 +16,10 @@ export function validateTemplates(config: unknown): string[] {
       if (value.includes('{{') || value.includes('}}')) {
         try {
           Mustache.parse(value)
-        } catch (e: any) {
-          errors.push(`Invalid template at ${path || '<root>'}: ${e?.message ?? String(e)}`)
+        } catch (e) {
+          errors.push(
+            `Invalid template at ${path || '<root>'}: ${(e as Error)?.message ?? String(e)}`,
+          )
         }
       }
       return

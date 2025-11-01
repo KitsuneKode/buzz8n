@@ -2,12 +2,13 @@
   "name": "buzz8n",
   "devDependencies": {
     "@buzz8n/typescript-config": "*",
+    "@buzz8n/eslint-config": "*",
     "eslint": "^9.34.0",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.5",
     "prettier": "^3.6.2",
     "prettier-plugin-sort-imports": "^1.8.8",
-    "turbo": "^2.5.9-canary.10",
+    "turbo": "^2.6.0",
     "typescript": "5.9.2"
   },
   "engines": {
