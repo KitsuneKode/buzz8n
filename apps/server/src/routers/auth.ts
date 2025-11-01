@@ -9,6 +9,7 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 
 const router = Router()
+//TODO: introduce better auth for better auth practices
 
 // Apply rate limiting to auth endpoints
 router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
@@ -129,7 +130,16 @@ router.get('/me', rateLimitMiddleware.api, auth, async (req, res, next) => {
 
 // Sign out user
 router.post('/signout', (req, res) => {
-  res.status(200).clearCookie('buzz8n_auth').send('Signed out successfully')
+  res
+    .status(200)
+    .clearCookie('buzz8n_auth', {
+      secure: NODE_ENV !== 'development',
+      httpOnly: true,
+      sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
+      domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+      path: '/',
+    })
+    .send('Signed out successfully')
 })
 
 export { router as authRouter }

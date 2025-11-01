@@ -12,6 +12,7 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
 import { CredentialResponse } from '@buzz8n/common/types/credentials'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
@@ -23,6 +24,7 @@ import { API_URL } from '@/utils/config'
 import OpenAIForm from './OpenAIForm'
 import GeminiForm from './GeminiForm'
 import ClaudeForm from './ClaudeForm'
+import OAuthForm from './OAuthForm'
 import EmailForm from './EmailForm'
 
 const CredentialModal = () => {
@@ -33,11 +35,18 @@ const CredentialModal = () => {
     setCredentialModalOpen,
     isCredentialModalOpen: isOpen,
     addCredential,
+    credentialCreationContext,
+    setCredentialCreationContext,
   } = useDashboardStore()
+
+  const { setSelectedNodeCredentialRef } = useWorkflowEditorStore()
 
   const queryClient = useQueryClient()
 
-  const onClose = () => setCredentialModalOpen(false)
+  const onClose = () => {
+    setCredentialModalOpen(false)
+    setCredentialCreationContext(null)
+  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -71,13 +80,27 @@ const CredentialModal = () => {
       return response.data
     },
     onSuccess: (responseData: CredentialResponse) => {
-      addCredential({
+      const newCredential = {
         id: responseData.id,
         name: responseData.title,
         provider: responseData.platform,
         config: responseData.data,
         createdAt: responseData.createdAt,
-      })
+      }
+
+      addCredential(newCredential)
+
+      // Auto-select if created from workflow editor
+      if (credentialCreationContext === 'workflow-editor') {
+        setSelectedNodeCredentialRef({
+          id: newCredential.id,
+          name: newCredential.name,
+          provider: newCredential.provider,
+        })
+        toast.success('Credential created and selected')
+      } else {
+        toast.success('Credential created successfully')
+      }
 
       // Invalidate infinite credentials cache to refresh the list
       queryClient.invalidateQueries({
@@ -85,6 +108,7 @@ const CredentialModal = () => {
       })
 
       setCredentialModalOpen(false)
+      setCredentialCreationContext(null)
     },
     onError: (error) => {
       if (isAxiosError(error)) {
@@ -105,6 +129,22 @@ const CredentialModal = () => {
       | GeminiFormData
       | AnthropicFormData,
   ) => {
+    if (!selectedProvider) {
+      toast.error('Please select a provider')
+      return
+    }
+    saveCredentialMuate({
+      config: formData,
+      name: formData.name,
+      provider: selectedProvider,
+    })
+  }
+
+  const handleOAuthFormSubmit = async (formData: {
+    name: string
+    accessToken?: string
+    refreshToken?: string
+  }) => {
     if (!selectedProvider) {
       toast.error('Please select a provider')
       return
@@ -138,6 +178,33 @@ const CredentialModal = () => {
         return <GeminiForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
       case 'Anthropic':
         return <ClaudeForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
+      case 'Gmail':
+        return (
+          <OAuthForm
+            provider="gmail"
+            onBack={handleBack}
+            onSubmit={handleOAuthFormSubmit}
+            onCancel={onClose}
+          />
+        )
+      case 'Discord':
+        return (
+          <OAuthForm
+            provider="discord"
+            onBack={handleBack}
+            onSubmit={handleOAuthFormSubmit}
+            onCancel={onClose}
+          />
+        )
+      case 'Slack':
+        return (
+          <OAuthForm
+            provider="slack"
+            onBack={handleBack}
+            onSubmit={handleOAuthFormSubmit}
+            onCancel={onClose}
+          />
+        )
       default:
         return (
           <div className="p-6 text-center">

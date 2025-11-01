@@ -15,11 +15,14 @@ import { Badge } from '@buzz8n/ui/components/badge'
  * @returns A JSX element representing the execution control bar, or `null` when the workflow contains no nodes.
  */
 export function ExecuteBar() {
-  const { nodes, workflow, currentExecution, toggleLogsDrawer } = useWorkflowEditorStore()
+  const { nodes, workflow, currentExecution, toggleLogsDrawer, edges } = useWorkflowEditorStore()
 
-  const hasManualTrigger = nodes.some((node) => node.data.type === 'manualTrigger')
+  const manualTrigger = nodes.find((node) => node.data.type === 'manualTrigger')
+  const hasConnectedManualTrigger = manualTrigger
+    ? edges.some((e) => e.source === manualTrigger.id)
+    : false
   const hasWebhook = nodes.some((node) => node.data.type === 'webhook')
-  const canExecute = nodes.length > 0 && hasManualTrigger
+  const canExecute = nodes.length > 0 && hasConnectedManualTrigger
 
   const { mutate: executeWorkflowMutate, isPending } = useExecuteWorkflow()
 
@@ -115,7 +118,7 @@ export function ExecuteBar() {
             </Button>
           )}
 
-          {!hasManualTrigger && nodes.length > 0 && (
+          {!manualTrigger && nodes.length > 0 && (
             <div className="text-xs text-amber-600 flex items-center space-x-1">
               <Clock className="w-3 h-3" />
               <span>Add a manual trigger to execute this workflow</span>
@@ -123,7 +126,7 @@ export function ExecuteBar() {
           )}
 
           {/* Manual Trigger Warning */}
-          {!hasManualTrigger && !hasWebhook && nodes.length > 0 && (
+          {!manualTrigger && !hasWebhook && nodes.length > 0 && (
             <div className="text-xs text-amber-600 flex items-center space-x-1">
               <Clock className="w-3 h-3" />
               <span>Add a trigger to activate this workflow</span>

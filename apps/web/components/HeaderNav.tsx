@@ -16,7 +16,6 @@ const HeaderNav = ({ activeTab, onTabChange, onCreateWorkflow }: HeaderNavProps)
     { id: 'workflows', label: 'Workflows' },
     { id: 'credentials', label: 'Credentials' },
     { id: 'executions', label: 'Executions' },
-    { id: 'settings', label: 'Project settings' },
   ]
 
   return (

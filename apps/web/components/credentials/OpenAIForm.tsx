@@ -28,8 +28,7 @@ const OpenAIForm = ({ onBack, onCancel, onSubmit }: OpenAIFormProps) => {
 
   const form = useForm<OpenAIFormData>({
     resolver: zodResolver(openaiFormSchema),
-    mode: 'onBlur',
-    reValidateMode: 'onChange',
+    mode: 'onChange', // Real-time validation as user types
     defaultValues: {
       name: '',
       openaiApiKey: '',

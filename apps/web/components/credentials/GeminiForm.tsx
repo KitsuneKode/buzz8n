@@ -28,8 +28,7 @@ const GeminiForm = ({ onBack, onCancel, onSubmit }: GeminiFormProps) => {
 
   const form = useForm<GeminiFormData>({
     resolver: zodResolver(geminiFormSchema),
-    mode: 'onBlur',
-    reValidateMode: 'onChange',
+    mode: 'onChange', // Real-time validation as user types
     defaultValues: {
       name: '',
       geminiApiKey: '',

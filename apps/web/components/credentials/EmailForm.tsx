@@ -28,8 +28,7 @@ const EmailForm = ({ onBack, onCancel, onSubmit }: EmailFormProps) => {
 
   const form = useForm<EmailFormData>({
     resolver: zodResolver(emailFormSchema),
-    mode: 'onBlur',
-    reValidateMode: 'onChange',
+    mode: 'onChange', // Real-time validation as user types
     defaultValues: {
       name: '',
       email: '',

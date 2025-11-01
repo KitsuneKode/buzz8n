@@ -1,9 +1,9 @@
 import { Credential } from '@/lib/types/credentials'
 import { create } from 'zustand'
 
-export type TabType = 'workflows' | 'credentials' | 'executions' | 'settings'
+export type TabType = 'workflows' | 'credentials' | 'executions' | 'docs'
 export const isTabType = (tab: string) => {
-  return ['workflows', 'credentials', 'executions', 'settings'].includes(tab)
+  return ['workflows', 'credentials', 'executions', 'docs'].includes(tab)
 }
 
 export type Execution = {
@@ -22,6 +22,10 @@ interface DashboardState {
   // Modal state
   isCredentialModalOpen: boolean
   setCredentialModalOpen: (open: boolean) => void
+
+  // Track if credential is being created from workflow editor
+  credentialCreationContext: 'workflow-editor' | 'dashboard' | null
+  setCredentialCreationContext: (context: 'workflow-editor' | 'dashboard' | null) => void
 
   // Credentials
   credentials: Credential[]
@@ -67,6 +71,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   // Initial state
   activeTab: 'workflows',
   isCredentialModalOpen: false,
+  credentialCreationContext: null,
   credentials: [],
   executions: [],
 
@@ -75,6 +80,7 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
 
   // Modal actions
   setCredentialModalOpen: (open) => set({ isCredentialModalOpen: open }),
+  setCredentialCreationContext: (context) => set({ credentialCreationContext: context }),
 
   // Credential actions
   addCredential: (credentialData: Credential) => {

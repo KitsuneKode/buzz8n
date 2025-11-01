@@ -28,8 +28,7 @@ const TelegramForm = ({ onBack, onCancel, onSubmit }: TelegramFormProps) => {
 
   const form = useForm<TelegramFormData>({
     resolver: zodResolver(telegramFormSchema),
-    mode: 'onBlur',
-    reValidateMode: 'onChange',
+    mode: 'onChange', // Real-time validation as user types
     defaultValues: {
       name: '',
       botToken: '',

@@ -85,7 +85,7 @@ const DashboardPage = () => {
     if (create && create !== undefined && create === 'true') {
       setShowWorkflowModal(true)
     }
-  }, [tab, create, onTabChange])
+  }, [tab, create, router, onTabChange])
 
   const onCreateWorkflow = () => {
     setShowWorkflowModal(true)
@@ -261,20 +261,13 @@ const DashboardPage = () => {
         )
       case 'executions':
         return <DashboardExecutions />
-      case 'settings':
-        return (
-          <div className="text-center py-12">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Project Settings</h2>
-            <p className="text-muted-foreground">Configure your project settings here.</p>
-          </div>
-        )
       default:
         return null
     }
   }
 
   return (
-    <div className="max-w-screen-xl mx-auto pt-18">
+    <div className="max-w-7xl mx-auto pt-18">
       <HeaderNav
         activeTab={activeTab}
         onTabChange={onTabChange}

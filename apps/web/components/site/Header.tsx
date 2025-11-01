@@ -72,14 +72,15 @@ export function Header({
     { id: 'demo', label: 'Demo', href: '#demo' },
     { id: 'showcase', label: 'Intelligence', href: '#showcase' },
     { id: 'pricing', label: 'Pricing', href: '#pricing' },
-    { id: 'faqs', label: 'FAQs', href: '/faqs' },
+    { id: 'faqs', label: 'FAQs', href: '#faqs' },
+    { id: 'docs', label: 'Docs', href: '/docs' },
   ]
 
   const dashboardNavItems: NavItem[] = [
-    { id: 'workflows', label: 'Workflows', href: '/dashboard' },
-    { id: 'credentials', label: 'Credentials', href: '/dashboard' },
-    { id: 'executions', label: 'Executions', href: '/dashboard' },
-    { id: 'settings', label: 'Settings', href: '/dashboard' },
+    { id: 'workflows', label: 'Workflows', href: '/dashboard?tab=workflows' },
+    { id: 'credentials', label: 'Credentials', href: '/dashboard?tab=credentials' },
+    { id: 'executions', label: 'Executions', href: '/dashboard?tab=executions' },
+    { id: 'docs', label: 'Docs', href: '/docs' },
   ]
 
   const navItems = variant === 'marketing' ? marketingNavItems : dashboardNavItems
@@ -123,6 +124,9 @@ export function Header({
       // Dashboard navigation
       if (onTabChange) {
         if (pathname.includes('/dashboard')) {
+          if (item.id === 'docs') {
+            redirect(item.href)
+          }
           onTabChange(item.id as TabType)
         } else {
           onTabChange(item.id as TabType)
@@ -146,7 +150,7 @@ export function Header({
       className={`fixed z-50 transition-all duration-500 ease-out ${className}`}
       style={{
         top: isCompact ? '12px' : '0px',
-        left: isCompact ? '50%' : '0px',
+        left: isCompact ? '40%' : '0px',
         right: isCompact ? 'auto' : '0px',
         transform: isCompact ? 'translateX(-50%)' : 'none',
         width: isCompact ? 'auto' : '100%',

@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  AlertCircle,
   Check,
   ChevronUp,
   CircleX,
@@ -29,6 +30,7 @@ import { ButtonHandle } from '@/components/react-flow/nodes/button-handle'
 import { BaseHandle } from '@/components/react-flow/nodes/base-handle'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { NodeProps, NodeToolbar, Position } from '@xyflow/react'
+import { isNodeConfigIncomplete } from '@/utils/node-templates'
 import { NodeData, NodeType } from '@/lib/types/workflow'
 import { useExecuteWorkflow } from '@/hooks/useWorkflow'
 import { Spinner } from '@buzz8n/ui/components/spinner'
@@ -93,12 +95,16 @@ const getStatusIcon = (status: string) => {
   }
 }
 
-const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
+const WorkflowNodeBuilder = ({ id, data, selected }: NodeProps<NodeData>) => {
   const { edges, selectNode, currentExecution, openNodePaletteFor, workflow } =
     useWorkflowEditorStore()
 
   // const isFirstNode = nodes.length === 1 || nodes[0]?.id === id
   const isFirstNode = data.type === 'manualTrigger' || data.type === 'webhook'
+
+  const hasConnectedManualTrigger = edges.some(
+    (e) => e.source === id && data.type === 'manualTrigger',
+  )
 
   const hasOutgoing = edges.some(
     (e) =>
@@ -107,6 +113,9 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
       !(`${e.sourceHandle}` as string).includes(`${id as string}-add-agent-bottom-right-handle`),
   )
 
+  // Check if node configuration is incomplete
+  const isConfigIncomplete = isNodeConfigIncomplete(data.type, data)
+
   const handleClick = () => {
     selectNode(id)
   }
@@ -114,7 +123,14 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
   return (
     <NodeTooltip>
       <NodeTooltipContent position={Position.Top} className="text-white">
-        {data?.description}
+        <div className="space-y-1">
+          <p>{data?.description}</p>
+          {isConfigIncomplete && (
+            <p className="text-xs text-red-700 font-medium">
+              ⚠️ Configuration incomplete - Click to configure
+            </p>
+          )}
+        </div>
       </NodeTooltipContent>
       <NodeTooltipTrigger>
         <NodeStatusIndicator status={data.status} variant="border" initial={isFirstNode}>
@@ -124,25 +140,26 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
             position={Position.Left}
             align="center"
           >
-            {currentExecution?.status === 'loading' ? (
-              <Spinner className="text-primary size-6 ml-4 mb-0 mt-6 inline-block" />
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                disabled={isPending}
-                onClick={() => {
-                  if (isPending || !workflow) return
-                  executeWorkflowMutate(workflow.id)
-                }}
-              >
-                {isPending ? (
-                  <Spinner className="text-primary size-6" />
-                ) : (
-                  <PlayCircle className="size-6 text-primary" />
-                )}
-              </Button>
-            )}
+            {hasConnectedManualTrigger &&
+              (currentExecution?.status === 'loading' ? (
+                <Spinner className="text-primary size-6 ml-4 mb-0 mt-6 inline-block" />
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  disabled={isPending}
+                  onClick={() => {
+                    if (isPending || !workflow || hasConnectedManualTrigger) return
+                    executeWorkflowMutate(workflow.id)
+                  }}
+                >
+                  {isPending ? (
+                    <Spinner className="text-primary size-6" />
+                  ) : (
+                    <PlayCircle className="size-6 text-primary" />
+                  )}
+                </Button>
+              ))}
           </NodeToolbar>
           <BaseNode
             onClick={handleClick}
@@ -150,7 +167,7 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               'flex flex-col items-center gap-2 p-4 cursor-pointer transition-all duration-300 ease-in-out',
               selected && 'border border-primary shadow-lg',
               isFirstNode && 'rounded-l-4xl',
-              data.type === 'aiAgent' && 'bg-gradient-to-r from-primary to-secondary w-80',
+              data.type === 'aiAgent' && 'bg-linear-to-r from-primary to-secondary w-80',
               data.category === 'ai-agent-tools' && 'p-2 rounded-3xl bg-muted-foreground/20',
               data.status == 'loading' && 'm-0.5',
               // Enhanced status-based styling
@@ -163,6 +180,16 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
               // !data.status && 'bg-secondary/10',
             )}
           >
+            {/* Configuration Warning Indicator */}
+            {isConfigIncomplete && (
+              <div className="absolute -top-2 -left-2 z-20">
+                <div className="relative">
+                  <AlertCircle className="size-5 text-red-500 fill-red-50 animate-pulse" />
+                  <div className="absolute inset-0 size-5 rounded-full bg-amber-500/20 animate-ping" />
+                </div>
+              </div>
+            )}
+
             {/* Enhanced Status Indicator */}
             {data.status &&
               (data.status === 'loading' ? (
@@ -276,4 +303,4 @@ const Workflow = ({ id, data, selected }: NodeProps<NodeData>) => {
   )
 }
 
-export const WorkflowNode = memo(Workflow)
+export const WorkflowNode = memo(WorkflowNodeBuilder)

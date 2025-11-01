@@ -97,7 +97,7 @@ export function NodeExecutionDetailDialog({
         <ScrollArea className="max-h-[60vh]">
           <div className="space-y-6 pr-4">
             {/* Quick Summary Cards */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="bg-muted/30 p-3 rounded-lg">
                 <div className="flex items-center space-x-2">
                   <Clock className="w-4 h-4 text-muted-foreground" />
@@ -115,15 +115,39 @@ export function NodeExecutionDetailDialog({
                 </div>
                 <p className="text-lg font-semibold mt-1 capitalize">{log.level}</p>
               </div>
-
-              <div className="bg-muted/30 p-3 rounded-lg">
-                <div className="flex items-center space-x-2">
-                  <Clock className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Timestamp</span>
-                </div>
-                <p className="text-sm font-mono mt-1">{formatTime(log.timestamp)}</p>
-              </div>
             </div>
+
+            {/* Execution Timeline */}
+            {(log.context?.startedAt || log.context?.endedAt) && (
+              <div className="bg-muted/20 p-4 rounded-lg border">
+                <h4 className="text-sm font-semibold mb-3">Execution Timeline</h4>
+                <div className="space-y-2">
+                  {log.context?.startedAt && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Started at:</span>
+                      <span className="text-sm font-mono">{formatTime(log.context.startedAt)}</span>
+                    </div>
+                  )}
+                  {log.context?.endedAt && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Ended at:</span>
+                      <span className="text-sm font-mono">{formatTime(log.context.endedAt)}</span>
+                    </div>
+                  )}
+                  {log.context?.startedAt && log.context?.endedAt && (
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <span className="text-sm font-medium">Total Duration:</span>
+                      <span className="text-sm font-semibold">
+                        {formatDuration(
+                          new Date(log.context.endedAt).getTime() -
+                            new Date(log.context.startedAt).getTime(),
+                        )}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Main Content */}
             <div className="space-y-4">
@@ -144,7 +168,7 @@ export function NodeExecutionDetailDialog({
                     </Button>
                   </div>
                   <div className="bg-muted/30 p-3 rounded-lg overflow-hidden">
-                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words">
+                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word">
                       {JSON.stringify(log.context.output, null, 2)}
                     </pre>
                   </div>
@@ -156,7 +180,7 @@ export function NodeExecutionDetailDialog({
                 <div>
                   <h4 className="text-sm font-medium mb-2 text-red-600">Error Details</h4>
                   <div className="bg-red-50 dark:bg-red-950/20 p-3 rounded-lg overflow-hidden">
-                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words text-red-800 dark:text-red-200">
+                    <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word text-red-800 dark:text-red-200">
                       {JSON.stringify(log.context.error, null, 2)}
                     </pre>
                   </div>
@@ -187,7 +211,7 @@ export function NodeExecutionDetailDialog({
                       <div>
                         <h5 className="text-sm font-medium mb-2">Input Configuration</h5>
                         <div className="bg-muted/30 p-3 rounded-lg overflow-hidden">
-                          <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words">
+                          <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word">
                             {JSON.stringify(log.context.input, null, 2)}
                           </pre>
                         </div>
@@ -199,7 +223,7 @@ export function NodeExecutionDetailDialog({
                       <div>
                         <h5 className="text-sm font-medium mb-2">Metadata</h5>
                         <div className="bg-muted/30 p-3 rounded-lg overflow-hidden">
-                          <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words">
+                          <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word">
                             {JSON.stringify(log.metadata, null, 2)}
                           </pre>
                         </div>
@@ -216,7 +240,7 @@ export function NodeExecutionDetailDialog({
                         </Button>
                       </div>
                       <div className="bg-muted/30 p-3 rounded-lg overflow-hidden">
-                        <pre className="text-xs overflow-x-auto whitespace-pre-wrap break-words">
+                        <pre className="text-xs overflow-x-auto whitespace-pre-wrap wrap-break-word">
                           {JSON.stringify(log, null, 2)}
                         </pre>
                       </div>

@@ -3,11 +3,13 @@
 import { Copy, Trash2, Info, XCircle, Clock, CheckCircle } from 'lucide-react'
 import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
+import { mergeDuplicateLogs } from '@/utils/execution-helpers'
 import { ExecutionLog, Execution } from '@/lib/types/workflow'
 import { Separator } from '@buzz8n/ui/components/separator'
+import { Spinner } from '@buzz8n/ui/components/spinner'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 interface ExecutionDetailViewProps {
   execution: Execution
@@ -22,7 +24,7 @@ const getLogStatusIcon = (status: ExecutionLog['status']) => {
     case 'error':
       return <XCircle className="w-4 h-4 text-red-500" />
     case 'loading':
-      return <Clock className="w-4 h-4 text-blue-500" />
+      return <Spinner className="w-4 h-4 text-blue-500" />
     default:
       return <Info className="w-4 h-4 text-gray-500" />
   }
@@ -94,13 +96,18 @@ export function ExecutionDetailView({
   const [selectedLog, setSelectedLog] = useState<ExecutionLog | null>(null)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
 
+  // Merge duplicate logs for the same node (started + completed)
+  const mergedLogs = useMemo(() => {
+    return mergeDuplicateLogs(execution.logs)
+  }, [execution.logs])
+
   const handleLogClick = (log: ExecutionLog) => {
     setSelectedLog(log)
     setIsDialogOpen(true)
   }
 
   const handleCopyLogs = () => {
-    const logsText = execution.logs
+    const logsText = mergedLogs
       .map((log) => `[${log.timestamp.toISOString()}] ${log.status.toUpperCase()}: ${log.message}`)
       .join('\n')
 
@@ -114,7 +121,7 @@ export function ExecutionDetailView({
     }
 
     // Fallback: try to extract node type from log messages
-    const logWithNodeId = execution.logs.find((log) => log.nodeId === nodeId)
+    const logWithNodeId = mergedLogs.find((log) => log.nodeId === nodeId)
     if (logWithNodeId) {
       const message = logWithNodeId.message
       // Extract node type from message like "Node nodeId (nodeType) message"
@@ -200,7 +207,7 @@ export function ExecutionDetailView({
                 <Info className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm font-medium">Logs</span>
               </div>
-              <p className="text-sm font-mono mt-1">{execution.logs.length} entries</p>
+              <p className="text-sm font-mono mt-1">{mergedLogs.length} entries</p>
             </div>
           </div>
 
@@ -222,11 +229,11 @@ export function ExecutionDetailView({
 
           <ScrollArea className="h-[400px]">
             <div className="p-4">
-              {execution.logs.length === 0 ? (
+              {mergedLogs.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">No logs available</div>
               ) : (
                 <div className="space-y-2">
-                  {execution.logs.map((log, index) => (
+                  {mergedLogs.map((log, index) => (
                     <div
                       key={log.id}
                       className={`border-l-2 pl-4 py-3 hover:bg-muted/30 transition-colors cursor-pointer rounded-r-lg ${getLogStatusColor(log.status)}`}
@@ -253,10 +260,24 @@ export function ExecutionDetailView({
                                 </span>
                               </div>
                             )}
+                            {/* Show timeline if available */}
+                            {(log.context?.startedAt || log.context?.endedAt) && (
+                              <div className="mt-2 text-xs text-muted-foreground">
+                                {log.context?.startedAt && log.context?.endedAt && (
+                                  <span>
+                                    Duration:{' '}
+                                    {formatDuration(
+                                      new Date(log.context.endedAt).getTime() -
+                                        new Date(log.context.startedAt).getTime(),
+                                    )}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
-                      {index < execution.logs.length - 1 && <Separator className="mt-2" />}
+                      {index < mergedLogs.length - 1 && <Separator className="mt-2" />}
                     </div>
                   ))}
                 </div>

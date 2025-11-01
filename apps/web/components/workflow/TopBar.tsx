@@ -88,14 +88,14 @@ export function TopBar() {
             <Label htmlFor="active-toggle" className="text-sm">
               {workflow.active ? 'Active' : 'Inactive'}
             </Label>
-            {isSaving ? (
+            {isToggling ? (
               <Spinner className="size-4 " />
             ) : (
               <Switch
                 id="active-toggle"
                 checked={workflow.active}
                 onCheckedChange={handleToggleActive}
-                disabled={isSaving}
+                disabled={isSaving || isToggling}
               />
             )}
           </div>

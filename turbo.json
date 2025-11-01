@@ -47,7 +47,7 @@
       "cache": false,
       "persistent": true
     },
-    "db:push": {
+    "db:seed": {
       "cache": false,
       "persistent": true
     },

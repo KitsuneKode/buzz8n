@@ -133,7 +133,7 @@ export function ConfigRenderer({
   defaultConfig,
   nodeType,
   nodeId,
-  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080' : WEBHOOK_URL,
+  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080/webhook' : WEBHOOK_URL,
 }: ConfigRendererProps) {
   const [copied, setCopied] = useState<string | null>(null)
   const [expressionMode, setExpressionMode] = useState<Record<string, boolean>>({})

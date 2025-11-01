@@ -28,8 +28,7 @@ const ClaudeForm = ({ onBack, onCancel, onSubmit }: ClaudeFormProps) => {
 
   const form = useForm<AnthropicFormData>({
     resolver: zodResolver(anthropicFormSchema),
-    mode: 'onBlur',
-    reValidateMode: 'onChange',
+    mode: 'onChange', // Real-time validation as user types
     defaultValues: {
       name: '',
       anthropicApiKey: '',
