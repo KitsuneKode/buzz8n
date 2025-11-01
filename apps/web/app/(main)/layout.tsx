@@ -3,9 +3,12 @@ import { prefetchInfiniteCredentials } from '@/utils/prefetchServerCredentials'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import DataBootStrap from '@/components/DataBootStrap'
+import { requireAuth } from '@/utils/auth-server'
 import { cookies } from 'next/headers'
 
 export default async function MainLayout({ children }: { children: React.ReactNode }) {
+  await requireAuth('/')
+
   const queryClient = getQueryClient()
 
   const cookieHeader = (await cookies()).toString()

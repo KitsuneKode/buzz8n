@@ -18,7 +18,8 @@ export function useInfiniteScroll({
   rootMargin = '100px',
 }: UseInfiniteScrollOptions) {
   const [isIntersecting, setIsIntersecting] = useState(false)
-  const sentinelRef = useRef<HTMLDivElement>(null)
+  const [element, setElement] = useState<HTMLDivElement | null>(null)
+  const observerRef = useRef<IntersectionObserver | null>(null)
 
   const handleIntersection = useCallback(
     (entries: IntersectionObserverEntry[]) => {
@@ -32,22 +33,33 @@ export function useInfiniteScroll({
     [hasNextPage, isFetchingNextPage, fetchNextPage],
   )
 
+  // Callback ref to track when element is mounted/unmounted
+  const sentinelRef = useCallback((node: HTMLDivElement | null) => {
+    setElement(node)
+  }, [])
+
   useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
+    // Clean up previous observer
+    if (observerRef.current) {
+      observerRef.current.disconnect()
+      observerRef.current = null
+    }
+
+    if (!element) return
 
     const observer = new IntersectionObserver(handleIntersection, {
       threshold,
       rootMargin,
     })
 
-    observer.observe(sentinel)
+    observerRef.current = observer
+    observer.observe(element)
 
     return () => {
       observer.disconnect()
-      if (sentinel) observer.unobserve(sentinel)
+      observerRef.current = null
     }
-  }, [handleIntersection, threshold, rootMargin])
+  }, [element, handleIntersection, threshold, rootMargin])
 
   return {
     sentinelRef,

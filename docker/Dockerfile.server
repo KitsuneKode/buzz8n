@@ -17,8 +17,6 @@ RUN turbo prune @buzz8n/server --docker
 
 # Build stage
 FROM base AS builder
-RUN apk update
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 

@@ -227,7 +227,7 @@ export function ExecutionDetailView({
             </p>
           </div>
 
-          <ScrollArea className="h-[400px]">
+          <ScrollArea className="h-full">
             <div className="p-4">
               {mergedLogs.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">No logs available</div>

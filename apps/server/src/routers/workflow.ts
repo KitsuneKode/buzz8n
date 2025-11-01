@@ -257,6 +257,7 @@ router.put(
 
       const existingWebhookPath = workflow.webhook?.path
       const existingWebhookSecret = workflow.webhook?.secret
+      const existingWebhookMethod = workflow.webhook?.method
 
       // console.log('=== WEBHOOK DEBUG ===')
       // console.log('existingWebhookPath:', existingWebhookPath)
@@ -278,7 +279,8 @@ router.put(
           const isNewWebhook =
             !existingWebhookPath ||
             webhookNode.data.config.path !== existingWebhookPath ||
-            webhookNode.data.config.secret !== existingWebhookSecret
+            webhookNode.data.config.secret !== existingWebhookSecret ||
+            webhookNode.data.config.method !== existingWebhookMethod
 
           // console.log('isNewWebhook:', isNewWebhook)
           // console.log('!existingWebhookPath:', !existingWebhookPath)

@@ -17,6 +17,10 @@ const AI_MODELS = [
   { value: 'gemini-2.0-flash-thinking-exp', type: 'gemini', label: 'Gemini 2.0 Flash Thinking' },
   { value: 'gemini-1.5-pro', type: 'gemini', label: 'Gemini 1.5 Pro' },
   { value: 'gemini-1.5-flash', type: 'gemini', label: 'Gemini 1.5 Flash' },
+  { value: 'gemini-2.0-pro', type: 'gemini', label: 'Gemini 2.0 Pro' },
+  { value: 'gemini-2.5-flash', type: 'gemini', label: 'Gemini 2.5 Flash' },
+  { value: 'gemini-2.5-flash-lite', type: 'gemini', label: 'Gemini 2.5 Flash-Lite' },
+  { value: 'gemini-2.5-pro', type: 'gemini', label: 'Gemini 2.5 Pro' },
 
   // Anthropic Claude - Latest Models (2024-2025)
   { value: 'claude-3-5-sonnet-20241022', type: 'anthropic', label: 'Claude 3.5 Sonnet' },
