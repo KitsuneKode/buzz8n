@@ -27,11 +27,13 @@ export default {
     const commands = []
 
     for (const [configPath, groupedFiles] of Object.entries(filesByConfig)) {
-      commands.push(`eslint --fix -c ${configPath} ${groupedFiles.join(' ')}`)
+      const escapedFiles = groupedFiles.map(f => `'${f.replace(/'/g, "'\\''")}'`).join(' ')
+      commands.push(`eslint --fix -c ${configPath} ${escapedFiles}`)
     }
 
     // Prettier runs on all files at once
-    commands.push(`prettier --write ${files.join(' ')}`)
+    const escapedAllFiles = files.map(f => `'${f.replace(/'/g, "'\\''")}'`).join(' ')
+    commands.push(`prettier --write ${escapedAllFiles}`)
 
     return commands
   },
