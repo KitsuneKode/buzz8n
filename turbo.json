@@ -23,10 +23,16 @@
       "dependsOn": ["^lint"]
     },
     "lint:fix": {
-      "dependsOn": ["^lint"]
+      "dependsOn": ["^lint:fix"]
     },
     "check-types": {
       "dependsOn": ["^check-types"]
+    },
+    "format": {
+      "dependsOn": ["^format"]
+    },
+    "format:check": {
+      "dependsOn": ["^format:check"]
     },
     "dev": {
       "cache": false,

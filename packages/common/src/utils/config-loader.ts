@@ -5,22 +5,29 @@ export class ConfigLoader<T extends Record<string, any>> {
   private static instanceMap = new Map<string, ConfigLoader<any>>()
   private config: T
   private logger: LoggerType
+  private clientSide: boolean
 
-  private constructor(schema: { [K in keyof T]: () => T[K] }, logger: LoggerType) {
+  private constructor(
+    schema: { [K in keyof T]: () => T[K] },
+    logger: LoggerType,
+    clientSide: boolean,
+  ) {
     this.config = Object.keys(schema).reduce((acc, key) => {
       acc[key as keyof T] = schema[key as keyof T]()
       return acc
     }, {} as T)
     this.logger = logger
+    this.clientSide = clientSide
   }
 
   public static getInstance<T extends Record<string, any>>(
     schema: { [K in keyof T]: () => T[K] },
     key: string = 'default', // optional identifier for multi-config support
     logger: LoggerType,
+    clientSide = false,
   ): ConfigLoader<T> {
     if (!ConfigLoader.instanceMap.has(key)) {
-      ConfigLoader.instanceMap.set(key, new ConfigLoader(schema, logger))
+      ConfigLoader.instanceMap.set(key, new ConfigLoader(schema, logger, clientSide))
     }
 
     return ConfigLoader.instanceMap.get(key) as ConfigLoader<T>
@@ -45,7 +52,7 @@ export class ConfigLoader<T extends Record<string, any>> {
 
       process.exit(1)
     }
-    if (!errors || errors.length === 0) {
+    if (!errors || (errors.length === 0 && !this.clientSide)) {
       this.logger.info(
         `All configuration Validated and loaded in ${this.config['nodeEnv']} environment`,
       )
@@ -69,4 +76,9 @@ const clientConfigSchema = {
   webhookUrl: () => process.env.NEXT_PUBLIC_WEBHOOK_URL,
 }
 
-export const clientConfig = ConfigLoader.getInstance(clientConfigSchema, 'client', clientLogger)
+export const clientConfig = ConfigLoader.getInstance(
+  clientConfigSchema,
+  'client',
+  clientLogger,
+  true,
+)
