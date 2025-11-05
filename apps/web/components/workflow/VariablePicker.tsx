@@ -97,7 +97,7 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
   }
 
   return (
-    <div className=" bg-card border rounded-lg shadow-lg z-50">
+    <div className=" bg-card border rounded-lg shadow-lg ">
       {/* Header */}
       <div className="p-3 border-b bg-card flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -109,7 +109,11 @@ export function VariablePicker({ currentNodeId, onInsert, onClose }: VariablePic
         </Button>
       </div>
 
-      <ScrollArea className="h-80 z-20">
+      <ScrollArea
+        className="h-80"
+        onWheel={(e) => e.stopPropagation()}
+        onTouchMove={(e) => e.stopPropagation()}
+      >
         {/* Trigger Data */}
         {/* <div className="p-3 border-b"> */}
         {/* <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Trigger Data</h4> */}
