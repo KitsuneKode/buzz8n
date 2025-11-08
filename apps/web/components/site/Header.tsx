@@ -19,7 +19,7 @@ import {
   Dog,
   Loader2,
 } from 'lucide-react'
-import { redirect, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import type { TabType } from '@/stores/dashboard'
@@ -55,6 +55,7 @@ export function Header({
   const [scrollY, setScrollY] = useState(0)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const pathname = usePathname()
+  const router = useRouter()
 
   const { signOut, isLoading, user: userData } = useAuth()
 
@@ -125,16 +126,17 @@ export function Header({
       if (onTabChange) {
         if (pathname.includes('/dashboard')) {
           if (item.id === 'docs') {
-            redirect(item.href)
+            router.push(item.href)
+            return
           }
           onTabChange(item.id as TabType)
         } else {
           onTabChange(item.id as TabType)
-          redirect(item.href)
+          router.push(item.href)
         }
       } else {
         // Fallback to regular navigation if no tab handler
-        redirect(item.href)
+        router.push(item.href)
       }
     }
   }
