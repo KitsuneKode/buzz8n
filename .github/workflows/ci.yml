@@ -29,6 +29,15 @@ jobs:
         with:
           bun-version: latest
 
+      - name: Cache and Restore bun install dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-store-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-store-
+
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -51,6 +60,15 @@ jobs:
             fetch-depth: 0
             filter: blob:none
 
+      - name: Cache and Restore bun install dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-store-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-store-
+          
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -77,6 +95,15 @@ jobs:
             fetch-depth: 0
             filter: blob:none
       
+      - name: Cache and Restore bun install dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-store-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-store-
+          
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -104,6 +131,15 @@ jobs:
             fetch-depth: 0
             filter: blob:none
 
+      - name: Cache and Restore bun install dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-store-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-store-
+          
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
