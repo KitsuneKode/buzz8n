@@ -38,6 +38,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-store-
 
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+                  ${{ runner.os }}-turbo-
+      
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
@@ -68,7 +76,15 @@ jobs:
           key: ${{ runner.os }}-bun-store-${{ hashFiles('bun.lock') }}
           restore-keys: |
             ${{ runner.os }}-bun-store-
-          
+
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+                  ${{ runner.os }}-turbo-
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -104,6 +120,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-store-
           
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+                  ${{ runner.os }}-turbo-
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
@@ -140,6 +164,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-bun-store-
           
+      - name: Cache turbo build setup
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          restore-keys: |
+                  ${{ runner.os }}-turbo-
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
