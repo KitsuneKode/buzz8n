@@ -19,7 +19,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-             fetch-depth: 0
+            filter: blob:none
+            fetch-depth: 0
+
+        env:
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -34,7 +38,7 @@ jobs:
 
 
       - name: Prettier check
-        run: bun run format:check --affected
+        run: bun turbo run format:check --affected
 
   lint:
     name: Lint
@@ -43,7 +47,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-             fetch-depth: 0
+            filter: blob:none
+            fetch-depth: 0
+
+        env:
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -66,7 +74,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-             fetch-depth: 0
+            filter: blob:none
+            fetch-depth: 0
+
+        env:
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -90,7 +102,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
-             fetch-depth: 0
+            filter: blob:none
+            fetch-depth: 0
+
+        env:
+          TURBO_SCM_BASE: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
