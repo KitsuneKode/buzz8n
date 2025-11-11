@@ -1,5 +1,7 @@
 'use client'
 
+export const dynamic = 'force-dynamic'
+
 import CredentialModal from '@/components/credentials/CredentialModal'
 import { DashboardExecutions } from '@/components/DashboardExecutions'
 import { WorkflowModal } from '@/components/workflow/WorkflowModal'
