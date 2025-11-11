@@ -16,9 +16,6 @@ export function SmartHeader() {
   const onTabChange = useCallback(
     (tab: TabType) => {
       setActiveTab(tab)
-      if (tab === 'docs') {
-        router.push('/docs')
-      }
       router.replace(`/dashboard?tab=${tab}`)
     },
     [router, setActiveTab],

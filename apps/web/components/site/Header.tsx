@@ -19,7 +19,7 @@ import {
   Dog,
   Loader2,
 } from 'lucide-react'
-import { redirect, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import type { TabType } from '@/stores/dashboard'
@@ -96,6 +96,8 @@ export function Header({
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const router = useRouter()
+
   const scrollToSection = (href: string) => {
     if (href.startsWith('#')) {
       const element = document.querySelector(href)
@@ -119,22 +121,29 @@ export function Header({
 
   const handleNavClick = (item: NavItem) => {
     if (variant === 'marketing') {
-      scrollToSection(item.href)
+      if (item.href.startsWith('#')) {
+        scrollToSection(item.href)
+      } else {
+        // For non-hash links (like /docs), use router navigation
+        router.push(item.href)
+        setIsMobileMenuOpen(false)
+      }
     } else {
       // Dashboard navigation
       if (onTabChange) {
         if (pathname.includes('/dashboard')) {
           if (item.id === 'docs') {
-            redirect(item.href)
+            router.push(item.href)
+          } else {
+            onTabChange(item.id as TabType)
           }
-          onTabChange(item.id as TabType)
         } else {
           onTabChange(item.id as TabType)
-          redirect(item.href)
+          router.push(item.href)
         }
       } else {
         // Fallback to regular navigation if no tab handler
-        redirect(item.href)
+        router.push(item.href)
       }
     }
   }
