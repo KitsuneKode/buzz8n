@@ -89,7 +89,7 @@ export const processResponse = async ({
       return
     }
 
-    await beginExecutionSetStatus(workflowId)
+    await beginExecutionSetStatus(workflowId, executionId)
 
     /**
      *

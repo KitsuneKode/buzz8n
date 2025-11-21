@@ -32,21 +32,36 @@ function WebSocketStatus() {
 }
 
 export function WorkflowEditor() {
-  const { nodes, edges, workflow, activeTab, isLogsDrawerOpen, deleteSelectedNodes, isDirty } =
-    useWorkflowEditorStore()
+  const {
+    nodes,
+    edges,
+    workflow,
+    activeTab,
+    isLogsDrawerOpen,
+    deleteSelectedNodes,
+    isDirty,
+    currentExecution,
+  } = useWorkflowEditorStore()
 
   const { mutate: updateWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
   const { mutate: executeWorkflowMutate } = useExecuteWorkflow()
-
+  const { isConnected, subscribe } = useWebSocket()
   // Connect WebSocket on mount
   useEffect(() => {
     const { connect, disconnect } = useWebSocketStore.getState()
     connect()
+
     return () => {
       disconnect()
     }
   }, [])
+
+  useEffect(() => {
+    if (isConnected && workflow && currentExecution) {
+      subscribe(workflow.id, currentExecution.id)
+    }
+  }, [currentExecution, workflow, isConnected, subscribe])
 
   const handleKeyDown = useCallback(
     async (event: KeyboardEvent) => {
