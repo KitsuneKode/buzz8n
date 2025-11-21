@@ -5,7 +5,7 @@ FROM oven/bun:1.3.1-alpine AS base
 RUN apk update
 RUN apk add --no-cache libc6-compat
 
-RUN bun install --global turbo@canary
+RUN bun install --global turbo@latest
 
 # Prune project
 FROM base AS pruner

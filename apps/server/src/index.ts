@@ -3,7 +3,6 @@ import express from 'express'
 import { errorHandlerMiddleware } from '@/middlewares/error-handler-middleware'
 import { rateLimitMiddleware } from './middlewares/rate-limiter-middleware'
 import { rateLimitStatusRouter } from '@/routers/rate-limit-status'
-import { timingMiddleware } from '@/middlewares/timing-middleware'
 import { backendConfig } from '@buzz8n/backend-common/config'
 import { credentialRouter } from '@/routers/credential'
 import { executionRouter } from '@/routers/executions'
@@ -36,7 +35,7 @@ app.use(
 )
 
 app.use(cors(corsConfig))
-app.use(timingMiddleware)
+// app.use(timingMiddleware)
 
 app.get('/health', (req, res) => {
   res.status(200).send('OK')
@@ -54,7 +53,7 @@ routers.forEach((router) => app.use('/api/v1', router))
 
 app.use(webhookRouter)
 app.use(rateLimitMiddleware.api)
-app.use('{/*splat}', timingMiddleware, (req, res) => {
+app.use('{/*splat}', (req, res) => {
   logger.info(`[404] ${req.originalUrl} ${req.method}  was called`)
   res.status(404).send('Page not Found')
 })

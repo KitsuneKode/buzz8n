@@ -13,10 +13,20 @@ const subGraphCategories = ['ai-agent-tools']
  *
  * @returns The updated active execution count for the workflow.
  */
-export async function beginExecutionSetStatus(workflowId: string): Promise<number> {
+export async function beginExecutionSetStatus(
+  workflowId: string,
+  executionId: string,
+): Promise<number> {
   const WORKFLOW_ACTIVE_COUNT_KEY = workflowKey(workflowId)
   const count = await redis.incr(WORKFLOW_ACTIVE_COUNT_KEY) // creates WORKFLOW_ACTIVE_COUNT_KEY if missing, returns new value
-  await redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // refresh inactivity window
+  const redisPromise = redis.expire(WORKFLOW_ACTIVE_COUNT_KEY, INACTIVITY_TIMEOUT) // refresh inactivity window
+  const prismaPromise = prisma.execution.update({
+    where: { id: executionId },
+    data: { startedAt: new Date(), status: 'loading' },
+  })
+
+  await Promise.all([redisPromise, prismaPromise])
+
   if (count === 1) {
     await prisma.workflow.update({ where: { id: workflowId }, data: { status: 'loading' } })
   }

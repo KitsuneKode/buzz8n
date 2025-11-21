@@ -13,7 +13,7 @@ export {
 } from '@buzz8n/common/types'
 import z from 'zod'
 
-export type Provider = z.infer<typeof SupportedPlatforms> | 'Discord' | 'Slack'
+export type Provider = z.infer<typeof SupportedPlatforms> | 'Discord' | 'Slack' | 'Gmail'
 
 export interface CredentialData {
   provider: Provider

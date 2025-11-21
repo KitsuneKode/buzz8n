@@ -235,6 +235,8 @@ export interface ExecutionLog {
     error?: any
     duration?: number
     retryCount?: number
+    startedAt?: Date
+    endedAt?: Date
   }
   metadata?: {
     userId?: string

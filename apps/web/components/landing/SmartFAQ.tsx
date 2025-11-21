@@ -2,7 +2,7 @@
 
 import { ChevronDown, MessageSquare, Lightbulb, ArrowRight, Sparkles } from 'lucide-react'
 import { Card, CardContent } from '@buzz8n/ui/components/card'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'motion/react'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { useState } from 'react'

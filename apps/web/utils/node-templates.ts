@@ -123,3 +123,57 @@ export function getNodeTemplate(nodeType: string): NodeTemplate | undefined {
 export function getAllNodeTemplates(): NodeTemplate[] {
   return Object.values(NODE_TEMPLATES)
 }
+
+/**
+ * Check if a node's configuration is complete and valid.
+ * A node is considered incomplete if:
+ * - It requires credentials but none are set
+ * - It has required config fields (from defaultConfig) that are empty or not set
+ *
+ * @param nodeType - The node template type identifier
+ * @param nodeData - The node's data including config and credentials
+ * @returns true if the node configuration is incomplete, false otherwise
+ */
+export function isNodeConfigIncomplete(
+  nodeType: string,
+  nodeData: {
+    config?: Record<string, unknown>
+    credentials?: { id: string; name: string; provider: string } | null
+    requiredCredentials?: string[]
+  },
+): boolean {
+  const template = NODE_TEMPLATES[nodeType]
+  if (!template) return false
+
+  // Check if credentials are required but not set
+  if (
+    template.requiredCredentials &&
+    template.requiredCredentials.length > 0 &&
+    !nodeData.credentials?.id
+  ) {
+    return true
+  }
+
+  // Check if required config fields are empty
+  const defaultConfig = template.defaultConfig || {}
+  const currentConfig = nodeData.config || {}
+
+  for (const [key, defaultValue] of Object.entries(defaultConfig)) {
+    // Skip fields that have null/undefined as default (they're optional)
+    if (defaultValue === null || defaultValue === undefined) continue
+
+    const currentValue = currentConfig[key]
+
+    // Check if the field is empty
+    if (
+      currentValue === undefined ||
+      currentValue === null ||
+      currentValue === '' ||
+      (Array.isArray(currentValue) && currentValue.length === 0)
+    ) {
+      return true
+    }
+  }
+
+  return false
+}

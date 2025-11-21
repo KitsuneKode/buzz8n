@@ -5,11 +5,12 @@ import { CheckCircle, Clock, XCircle, Loader2, Eye, RefreshCw } from 'lucide-rea
 import { useInfiniteWorkflowExecutions } from '@/hooks/useWorkflow'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
+import { mergeDuplicateLogs } from '@/utils/execution-helpers'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { ExecutionDetailView } from './ExecutionDetailView'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 
 export function ExecutionsTab() {
   const { workflow, currentExecution } = useWorkflowEditorStore()
@@ -125,6 +126,12 @@ export function ExecutionsTab() {
       {} as Record<string, string>,
     ) || {}
 
+  // Merge duplicate logs for current execution
+  const mergedCurrentLogs = useMemo(() => {
+    if (!currentExecution?.logs) return []
+    return mergeDuplicateLogs(currentExecution.logs)
+  }, [currentExecution?.logs])
+
   const getNodeDisplayName = (nodeId: string) => {
     const label = nodeLabels[nodeId]
     if (label) {
@@ -234,14 +241,14 @@ export function ExecutionsTab() {
                       {currentExecution.durationMs && (
                         <span>Duration: {formatDuration(currentExecution.durationMs)}</span>
                       )}
-                      <span>Logs: {currentExecution.logs?.length || 0}</span>
+                      <span>Logs: {mergedCurrentLogs.length}</span>
                     </div>
 
-                    {currentExecution.logs && currentExecution.logs.length > 0 && (
+                    {mergedCurrentLogs.length > 0 && (
                       <div className="mt-3">
                         <div className="text-xs text-muted-foreground mb-2">Recent Logs:</div>
                         <div className="space-y-1 max-h-32 overflow-y-auto">
-                          {currentExecution.logs.slice(-3).map((log, index) => (
+                          {mergedCurrentLogs.slice(-3).map((log, index) => (
                             <div key={log.id || index} className="text-xs bg-muted/50 p-2 rounded">
                               <div className="flex items-center space-x-2">
                                 <span className="font-medium">

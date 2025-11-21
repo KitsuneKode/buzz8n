@@ -1,13 +1,7 @@
 'use client'
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@buzz8n/ui/components/select'
 import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
+import { CredentialsInfiniteSelect } from './CredentialsInfiniteSelect'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { Textarea } from '@buzz8n/ui/components/textarea'
 import { getDefaultConfig } from '@/utils/node-templates'
@@ -39,7 +33,7 @@ export function PropertiesPanel() {
     currentExecution,
     getNodeExecutionLog,
   } = useWorkflowEditorStore()
-  const { credentials, openCredentialModal } = useDashboardStore()
+  const { credentials, openCredentialModal, setCredentialCreationContext } = useDashboardStore()
   const [isExecutionDialogOpen, setIsExecutionDialogOpen] = useState(false)
   const selectedNode = nodes.find((node) => node.id === selectedNodeId)
 
@@ -73,44 +67,52 @@ export function PropertiesPanel() {
   // }
 
   return (
-    <div className="flex flex-col h-full ">
+    <div className="flex flex-col min-h-0">
       {/* Node Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">{selectedNode.data.label}</h3>
+      <div className="px-6 py-4 border-b border-border bg-muted/30">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="text-xs font-medium">
+              {selectedNode.data.type}
+            </Badge>
+          </div>
           <Button
             variant="ghost"
-            size="icon"
+            size="sm"
             onClick={handleDeleteNode}
-            className="h-6 w-6 text-muted-foreground hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-4 w-4 mr-2" />
+            Delete Node
           </Button>
         </div>
-        <Badge variant="outline" className="text-xs">
-          {selectedNode.data.type}
-        </Badge>
       </div>
 
       {/* Properties Form */}
-      <div className="flex-1 overflow-y-auto px-2 z-50 space-y-6">
+      <div className="px-6 py-6 space-y-8">
         {/* Credentials Section */}
 
         {requiredCredentials.length > 0 && (
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">
-              Credential to connect with
-              <span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Select
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-foreground">
+                Credential to connect with
+                <span className="text-red-500 ml-1">*</span>
+              </Label>
+              <p className="text-xs text-muted-foreground">
+                Select or create a credential for this node
+              </p>
+            </div>
+            <CredentialsInfiniteSelect
               value={selectedNode.data.credentials?.id || ''}
               onValueChange={(id) => {
-                // console.log(id)
                 if (id === 'create-new') {
                   setSelectedNodeCredentialRef(null)
+                  setCredentialCreationContext('workflow-editor')
                   openCredentialModal()
                   return
-                } // handled elsewhere
+                }
+                // Fetch the credential details from the cache or store
                 const cred = credentials.find((c) => c.id === id)
                 if (cred) {
                   setSelectedNodeCredentialRef({
@@ -118,52 +120,46 @@ export function PropertiesPanel() {
                     name: cred.name,
                     provider: cred.provider,
                   })
+                } else {
+                  // If not in cache, set with just the ID
+                  // The backend should handle this case
+                  setSelectedNodeCredentialRef({
+                    id: id,
+                    name: '',
+                    provider: requiredCredentials[0] || '',
+                  })
                 }
               }}
-            >
-              <SelectTrigger className={!selectedNode.data.credentials?.id ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Select a credential" />
-              </SelectTrigger>
-              <SelectContent>
-                {credentials
-                  .filter((cred) =>
-                    requiredCredentials.length === 0
-                      ? true
-                      : requiredCredentials.includes(String(cred.provider).toLowerCase()),
-                  )
-                  .map((cred) => (
-                    <SelectItem key={cred.id} value={cred.id}>
-                      {cred.name}
-                    </SelectItem>
-                  ))}
-                <SelectItem value="create-new">+ Create new credential</SelectItem>
-              </SelectContent>
-            </Select>
+              requiredProviders={requiredCredentials}
+              placeholder="Select a credential"
+              showBorder={!selectedNode.data.credentials?.id}
+            />
             {!selectedNode.data.credentials?.id && (
-              <p className="text-xs text-red-500">Credential selection is required</p>
-            )}
-            {credentials.filter((cred) =>
-              requiredCredentials.length === 0
-                ? true
-                : requiredCredentials.includes(String(cred.provider).toLowerCase()),
-            ).length === 0 && (
-              <div className="flex items-center space-x-2 text-amber-600 text-sm">
-                <AlertCircle className="w-4 h-4" />
-                <span>No {requiredCredentials[0]} credentials found</span>
+              <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <p className="text-xs text-red-700 font-medium">Credential selection is required</p>
               </div>
             )}
           </div>
         )}
 
         {/* Node-specific Configuration */}
-        <ConfigRenderer
-          config={nodeConfig}
-          selectedCredential={selectedNode.data.credentials}
-          onConfigChange={handleConfigChange}
-          defaultConfig={getDefaultConfig(selectedNode.data.type)}
-          nodeType={selectedNode.data.type}
-          nodeId={selectedNode.id}
-        />
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-foreground">Configuration</h4>
+            <p className="text-xs text-muted-foreground">
+              Configure the specific settings for this node
+            </p>
+          </div>
+          <ConfigRenderer
+            config={nodeConfig}
+            selectedCredential={selectedNode.data.credentials}
+            onConfigChange={handleConfigChange}
+            defaultConfig={getDefaultConfig(selectedNode.data.type)}
+            nodeType={selectedNode.data.type}
+            nodeId={selectedNode.id}
+          />
+        </div>
 
         {/* Common Settings */}
         {/* <div className="space-y-4 pt-4 border-t border-border">
@@ -200,12 +196,20 @@ export function PropertiesPanel() {
         </div> */}
 
         {/* Node Notes */}
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notes</Label>
+        <div className="space-y-4 pt-6 border-t border-border">
+          <div className="space-y-2">
+            <Label htmlFor="notes" className="text-sm font-semibold text-foreground">
+              Notes
+            </Label>
+            <p className="text-xs text-muted-foreground">
+              Add any additional notes or documentation about this node
+            </p>
+          </div>
           <Textarea
             id="notes"
             placeholder="Add notes about this node..."
-            rows={3}
+            rows={4}
+            className="resize-none"
             value={nodeConfig.notes ? nodeConfig.notes : ''}
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               handleConfigChange('notes', e.target.value)
@@ -216,8 +220,13 @@ export function PropertiesPanel() {
 
       {/* Footer Actions */}
       {canViewExecutionOutput && (
-        <div className="p-4 border-t border-border">
-          <Button onClick={handleViewExecutionOutput} className="w-full" variant="outline">
+        <div className="px-6 py-4 border-t border-border bg-muted/20 sticky bottom-0">
+          <Button
+            onClick={handleViewExecutionOutput}
+            className="w-full"
+            variant="outline"
+            size="lg"
+          >
             <Eye className="w-4 h-4 mr-2" />
             View Execution Output
           </Button>

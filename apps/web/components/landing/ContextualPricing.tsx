@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@buzz8n/ui/components/
 import { Switch } from '@buzz8n/ui/components/switch'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import { useState } from 'react'
 
 interface PricingTier {

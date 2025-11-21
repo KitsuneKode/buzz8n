@@ -379,14 +379,51 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   },
 
   addExecutionLog: (logData) => {
-    set((state) => ({
-      currentExecution: state.currentExecution
-        ? {
-            ...state.currentExecution,
-            logs: [...state.currentExecution.logs, logData],
-          }
-        : null,
-    }))
+    set((state) => {
+      if (!state.currentExecution) return state
+
+      // Find existing log for this node
+      const existingLogIndex = state.currentExecution.logs.findIndex(
+        (log) => log.nodeId === logData.nodeId,
+      )
+
+      let updatedLogs: ExecutionLog[]
+
+      if (existingLogIndex >= 0) {
+        // Update existing log by merging data
+        // Preserve startedAt from the initial log, add endedAt and other completion data
+        const existingLog = state.currentExecution.logs[existingLogIndex]!
+        const updatedLog: ExecutionLog = {
+          ...existingLog,
+          ...logData,
+          timestamp: existingLog.timestamp, // Keep original start timestamp
+          // Preserve context data from both logs
+          context: {
+            ...existingLog.context,
+            ...logData.context,
+            // Add endedAt timestamp when status changes from loading to success/error
+            ...(existingLog.status === 'loading' &&
+              (logData.status === 'success' || logData.status === 'error') && {
+                startedAt: existingLog.timestamp,
+                endedAt: logData.timestamp,
+              }),
+          },
+        }
+
+        updatedLogs = [...state.currentExecution.logs]
+        updatedLogs[existingLogIndex] = updatedLog
+      } else {
+        // Add new log
+        updatedLogs = [...state.currentExecution.logs, logData]
+      }
+
+      return {
+        currentExecution: {
+          ...state.currentExecution,
+          logs: updatedLogs,
+        },
+      }
+    })
   },
 
   updateNodeStatus: (nodeId, status) => {

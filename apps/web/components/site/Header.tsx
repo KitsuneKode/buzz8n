@@ -19,7 +19,7 @@ import {
   Dog,
   Loader2,
 } from 'lucide-react'
-import { redirect, usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
 import type { TabType } from '@/stores/dashboard'
@@ -72,14 +72,15 @@ export function Header({
     { id: 'demo', label: 'Demo', href: '#demo' },
     { id: 'showcase', label: 'Intelligence', href: '#showcase' },
     { id: 'pricing', label: 'Pricing', href: '#pricing' },
-    { id: 'faqs', label: 'FAQs', href: '/faqs' },
+    { id: 'faqs', label: 'FAQs', href: '#faqs' },
+    { id: 'docs', label: 'Docs', href: '/docs' },
   ]
 
   const dashboardNavItems: NavItem[] = [
-    { id: 'workflows', label: 'Workflows', href: '/dashboard' },
-    { id: 'credentials', label: 'Credentials', href: '/dashboard' },
-    { id: 'executions', label: 'Executions', href: '/dashboard' },
-    { id: 'settings', label: 'Settings', href: '/dashboard' },
+    { id: 'workflows', label: 'Workflows', href: '/dashboard?tab=workflows' },
+    { id: 'credentials', label: 'Credentials', href: '/dashboard?tab=credentials' },
+    { id: 'executions', label: 'Executions', href: '/dashboard?tab=executions' },
+    { id: 'docs', label: 'Docs', href: '/docs' },
   ]
 
   const navItems = variant === 'marketing' ? marketingNavItems : dashboardNavItems
@@ -94,6 +95,8 @@ export function Header({
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
+
+  const router = useRouter()
 
   const scrollToSection = (href: string) => {
     if (href.startsWith('#')) {
@@ -118,19 +121,29 @@ export function Header({
 
   const handleNavClick = (item: NavItem) => {
     if (variant === 'marketing') {
-      scrollToSection(item.href)
+      if (item.href.startsWith('#')) {
+        scrollToSection(item.href)
+      } else {
+        // For non-hash links (like /docs), use router navigation
+        router.push(item.href)
+        setIsMobileMenuOpen(false)
+      }
     } else {
       // Dashboard navigation
       if (onTabChange) {
         if (pathname.includes('/dashboard')) {
-          onTabChange(item.id as TabType)
+          if (item.id === 'docs') {
+            router.push(item.href)
+          } else {
+            onTabChange(item.id as TabType)
+          }
         } else {
           onTabChange(item.id as TabType)
-          redirect(item.href)
+          router.push(item.href)
         }
       } else {
         // Fallback to regular navigation if no tab handler
-        redirect(item.href)
+        router.push(item.href)
       }
     }
   }
@@ -146,7 +159,7 @@ export function Header({
       className={`fixed z-50 transition-all duration-500 ease-out ${className}`}
       style={{
         top: isCompact ? '12px' : '0px',
-        left: isCompact ? '50%' : '0px',
+        left: isCompact ? '40%' : '0px',
         right: isCompact ? 'auto' : '0px',
         transform: isCompact ? 'translateX(-50%)' : 'none',
         width: isCompact ? 'auto' : '100%',

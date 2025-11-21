@@ -5,7 +5,7 @@ import { cn } from '@buzz8n/ui/lib/utils'
 
 export type BaseHandleProps = HandleProps
 
-export const BaseHandle = forwardRef<HTMLDivElement, BaseHandleProps>(
+const BaseHandle = forwardRef<HTMLDivElement, BaseHandleProps>(
   ({ className, children, ...props }, ref) => {
     return (
       <Handle
@@ -22,5 +22,6 @@ export const BaseHandle = forwardRef<HTMLDivElement, BaseHandleProps>(
     )
   },
 )
-
 BaseHandle.displayName = 'BaseHandle'
+
+export { BaseHandle }

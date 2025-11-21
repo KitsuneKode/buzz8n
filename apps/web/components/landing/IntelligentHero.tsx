@@ -3,7 +3,7 @@
 import { Sparkles, Play, ArrowRight, Zap, Brain, Dog } from 'lucide-react'
 import { ReactFlowNodeGraph } from '../shared/ReactFlowNodeGraph'
 import { Button } from '@buzz8n/ui/components/button'
-import { motion, type Variants } from 'framer-motion'
+import { motion, type Variants } from 'motion/react'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'

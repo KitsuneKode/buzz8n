@@ -1,9 +1,9 @@
 'use client'
 
+import { prefetchWorkflow, useLatestExecution } from '@/hooks/useWorkflow'
 import { WorkflowEditor } from '@/components/workflow/WorkflowEditor'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { prefetchWorkflow } from '@/hooks/useWorkflow'
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 
@@ -25,7 +25,10 @@ export function WorkflowClient() {
     staleTime: Infinity, // Data never goes stale - only refetch on explicit invalidation
   })
 
-  const { setWorkflow, setCurrentExecution } = useWorkflowEditorStore()
+  // Fetch latest in-progress execution (if any)
+  const { data: latestExecution } = useLatestExecution(params.id as string)
+
+  const { setWorkflow, setCurrentExecution, updateNodeStatus } = useWorkflowEditorStore()
 
   // Only initialize workflow once when ID changes, not when workflow data changes
   useEffect(() => {
@@ -36,15 +39,29 @@ export function WorkflowClient() {
 
     // Only set workflow if we haven't initialized this ID yet
     // This prevents resetting the editor when React Query re-renders with same data
+    if (workflow && latestExecution) {
+      // Set as current execution and subscribe to WebSocket for real-time updates
+      setCurrentExecution(latestExecution)
+      for (const log of latestExecution.logs) {
+        console.log('Replaying log for node:', log.nodeId, log.status)
+        updateNodeStatus(log.nodeId, log.status)
+      }
+    } else {
+      setCurrentExecution(null)
+    }
+
     if (workflow && initializedWorkflowId.current !== workflow.id) {
       initializedWorkflowId.current = workflow.id
       setWorkflow(workflow)
-      setCurrentExecution(null)
+
+      console.log('Inside Latest execution:', latestExecution)
+      // Check if there's a latest execution in progress
+
       useWorkflowEditorStore.setState({
         isFitView: workflow.nodes.length > 3,
       })
     }
-  }, [workflow, setWorkflow, error, router, setCurrentExecution])
+  }, [workflow, latestExecution, setWorkflow, error, router, setCurrentExecution, updateNodeStatus])
 
   return (
     <div className="pt-16">

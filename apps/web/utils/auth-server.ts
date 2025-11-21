@@ -1,3 +1,5 @@
+'use server'
+
 import { redirect } from 'next/navigation'
 import { API_URL } from '@/utils/config'
 import { cookies } from 'next/headers'
@@ -29,7 +31,6 @@ export async function getCurrentUser(): Promise<User | null> {
     const response = await axios.get(`${API_URL}/me`, {
       headers: {
         Cookie: cookieStore.toString(),
-
         cache: 'no-store',
       },
     })

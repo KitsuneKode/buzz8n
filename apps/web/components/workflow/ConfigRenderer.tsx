@@ -9,6 +9,7 @@ import {
 } from '@buzz8n/ui/components/select'
 import { Popover, PopoverContent, PopoverTrigger } from '@buzz8n/ui/components/popover'
 
+import { FIELD_METADATA, FieldConfig } from '@/utils/config-template'
 import InputPassword from '../shadcn-studio/input/password-input'
 import { validateTemplates } from '@/utils/template-validation'
 import CopyButton from '../shadcn-studio/button/copy-button'
@@ -24,139 +25,6 @@ import { Label } from '@buzz8n/ui/components/label'
 import { Input } from '@buzz8n/ui/components/input'
 import { VariablePicker } from './VariablePicker'
 import { useState } from 'react'
-
-// Field configuration interface
-export interface FieldConfig {
-  key: string
-  label: string
-  type: 'text' | 'textarea' | 'select' | 'switch' | 'password' | 'readonly' | 'url'
-  placeholder?: string
-  options?: Array<{ value: string; label: string } & Record<string, string>>
-  rows?: number
-  description?: string
-  copyable?: boolean
-  validation?: {
-    required?: boolean
-    minLength?: number
-    maxLength?: number
-    pattern?: string
-  }
-  // Additional configuration for switch fields
-  showValueWhenEnabled?: boolean
-  valueLabel?: string
-  valueType?: 'text' | 'textarea'
-  valueRows?: number
-}
-
-// UI rendering configuration - how fields should be displayed
-const FIELD_METADATA: Record<string, Partial<FieldConfig>> = {
-  // Telegram fields
-  chatId: {
-    label: 'Chat ID',
-    type: 'text',
-    placeholder: 'Enter chat ID',
-    validation: { required: true },
-  },
-  message: {
-    label: 'Message',
-    type: 'textarea',
-    placeholder: 'Enter your message',
-    rows: 4,
-    validation: { required: true },
-  },
-
-  // Email fields
-  to: {
-    label: 'To',
-    type: 'text',
-    placeholder: 'recipient@example.com',
-    validation: { required: true, pattern: '^[^@]+@[^@]+\\.[^@]+$' },
-  },
-  subject: {
-    label: 'Subject',
-    type: 'text',
-    placeholder: 'Email subject',
-    validation: { required: true },
-  },
-  body: {
-    label: 'Body',
-    type: 'textarea',
-    placeholder: 'Email body',
-    rows: 4,
-    validation: { required: true },
-  },
-
-  // Webhook fields
-  method: {
-    label: 'HTTP Method',
-    type: 'select',
-    options: [
-      { value: 'GET', label: 'GET' },
-      { value: 'POST', label: 'POST' },
-      { value: 'PUT', label: 'PUT' },
-      // { value: 'DELETE', label: 'DELETE' },
-    ],
-  },
-  path: {
-    label: 'Webhook URL',
-    type: 'readonly',
-    copyable: true,
-  },
-
-  secret: {
-    label: 'Authenticated',
-    type: 'switch',
-    description: 'Enable authentication for this webhook',
-    showValueWhenEnabled: true,
-    valueLabel: 'Authentication Secret',
-    valueType: 'textarea',
-    valueRows: 2,
-  },
-
-  // AI Agent fields
-  prompt: {
-    label: 'Prompt',
-    type: 'textarea',
-    placeholder: 'Enter your AI prompt',
-    rows: 6,
-    validation: { required: true },
-  },
-  model: {
-    label: 'Model',
-    type: 'select',
-    options: [
-      { value: 'gemini-2.5-flash', type: 'gemini', label: 'Gemini 2.5 Flash' },
-      { value: 'gemini-2.5-pro', type: 'gemini', label: 'Gemini 2.5 Pro' },
-      { value: 'gemini-2.0-flash', type: 'gemini', label: 'Gemini 2.0 Flash' },
-      { value: 'gpt-4', type: 'openai', label: 'GPT-4' },
-      { value: 'gpt-3.5-turbo', type: 'openai', label: 'GPT-3.5 Turbo' },
-      { value: 'claude-3', type: 'anthropic', label: 'Claude 3' },
-    ],
-  },
-
-  // Manual Trigger fields
-  description: {
-    label: 'Description',
-    type: 'textarea',
-    placeholder: 'Describe what this trigger does',
-    rows: 3,
-  },
-
-  // AI Agent Tools fields
-  number1: {
-    label: 'First Number',
-    type: 'text',
-    placeholder: 'Enter first number',
-    validation: { required: true, pattern: '^\\d+$' },
-  },
-  number2: {
-    label: 'Second Number',
-    type: 'text',
-    placeholder: 'Enter second number',
-    validation: { required: true, pattern: '^\\d+$' },
-  },
-}
-
 /**
  * Build an ordered array of FieldConfig objects for every key in a baseline configuration.
  *
@@ -257,6 +125,7 @@ interface ConfigRendererProps {
  * @param baseUrl - Optional base URL used to build display values for path-like readonly fields
  * @returns The rendered configuration form as a React element
  */
+
 export function ConfigRenderer({
   config,
   onConfigChange,
@@ -264,7 +133,7 @@ export function ConfigRenderer({
   defaultConfig,
   nodeType,
   nodeId,
-  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080' : WEBHOOK_URL,
+  baseUrl = NODE_ENV === 'development' ? 'http://localhost:8080/webhook' : WEBHOOK_URL,
 }: ConfigRendererProps) {
   const [copied, setCopied] = useState<string | null>(null)
   const [expressionMode, setExpressionMode] = useState<Record<string, boolean>>({})
@@ -437,7 +306,7 @@ export function ConfigRenderer({
           )
 
         case 'readonly': {
-          const displayValue = key === 'path' ? `${baseUrl}/webhook/${value}` : (value as string)
+          const displayValue = key === 'path' ? `${baseUrl}/${value}` : (value as string)
           return (
             <div className="relative">
               <Textarea

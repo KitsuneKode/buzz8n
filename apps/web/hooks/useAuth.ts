@@ -1,7 +1,7 @@
 'use client'
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { useRouter } from 'next/navigation'
@@ -107,8 +107,8 @@ export function useAuth(): UseAuthReturn {
       return response.data
     },
     onSuccess: () => {
-      toast.success('Account created successfully! Please sign in.')
       router.push('/signin')
+      toast.success('Account created successfully! Please sign in.')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-up failed. Please try again.'
@@ -129,10 +129,10 @@ export function useAuth(): UseAuthReturn {
       return response.data
     },
     onSuccess: () => {
+      router.push('/')
       toast.success('Signed out successfully')
       // Clear user data from cache
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
-      router.push('/signin')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-out failed. Please try again.'

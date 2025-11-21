@@ -30,7 +30,7 @@ import { Card, CardContent } from '@buzz8n/ui/components/card'
 import { IconBrandTelegram } from '@tabler/icons-react'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 
 // Real node types from the actual system
 type NodeType = 'manualTrigger' | 'aiAgent' | 'telegramSendMessage' | 'emailSend' | 'webhook'

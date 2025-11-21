@@ -16,7 +16,7 @@ import {
 import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
-import { motion } from 'framer-motion'
+import { motion } from 'motion/react'
 import Link from 'next/link'
 
 const footerSections = {

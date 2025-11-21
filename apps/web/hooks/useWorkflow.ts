@@ -542,3 +542,49 @@ export function useExecutionDetail(executionId: string): UseQueryResult<Executio
     staleTime: 5 * 60 * 1000, // 5 minutes
   })
 }
+
+/**
+ * Fetch the latest in-progress execution for a workflow
+ * Used to resume execution monitoring when opening a workflow
+ */
+export function useLatestExecution(workflowId: string): UseQueryResult<Execution | null, Error> {
+  return useQuery({
+    queryKey: ['workflows', 'latest-execution', workflowId],
+    queryFn: async (): Promise<Execution | null> => {
+      const params = new URLSearchParams()
+      params.append('limit', '1')
+
+      const response = await axios.get<ExecutionsInfiniteResponse>(
+        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
+        { withCredentials: true },
+      )
+
+      const latestExecution = response.data.executions[0]
+
+      // Only return if it's currently in-progress (loading status)
+      console.log('Latest execution fetched:', latestExecution?.status)
+      if (
+        !latestExecution ||
+        !(latestExecution.status === 'loading' || latestExecution.status === 'initial')
+      ) {
+        return null
+      }
+
+      // Transform dates
+      return {
+        ...latestExecution,
+        startedAt: new Date(latestExecution.startedAt),
+        finishedAt: latestExecution.finishedAt ? new Date(latestExecution.finishedAt) : undefined,
+        logs: latestExecution.logs.map((log) => ({
+          ...log,
+          timestamp: new Date(log.timestamp),
+        })),
+      }
+    },
+    enabled: !!workflowId,
+    staleTime: 0, // Always fetch fresh on mount
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+  })
+}

@@ -17,8 +17,8 @@ import {
 } from '@xyflow/react'
 import { Brain, Database, Globe, MessageSquare, Zap, Sparkles } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import '@xyflow/react/dist/style.css'
+import { motion } from 'motion/react'
 
 interface ReactFlowNodeGraphProps {
   className?: string

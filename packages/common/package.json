@@ -4,6 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
+    "check-types": "tsc --noEmit",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
   },
