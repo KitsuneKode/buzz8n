@@ -46,7 +46,7 @@ export function WorkflowEditor() {
   const { mutate: updateWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
   const { mutate: executeWorkflowMutate } = useExecuteWorkflow()
-  const { isConnected, subscribe } = useWebSocket()
+  const { isConnected, subscribe, unsubscribe } = useWebSocket()
   // Connect WebSocket on mount
   useEffect(() => {
     const { connect, disconnect } = useWebSocketStore.getState()
@@ -61,7 +61,13 @@ export function WorkflowEditor() {
     if (isConnected && workflow && currentExecution) {
       subscribe(workflow.id, currentExecution.id)
     }
-  }, [currentExecution, workflow, isConnected, subscribe])
+    return () => {
+      // Cleanup subscription when component unmounts or dependencies change
+      if (isConnected && workflow && currentExecution) {
+        unsubscribe()
+      }
+    }
+  }, [currentExecution, workflow, isConnected, subscribe, unsubscribe])
 
   const handleKeyDown = useCallback(
     async (event: KeyboardEvent) => {
