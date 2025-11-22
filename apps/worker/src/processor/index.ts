@@ -89,7 +89,8 @@ export const processResponse = async ({
       return
     }
 
-    await beginExecutionSetStatus(workflowId, executionId)
+    const startTime = Date.now()
+    await beginExecutionSetStatus(workflowId, executionId, startTime)
 
     /**
      *
@@ -125,6 +126,7 @@ export const processResponse = async ({
     await executeGraphConcurrent(nodeMap, children, indegree, ctx, runNode, {
       logger,
       printGraph: true,
+      startTime,
       metadata: { workflowId, executionId }, // Pass metadata for ExecutionLog
     })
 

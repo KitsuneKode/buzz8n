@@ -259,10 +259,11 @@ export async function executeGraphConcurrent(
   indegree: Map<string, number>,
   ctx: ExecContext,
   runNode: RunNode,
+
   opts?: {
     maxConcurrency?: number
     failFast?: boolean
-
+    startTime: number
     logger?: any // Winston instance with info/debug/error
     onEvent?: (e: DagEvent) => void | Promise<void>
     printGraph?: boolean // optional: print ASCII DAG structure
@@ -288,7 +289,6 @@ export async function executeGraphConcurrent(
   let failed = false
 
   // Timeline tracking
-
   const startTimes = new Map<string, number>()
   const finishTimes = new Map<string, number>()
   const executionOrder: string[] = []
@@ -465,9 +465,9 @@ export async function executeGraphConcurrent(
     logger?.debug('[DAG] Waiting for remaining nodes to complete:', { remaining: running.size })
     await Promise.allSettled(running.values())
   }
-  const startTime = startTimes.get('execution')
+  const startTime = opts?.startTime || Date.now()
 
-  const timeTaken = Date.now() - startTime!
+  const timeTaken = Date.now() - startTime
   // Final summary - always log, even on failures
   logger?.info('[DAG] executionOrder:', { order: executionOrder })
 
@@ -501,7 +501,7 @@ export async function executeGraphConcurrent(
   }
 
   logger?.info(
-    `[DAG] Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`,
+    `[DAG] Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed, time taken ${timeTaken}ms`,
   )
 
   const executionSummary = `Execution ${success ? 'succeeded' : 'failed'}: ${summary.completed}/${summary.total} completed, ${summary.failed} failed`

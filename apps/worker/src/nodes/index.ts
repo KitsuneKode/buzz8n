@@ -55,7 +55,6 @@ export const runNode: RunNode = async (node, context) => {
     })
     throw new Error('Invalid node data')
   }
-  await sleep(3000)
   switch (data.type) {
     case 'telegramSendMessage':
       return await sendTelegramMessage(data.config, data.credentials?.id, context)
