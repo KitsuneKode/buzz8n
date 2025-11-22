@@ -112,6 +112,8 @@ export function Canvas() {
         selectionOnDrag={!isPanMode}
         panOnScroll={true}
         selectionKeyCode={null}
+        deleteKeyCode="Delete"
+        multiSelectionKeyCode="Shift"
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="opacity-50" />
         <Panel
@@ -138,6 +140,7 @@ export function Canvas() {
             size="icon"
             className="text-muted-foreground/80 hover:text-muted-foreground rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg size-10 focus-visible:z-10 bg-card"
             onClick={() => zoomIn()}
+            title="Zoom in"
             aria-label="Zoom in"
           >
             <Plus className="size-5" aria-hidden="true" />
@@ -147,6 +150,7 @@ export function Canvas() {
             size="icon"
             className="text-muted-foreground/80 hover:text-muted-foreground rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg size-10 focus-visible:z-10 bg-card"
             onClick={() => zoomOut()}
+            title="Zoom out"
             aria-label="Zoom out"
           >
             <Minus className="size-5" aria-hidden="true" />
@@ -156,6 +160,7 @@ export function Canvas() {
             size="icon"
             className="text-muted-foreground/80 hover:text-muted-foreground rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg size-10 focus-visible:z-10 bg-card"
             onClick={onFitView}
+            title="Fit view"
             aria-label="Fit view"
           >
             <Fullscreen className="size-5" aria-hidden="true" />

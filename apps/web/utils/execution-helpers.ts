@@ -13,7 +13,7 @@ import { ExecutionLog } from '@/lib/types/workflow'
  * @param logs - Array of execution logs
  * @returns Deduplicated array with merged logs
  */
-export function mergeDuplicateLogs(logs: ExecutionLog[]): ExecutionLog[] {
+export function mergeDuplicateLogs(logs: ExecutionLog[], reverse = false): ExecutionLog[] {
   const logsByNode = new Map<string, ExecutionLog[]>()
 
   // Group logs by nodeId
@@ -70,7 +70,9 @@ export function mergeDuplicateLogs(logs: ExecutionLog[]): ExecutionLog[] {
   }
 
   // Sort by timestamp to maintain chronological order
-  return mergedLogs.sort(
+  const sortedLogs = mergedLogs.sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
   )
+
+  return reverse ? sortedLogs.reverse() : sortedLogs
 }

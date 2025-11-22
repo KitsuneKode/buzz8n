@@ -7,6 +7,7 @@ import {
 import { webSocketMessageSchema } from '@buzz8n/common/types'
 import { JWT_SECRET, PORT, config, logger } from '@/utils'
 import jwt, { type JwtPayload } from 'jsonwebtoken'
+import type { ServerWebSocket } from 'bun'
 import { prisma } from '@buzz8n/store'
 import { redis } from '@/redis'
 
@@ -24,9 +25,9 @@ type WebSocketData = {
 config.validateAll()
 
 // Store all active WebSocket connections for heartbeat monitoring
-const activeConnections = new Set<any>()
+const activeConnections = new Set<ServerWebSocket<WebSocketData>>()
 
-const bunServer = Bun.serve<WebSocketData>({
+Bun.serve<WebSocketData>({
   port: PORT,
   async fetch(req, server) {
     const url = new URL(req.url)
@@ -142,14 +143,14 @@ const bunServer = Bun.serve<WebSocketData>({
         if (message.toString() === 'pong') {
           ws.data.lastPongAt = Date.now()
           ws.data.isAlive = true
-          logger.debug('🏓 Received pong from client', {
+          logger.debug('Received pong from client', {
             connectionId: ws.data.connectionId,
             userId: ws.data.userId,
           })
           return
         }
 
-        console.log('📡 WebSocket server received message:', message)
+        logger.info('WebSocket server received message:', message)
 
         // Check message rate limits
         const messageSize = message.length
@@ -209,7 +210,7 @@ const bunServer = Bun.serve<WebSocketData>({
           await ws.data.subscriber.subscribe(ws.data.subscribedChannel!, (message) => {
             if (ws.readyState === WebSocket.OPEN) {
               logger.info(
-                `📤 Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
+                `Sending message to user ${ws.data.userId} for workflow ${data.workflowId}`,
                 { type: JSON.parse(message).type },
               )
 
@@ -273,7 +274,7 @@ const HEARTBEAT_TIMEOUT = 60000 // 60 seconds - close if no pong received
 setInterval(() => {
   const now = Date.now()
   let closedCount = 0
-  let totalConnections = activeConnections.size
+  const totalConnections = activeConnections.size
 
   logger.debug(`Running heartbeat check on ${totalConnections} connections`)
 

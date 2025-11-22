@@ -16,7 +16,8 @@ export const publishNodeEvent = async (executionId: string, log: ExecutionLog) =
           status: log.status,
           summary: log.executionSummary,
           finishedAt: new Date(),
-          durationMs: Date.now() - log.timestamp.getTime(),
+          createdAt: new Date(log.timestamp),
+          durationMs: log.durationMs,
         },
       })
     } else {

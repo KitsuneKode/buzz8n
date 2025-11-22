@@ -149,7 +149,9 @@ const WorkflowNodeBuilder = ({ id, data, selected }: NodeProps<NodeData>) => {
                   size="icon"
                   disabled={isPending}
                   onClick={() => {
-                    if (isPending || !workflow || hasConnectedManualTrigger) return
+                    if (isPending || !workflow || !hasConnectedManualTrigger) return
+                    console.log('Execute workflow from node:', id)
+
                     executeWorkflowMutate(workflow.id)
                   }}
                 >

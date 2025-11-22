@@ -126,6 +126,8 @@ export const executionSchema = z.object({
           input: z.any().optional(),
           output: z.any().optional(),
           error: z.any().optional(),
+          startedAt: z.any().optional(),
+          endedAt: z.any().optional(),
           duration: z.number().optional(),
           retryCount: z.number().optional(),
         })
@@ -228,6 +230,7 @@ export interface ExecutionLog {
   status: 'loading' | 'success' | 'error'
   level: 'debug' | 'info' | 'warn' | 'error'
   executionSummary?: string
+  durationMs?: number
   message: string
   context?: {
     input?: any

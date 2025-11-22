@@ -1,5 +1,6 @@
 'use client'
 
+import { formatDuration as formatDurationFns, intervalToDuration } from 'date-fns'
 import { Copy, Trash2, Info, XCircle, Clock, CheckCircle } from 'lucide-react'
 import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
@@ -81,11 +82,33 @@ const formatTime = (date: Date) => {
 
 const formatDuration = (ms?: number) => {
   if (ms === undefined || ms === null || isNaN(ms)) return 'N/A'
-  if (ms < 1000) return `${ms}ms`
-  if (ms < 60000) return `${Math.floor(ms / 1000)}s`
-  const minutes = Math.floor(ms / 60000)
-  const seconds = Math.floor((ms % 60000) / 1000)
-  return `${minutes}m ${seconds}s`
+
+  // Convert milliseconds to duration object
+  const duration = intervalToDuration({ start: 0, end: ms })
+
+  // Format based on size
+  if (ms < 1000) {
+    return `${ms}ms`
+  }
+
+  // Use date-fns formatDuration for human-readable output
+  const formatted = formatDurationFns(duration, {
+    format: ['hours', 'minutes', 'seconds'],
+    zero: false,
+    delimiter: ' ',
+  })
+
+  // If less than a minute, add milliseconds for precision
+  if (ms < 60000) {
+    const seconds = Math.floor(ms / 1000)
+    const remainingMs = ms % 1000
+    if (remainingMs > 0) {
+      return `${seconds}s ${remainingMs}ms`
+    }
+    return `${seconds}s`
+  }
+
+  return formatted || `${ms}ms`
 }
 
 export function ExecutionDetailView({
@@ -227,7 +250,7 @@ export function ExecutionDetailView({
             </p>
           </div>
 
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-[500px]">
             <div className="p-4">
               {mergedLogs.length === 0 ? (
                 <div className="text-center text-muted-foreground py-8">No logs available</div>

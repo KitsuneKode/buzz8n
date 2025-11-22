@@ -4,6 +4,7 @@ import { X, Copy, Trash2, Info, XCircle, CheckCircle, Clock } from 'lucide-react
 import { NodeExecutionDetailDialog } from './NodeExecutionDetailDialog'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { ScrollArea } from '@buzz8n/ui/components/scroll-area'
+import { mergeDuplicateLogs } from '@/utils/execution-helpers'
 import { Separator } from '@buzz8n/ui/components/separator'
 import { Button } from '@buzz8n/ui/components/button'
 import { Badge } from '@buzz8n/ui/components/badge'
@@ -116,6 +117,8 @@ export function LogsDrawer() {
     })
   }
 
+  const logs = mergeDuplicateLogs(currentExecution.logs, true)
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-lg z-50 h-80">
       <div className="flex flex-col h-full">
@@ -123,7 +126,7 @@ export function LogsDrawer() {
         <div className="flex items-center justify-between p-4 border-b border-border">
           <div className="flex items-center space-x-4">
             <h3 className="font-semibold">Execution Logs</h3>
-            <Badge variant="outline">{currentExecution.logs.length} entries</Badge>
+            <Badge variant="outline">{logs.length} entries</Badge>
             <Badge
               variant={
                 currentExecution.status === 'success'
@@ -172,12 +175,14 @@ export function LogsDrawer() {
         <div className="px-4 py-2 bg-muted/30 border-b border-border">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center space-x-4">
-              <span>Started: {formatTime(currentExecution.startedAt)}</span>
+              <Badge variant={'secondary'}>Started: {formatTime(currentExecution.startedAt)}</Badge>
               {currentExecution.finishedAt && (
-                <span>Finished: {formatTime(currentExecution.finishedAt)}</span>
+                <Badge variant={'secondary'}>
+                  Finished: {formatTime(currentExecution.finishedAt)}
+                </Badge>
               )}
               {currentExecution.durationMs && (
-                <span>Duration: {currentExecution.durationMs}ms</span>
+                <Badge variant={'secondary'}>Duration: {currentExecution.durationMs}ms</Badge>
               )}
             </div>
             <span className="text-muted-foreground">{currentExecution.summary}</span>
@@ -192,7 +197,7 @@ export function LogsDrawer() {
                 <div className="text-center text-muted-foreground py-8">No logs available</div>
               ) : (
                 <div className="space-y-2">
-                  {[...currentExecution.logs].reverse().map((log, index) => (
+                  {logs.map((log, index) => (
                     <div
                       key={log.id}
                       className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-r-lg ${getLogStatusColor(log.status)}`}

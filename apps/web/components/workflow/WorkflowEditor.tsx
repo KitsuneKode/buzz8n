@@ -40,7 +40,6 @@ export function WorkflowEditor() {
     isLogsDrawerOpen,
     deleteSelectedNodes,
     isDirty,
-    currentExecution,
     getNodesForSave,
   } = useWorkflowEditorStore()
 

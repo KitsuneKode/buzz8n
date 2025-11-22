@@ -288,6 +288,7 @@ export async function executeGraphConcurrent(
   let failed = false
 
   // Timeline tracking
+
   const startTimes = new Map<string, number>()
   const finishTimes = new Map<string, number>()
   const executionOrder: string[] = []
@@ -464,7 +465,9 @@ export async function executeGraphConcurrent(
     logger?.debug('[DAG] Waiting for remaining nodes to complete:', { remaining: running.size })
     await Promise.allSettled(running.values())
   }
+  const startTime = startTimes.get('execution')
 
+  const timeTaken = Date.now() - startTime!
   // Final summary - always log, even on failures
   logger?.info('[DAG] executionOrder:', { order: executionOrder })
 
@@ -493,6 +496,7 @@ export async function executeGraphConcurrent(
     success,
     completed: completed.size,
     failed: failedNodes.size,
+    timeTaken,
     total: nodeMap.size,
   }
 
@@ -512,6 +516,7 @@ export async function executeGraphConcurrent(
     status: success ? 'success' : 'error',
     level: success ? 'info' : 'error',
     executionSummary,
+    durationMs: timeTaken,
     message: success
       ? `Execution completed successfully: ${completed.size}/${nodeMap.size} nodes completed`
       : `Execution failed: ${failedNodes.size} nodes failed`,
