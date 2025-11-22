@@ -18,10 +18,15 @@ type WebSocketData = {
   ip: string
   messageCount: number
   lastMessageAt: number
+  lastPongAt: number
+  isAlive: boolean
 }
 config.validateAll()
 
-Bun.serve<WebSocketData>({
+// Store all active WebSocket connections for heartbeat monitoring
+const activeConnections = new Set<any>()
+
+const bunServer = Bun.serve<WebSocketData>({
   port: PORT,
   async fetch(req, server) {
     const url = new URL(req.url)
@@ -98,6 +103,8 @@ Bun.serve<WebSocketData>({
           ip: clientIP,
           messageCount: 0,
           lastMessageAt: Date.now(),
+          lastPongAt: Date.now(),
+          isAlive: true,
         },
       })
 
@@ -121,6 +128,9 @@ Bun.serve<WebSocketData>({
     // Increase backpressure limit for high-volume messages
     backpressureLimit: 2 * 1024 * 1024, // 2MB
     open(ws) {
+      // Add to active connections for heartbeat monitoring
+      activeConnections.add(ws)
+
       logger.info(`User ${ws.data.userId} connected`, {
         connectionId: ws.data.connectionId,
         ip: ws.data.ip,
@@ -128,6 +138,17 @@ Bun.serve<WebSocketData>({
     },
     async message(ws, message) {
       try {
+        // Handle pong response from client
+        if (message.toString() === 'pong') {
+          ws.data.lastPongAt = Date.now()
+          ws.data.isAlive = true
+          logger.debug('🏓 Received pong from client', {
+            connectionId: ws.data.connectionId,
+            userId: ws.data.userId,
+          })
+          return
+        }
+
         console.log('📡 WebSocket server received message:', message)
 
         // Check message rate limits
@@ -148,10 +169,6 @@ Bun.serve<WebSocketData>({
           ws.close(1008, `Message blocked: ${rateLimitResult.reason}`)
           return
         }
-
-        // Update message count
-        ws.data.messageCount++
-        ws.data.lastMessageAt = Date.now()
 
         if (message.length > WEBSOCKET_RATE_LIMITS.maxMessageSize) {
           ws.close(1009, 'Message too large')
@@ -218,6 +235,9 @@ Bun.serve<WebSocketData>({
       }
     },
     async close(ws) {
+      // Remove from active connections
+      activeConnections.delete(ws)
+
       if (ws.data.subscriber) {
         await ws.data.subscriber.unsubscribe(ws.data.subscribedChannel!)
         await ws.data.subscriber.quit()
@@ -244,4 +264,57 @@ Bun.serve<WebSocketData>({
   },
 })
 
-logger.info(`🚀 WebSocket server started on port ${PORT}`)
+logger.info(`WebSocket server started on port ${PORT}`)
+
+// Active heartbeat interval to monitor and cleanup stale connections
+const HEARTBEAT_INTERVAL = 30000 // 30 seconds - how often to send pings
+const HEARTBEAT_TIMEOUT = 60000 // 60 seconds - close if no pong received
+
+setInterval(() => {
+  const now = Date.now()
+  let closedCount = 0
+  let totalConnections = activeConnections.size
+
+  logger.debug(`Running heartbeat check on ${totalConnections} connections`)
+
+  activeConnections.forEach((ws) => {
+    try {
+      // Check if connection is stale (no pong since last ping)
+      if (!ws.data.isAlive) {
+        const staleDuration = now - ws.data.lastPongAt
+        if (staleDuration > HEARTBEAT_TIMEOUT) {
+          logger.warn('Closing stale WebSocket connection', {
+            connectionId: ws.data.connectionId,
+            userId: ws.data.userId,
+            lastPongAt: new Date(ws.data.lastPongAt).toISOString(),
+            staleDuration,
+          })
+          ws.close(1008, 'No heartbeat response')
+          closedCount++
+          return
+        }
+      }
+
+      // Mark as not alive and send ping
+      ws.data.isAlive = false
+      ws.send('ping')
+      logger.debug('Sent ping to client', {
+        connectionId: ws.data.connectionId,
+        userId: ws.data.userId,
+      })
+    } catch (error) {
+      logger.error('Error during heartbeat check', {
+        connectionId: ws.data.connectionId,
+        error,
+      })
+    }
+  })
+
+  if (closedCount > 0) {
+    logger.info(`Cleaned up ${closedCount} stale connections`)
+  }
+}, HEARTBEAT_INTERVAL)
+
+logger.info(
+  `Active heartbeat enabled: interval=${HEARTBEAT_INTERVAL}ms, timeout=${HEARTBEAT_TIMEOUT}ms`,
+)

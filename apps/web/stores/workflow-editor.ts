@@ -30,6 +30,7 @@ interface WorkflowEditorState {
   selectedNodes: string[]
   selectedEdges: string[]
   pendingConnectFromNodeId: string | null
+  isPanMode: boolean
 
   // UI state
   activeTab: 'editor' | 'executions' | 'evaluations'
@@ -45,6 +46,7 @@ interface WorkflowEditorState {
   executionHistory: Execution[]
 
   // Actions
+  clean(): void
   setWorkflow: (workflow: WorkflowData) => void
   setActiveTab: (tab: 'editor' | 'executions' | 'evaluations') => void
 
@@ -70,12 +72,15 @@ interface WorkflowEditorState {
   toggleNodePalette: () => void
   toggleLogsDrawer: () => void
   togglePropertiesPanel: () => void
+  togglePanMode: () => void
+  setPanMode: (isPanMode: boolean) => void
   openNodePaletteFor: (nodeId: string, handleId?: string) => void
   clearPendingConnect: () => void
   closeRightPanel: () => void
 
   // Workflow actions
   saveWorkflow: (updatedWorkflow: WorkflowData) => void
+  getNodesForSave: () => NodeData[]
 
   // Execution actions
   addExecutionLog: (log: ExecutionLog) => void
@@ -129,7 +134,6 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   // Initial state
   workflow: null,
   isDirty: false,
-  isSaving: false,
   nodes: [],
   edges: [],
   selectedNodes: [],
@@ -144,7 +148,29 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
   executionHistory: [],
   pendingConnectFromNodeId: null,
   isFitView: false,
+  isPanMode: false,
 
+  clean: () => {
+    set({
+      workflow: null,
+      isDirty: false,
+      nodes: [],
+      edges: [],
+      selectedNodes: [],
+      selectedEdges: [],
+      activeTab: 'editor',
+      handleId: null,
+      isNodePaletteOpen: true,
+      isLogsDrawerOpen: false,
+      isPropertiesPanelOpen: false,
+      selectedNodeId: null,
+      currentExecution: null,
+      executionHistory: [],
+      pendingConnectFromNodeId: null,
+      isFitView: false,
+      isPanMode: false,
+    })
+  },
   // Workflow actions
   setWorkflow: (workflow) =>
     set({
@@ -334,6 +360,16 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
       isPropertiesPanelOpen: !state.isPropertiesPanelOpen,
     })),
 
+  togglePanMode: () =>
+    set((state) => ({
+      isPanMode: !state.isPanMode,
+    })),
+
+  setPanMode: (isPanMode) =>
+    set({
+      isPanMode,
+    }),
+
   openNodePaletteFor: (nodeId, handleId) => {
     if (handleId && handleId !== '') {
       set({
@@ -498,6 +534,19 @@ export const useWorkflowEditorStore = create<WorkflowEditorState>((set, get) => 
           : n,
       ),
       isDirty: true,
+    }))
+  },
+
+  getNodesForSave: () => {
+    const { nodes } = get()
+    // Strip out runtime status field before saving to database
+    // Status should only exist in memory, not persisted to DB
+    return nodes.map((node) => ({
+      ...node,
+      data: {
+        ...node.data,
+        status: undefined, // Remove status field
+      },
     }))
   },
 }))

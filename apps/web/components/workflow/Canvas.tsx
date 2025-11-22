@@ -8,10 +8,10 @@ import {
   ReactFlow,
   useReactFlow,
 } from '@xyflow/react'
+import { Fullscreen, Minus, Plus, Hand, MousePointer2 } from 'lucide-react'
 import DeleteButtonEdge from '@/components/react-flow/delete-button-edge'
 import AiAgentToolEdge from '@/components/react-flow/ai-agent-tool-edge'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
-import { Fullscreen, Minus, Plus } from 'lucide-react'
 import { Button } from '@buzz8n/ui/components/button'
 import { nodeTypeSchema } from '@buzz8n/common/types'
 import { WorkflowNode } from './nodes/WorkflowNode'
@@ -50,6 +50,8 @@ export function Canvas() {
     addNode,
     isFitView,
     closeRightPanel,
+    isPanMode,
+    togglePanMode,
   } = useWorkflowEditorStore()
 
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -106,12 +108,31 @@ export function Canvas() {
         }}
         className="bg-background"
         onPaneClick={handlePaneClick}
+        panOnDrag={isPanMode}
+        selectionOnDrag={!isPanMode}
+        panOnScroll={true}
+        selectionKeyCode={null}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} className="opacity-50" />
         <Panel
           position="bottom-right"
           className="inline-flex -space-x-px rounded-md shadow-xs rtl:space-x-reverse"
         >
+          <Button
+            variant={isPanMode ? 'default' : 'outline'}
+            size="icon"
+            className="text-muted-foreground/80 hover:text-muted-foreground rounded-none shadow-none first:rounded-s-lg last:rounded-e-lg size-10 focus-visible:z-10 bg-card data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+            onClick={togglePanMode}
+            aria-label={isPanMode ? 'Switch to selection mode' : 'Switch to pan mode'}
+            title={isPanMode ? 'Selection mode (V)' : 'Pan mode (H)'}
+            data-state={isPanMode ? 'active' : 'inactive'}
+          >
+            {isPanMode ? (
+              <Hand className="size-5" aria-hidden="true" />
+            ) : (
+              <MousePointer2 className="size-5" aria-hidden="true" />
+            )}
+          </Button>
           <Button
             variant="outline"
             size="icon"

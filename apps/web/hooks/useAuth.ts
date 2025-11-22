@@ -4,7 +4,7 @@ import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import { toast } from '@buzz8n/ui/components/sonner'
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'nextjs-toploader/app'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
 import { z } from 'zod'
@@ -84,11 +84,11 @@ export function useAuth(): UseAuthReturn {
 
       return response.data
     },
-    onSuccess: () => {
-      toast.success('Sign-in successful')
+    onSuccess: async () => {
       // Invalidate and refetch user data
-      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
       router.push('/dashboard')
+      await queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
+      toast.success('Sign-in successful')
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-in failed. Please try again.'
@@ -128,11 +128,12 @@ export function useAuth(): UseAuthReturn {
       )
       return response.data
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       router.push('/')
       toast.success('Signed out successfully')
+
       // Clear user data from cache
-      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEY })
+      await queryClient.invalidateQueries()
     },
     onError: (error: AxiosError) => {
       const errorMessage = (error.response?.data as string) || 'Sign-out failed. Please try again.'

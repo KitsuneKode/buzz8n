@@ -37,6 +37,13 @@ export function ExecutionsTab() {
         logs: execution.logs.map((log) => ({
           ...log,
           timestamp: new Date(log.timestamp),
+          context: log.context
+            ? {
+                ...log.context,
+                startedAt: log.context.startedAt ? new Date(log.context.startedAt) : undefined,
+                endedAt: log.context.endedAt ? new Date(log.context.endedAt) : undefined,
+              }
+            : undefined,
         })),
       })),
     ) || []
@@ -68,7 +75,7 @@ export function ExecutionsTab() {
   }
 
   const formatDuration = (ms?: number) => {
-    if (!ms) return 'N/A'
+    if (ms === undefined || ms === null || isNaN(ms)) return 'N/A'
     if (ms < 1000) return `${ms}ms`
     if (ms < 60000) return `${Math.floor(ms / 1000)}s`
     const minutes = Math.floor(ms / 60000)

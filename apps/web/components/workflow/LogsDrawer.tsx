@@ -192,7 +192,7 @@ export function LogsDrawer() {
                 <div className="text-center text-muted-foreground py-8">No logs available</div>
               ) : (
                 <div className="space-y-2">
-                  {currentExecution.logs.reverse().map((log, index) => (
+                  {[...currentExecution.logs].reverse().map((log, index) => (
                     <div
                       key={log.id}
                       className={`border-l-2 pl-4 py-2 hover:bg-muted/30 transition-colors cursor-pointer rounded-r-lg ${getLogStatusColor(log.status)}`}

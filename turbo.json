@@ -61,6 +61,10 @@
       "cache": false,
       "persistent": true
     },
+    "redis:flush": {
+      "cache": false,
+      "persistent": true
+    },
     "test:web": {
       "cache": true,
       "dependsOn": [],

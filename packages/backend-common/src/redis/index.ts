@@ -48,6 +48,9 @@ export class RedisClient {
     await this.redisClient.connect()
   }
 
+  async flushdb() {
+    return this.redisClient.flushDb()
+  }
   async xAdd({
     payload,
     streamKey = this.EXECUTION_QUEUE_KEY,

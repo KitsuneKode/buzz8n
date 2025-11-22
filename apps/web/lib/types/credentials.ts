@@ -11,7 +11,7 @@ export {
   type AnthropicFormData,
   anthropicFormSchema,
 } from '@buzz8n/common/types'
-import z from 'zod'
+import { z } from 'zod'
 
 export type Provider = z.infer<typeof SupportedPlatforms> | 'Discord' | 'Slack' | 'Gmail'
 

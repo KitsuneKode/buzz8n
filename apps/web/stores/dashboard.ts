@@ -40,6 +40,7 @@ interface DashboardState {
   // Actions
   createWorkflow: () => void
   openCredentialModal: () => void
+  clean(): void
 }
 
 // // Sample data
@@ -129,4 +130,12 @@ export const useDashboardStore = create<DashboardState>((set, get) => ({
   openCredentialModal: () => {
     set({ isCredentialModalOpen: true })
   },
+  clean: () =>
+    set({
+      activeTab: 'workflows',
+      isCredentialModalOpen: false,
+      credentialCreationContext: null,
+      credentials: [],
+      executions: [],
+    }),
 }))

@@ -80,7 +80,7 @@ const formatTime = (date: Date) => {
 }
 
 const formatDuration = (ms?: number) => {
-  if (!ms) return 'N/A'
+  if (ms === undefined || ms === null || isNaN(ms)) return 'N/A'
   if (ms < 1000) return `${ms}ms`
   if (ms < 60000) return `${Math.floor(ms / 1000)}s`
   const minutes = Math.floor(ms / 60000)
@@ -261,9 +261,13 @@ export function ExecutionDetailView({
                               </div>
                             )}
                             {/* Show timeline if available */}
-                            {(log.context?.startedAt || log.context?.endedAt) && (
+                            {(log.context?.startedAt ||
+                              log.context?.endedAt ||
+                              log.context?.duration) && (
                               <div className="mt-2 text-xs text-muted-foreground">
-                                {log.context?.startedAt && log.context?.endedAt && (
+                                {log.context?.duration !== undefined ? (
+                                  <span>Duration: {formatDuration(log.context.duration)}</span>
+                                ) : log.context?.startedAt && log.context?.endedAt ? (
                                   <span>
                                     Duration:{' '}
                                     {formatDuration(
@@ -271,7 +275,7 @@ export function ExecutionDetailView({
                                         new Date(log.context.startedAt).getTime(),
                                     )}
                                   </span>
-                                )}
+                                ) : null}
                               </div>
                             )}
                           </div>

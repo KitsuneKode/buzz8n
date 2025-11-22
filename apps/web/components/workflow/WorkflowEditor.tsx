@@ -1,9 +1,9 @@
 'use client'
 
 import { useExecuteWorkflow, useUpdateWorkflow } from '@/hooks/useWorkflow'
-import { useWebSocket, useWebSocketStore } from '@/hooks/useWebSocket'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import CredentialModal from '../credentials/CredentialModal'
+import { useWebSocket } from '@/hooks/useWebSocket'
 import { FloatingToolbar } from './FloatingToolbar'
 import { ReactFlowProvider } from '@xyflow/react'
 import { ExecutionsTab } from './ExecutionsTab'
@@ -41,42 +41,41 @@ export function WorkflowEditor() {
     deleteSelectedNodes,
     isDirty,
     currentExecution,
+    getNodesForSave,
   } = useWorkflowEditorStore()
 
   const { mutate: updateWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
 
   const { mutate: executeWorkflowMutate } = useExecuteWorkflow()
-  const { isConnected, subscribe, unsubscribe } = useWebSocket()
-  // Connect WebSocket on mount
-  useEffect(() => {
-    const { connect, disconnect } = useWebSocketStore.getState()
-    connect()
-
-    return () => {
-      disconnect()
-    }
-  }, [])
-
-  useEffect(() => {
-    if (isConnected && workflow && currentExecution) {
-      subscribe(workflow.id, currentExecution.id)
-    }
-    return () => {
-      // Cleanup subscription when component unmounts or dependencies change
-      if (isConnected && workflow && currentExecution) {
-        unsubscribe()
-      }
-    }
-  }, [currentExecution, workflow, isConnected, subscribe, unsubscribe])
 
   const handleKeyDown = useCallback(
     async (event: KeyboardEvent) => {
       if (!workflow || !workflow.id || !nodes || !edges) {
         return
       }
+
+      const target = event.target as HTMLElement
+      // Check if user is typing in an input field
+      const isEditableElement =
+        target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable
+
+      // Pan mode shortcuts (H for hand/pan, V for selection/vector)
+      if (!isEditableElement && (event.key === 'h' || event.key === 'H')) {
+        event.preventDefault()
+        const { setPanMode } = useWorkflowEditorStore.getState()
+        setPanMode(true)
+        return
+      }
+      if (!isEditableElement && (event.key === 'v' || event.key === 'V')) {
+        event.preventDefault()
+        const { setPanMode } = useWorkflowEditorStore.getState()
+        setPanMode(false)
+        return
+      }
+
       // Delete selected nodes (Delete/Backspace)
       if (event.key === 'Backspace' || event.key === 'Delete') {
-        if (event.target === document.body) {
+        if (!isEditableElement) {
           event.preventDefault()
           deleteSelectedNodes()
         }
@@ -86,11 +85,15 @@ export function WorkflowEditor() {
       if ((event.metaKey || event.ctrlKey) && event.key === 's') {
         event.preventDefault()
         if (isSaving || !isDirty) return
+
+        // Get nodes without runtime status field
+        const nodesToSave = getNodesForSave()
+
         updateWorkflowMutate({
           id: workflow.id,
           data: {
             edges,
-            nodes,
+            nodes: nodesToSave,
             active: undefined,
           },
         })
@@ -113,6 +116,7 @@ export function WorkflowEditor() {
       updateWorkflowMutate,
       executeWorkflowMutate,
       deleteSelectedNodes,
+      getNodesForSave,
     ],
   )
 

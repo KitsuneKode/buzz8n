@@ -38,6 +38,10 @@ interface WebSocketActions {
 
 type WebSocketStore = WebSocketState & WebSocketActions
 
+// Track whether we want to be connected (prevents unwanted auto-reconnects)
+let shouldBeConnected = false
+let reconnectTimer: NodeJS.Timeout | null = null
+
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   // State
   isConnected: false,
@@ -49,17 +53,16 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   setState: (newState) => set(newState),
 
   connect: () => {
-    const { ws, isConnecting, unsubscribe } = get()
+    const { ws, isConnecting } = get()
 
     // Prevent multiple connections
-    if (
-      ws?.readyState === WebSocket.OPEN ||
-      ws?.readyState === WebSocket.CONNECTING ||
-      isConnecting
-    ) {
+    if (ws?.readyState === WebSocket.OPEN || isConnecting) {
       console.log('WebSocket already connected or connecting')
       return
     }
+
+    // Mark that we want to be connected
+    shouldBeConnected = true
 
     console.log('🔄 Connecting WebSocket...')
     set({ isConnecting: true, error: null })
@@ -68,12 +71,20 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     set({ ws: websocket })
 
     websocket.onopen = () => {
+      reconnectAttempts = 0 // Reset reconnect attempts on successful connection
       set({ isConnected: true, isConnecting: false, error: null })
       console.log('✅ WebSocket connected')
     }
 
     websocket.onmessage = (event) => {
       try {
+        // Handle ping messages from server
+        if (event.data === 'ping') {
+          console.log('🏓 Received ping, sending pong')
+          websocket.send('pong')
+          return
+        }
+
         const message = JSON.parse(event.data)
         console.log('📨 WebSocket message:', message)
 
@@ -105,9 +116,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (message.type === 'execution_complete' && 'executionSummary' in message) {
           console.log('✅ Execution completed:', message)
 
+          const { unsubscribe } = get()
           import('@/stores/workflow-editor').then(({ useWorkflowEditorStore }) => {
             const { setCurrentExecution, currentExecution } = useWorkflowEditorStore.getState()
-
             if (currentExecution) {
               const newExecution: Execution = {
                 ...currentExecution,
@@ -147,17 +158,29 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       }
     }
 
-    websocket.onclose = () => {
+    websocket.onclose = (event) => {
       const { connect } = get()
       set({ isConnected: false, isConnecting: false })
-      console.log('❌ WebSocket disconnected')
-      // Auto-reconnect with exponential backoff
-      if (reconnectAttempts < maxReconnectAttempts) {
+      console.log('❌ WebSocket disconnected', { code: event.code, reason: event.reason })
+
+      // Only auto-reconnect if:
+      // 1. We WANT to be connected (not an intentional disconnect)
+      // 2. Close was abnormal (code !== 1000)
+      // 3. Haven't exceeded retry limit
+      if (shouldBeConnected && event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000)
-        setTimeout(() => {
+        console.log(
+          `🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`,
+        )
+
+        reconnectTimer = setTimeout(() => {
           reconnectAttempts++
           connect()
         }, delay)
+      } else {
+        // Reset on normal close or max retries
+        reconnectAttempts = 0
+        console.log('WebSocket closed, no reconnect')
       }
     }
 
@@ -168,9 +191,30 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   },
 
   disconnect: () => {
-    const { ws } = get()
+    // Mark that we DON'T want to be connected (prevents auto-reconnect)
+    shouldBeConnected = false
+
+    // Cancel any pending reconnect timer
+    if (reconnectTimer) {
+      clearTimeout(reconnectTimer)
+      reconnectTimer = null
+    }
+
+    // Reset reconnect attempts
+    reconnectAttempts = 0
+
+    const { ws, unsubscribe } = get()
     if (ws) {
-      ws.close()
+      console.log('🔌 Disconnecting WebSocket')
+
+      // Unsubscribe before closing
+      unsubscribe()
+
+      // Close with normal closure code (1000 = normal closure)
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close(1000, 'Client disconnect')
+      }
+
       set({ ws: null, isConnected: false, isConnecting: false })
     }
   },
@@ -193,6 +237,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   unsubscribe: () => {
     const { ws } = get()
     if (ws?.readyState === WebSocket.OPEN) {
+      console.log('📡Unsubscribing to workflow')
       ws.send(JSON.stringify({ type: 'unsubscribe' }))
     }
   },

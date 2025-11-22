@@ -12,7 +12,8 @@ import { Badge } from '@buzz8n/ui/components/badge'
 import { Share, Save, Circle } from 'lucide-react'
 
 export function TopBar() {
-  const { workflow, edges, nodes, activeTab, isDirty, setActiveTab } = useWorkflowEditorStore()
+  const { workflow, edges, activeTab, isDirty, setActiveTab, getNodesForSave } =
+    useWorkflowEditorStore()
   const { mutate: saveWorkflowMutate, isPending: isSaving } = useUpdateWorkflow()
   const { mutate: toggleActiveWorkflowMutate, isPending: isToggling } = useUpdateWorkflow()
 
@@ -39,10 +40,13 @@ export function TopBar() {
   const handleSave = async () => {
     if (!workflow || isSaving || isToggling) return
 
+    // Get nodes without runtime status field
+    const nodesToSave = getNodesForSave()
+
     saveWorkflowMutate({
       id: workflow.id,
       data: {
-        nodes,
+        nodes: nodesToSave,
         edges,
         active: undefined,
       },

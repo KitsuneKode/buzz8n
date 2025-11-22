@@ -207,9 +207,12 @@ export function nodeResultToExecutionLog(
   const duration = startTime && endTime ? endTime - startTime : undefined
   const status = customStatus || (error ? 'error' : 'success')
 
+  // Use endTime for completed logs (success/error), startTime for loading logs
+  const timestamp = endTime ?? startTime ?? Date.now()
+
   return {
     id: `${nodeId}_${Date.now()}`,
-    timestamp: new Date(startTime ?? Date.now()),
+    timestamp: new Date(timestamp),
     nodeId,
     type: 'node_event',
     status,
@@ -227,6 +230,8 @@ export function nodeResultToExecutionLog(
           }
         : undefined,
       duration,
+      startedAt: startTime ? new Date(startTime) : undefined,
+      endedAt: endTime ? new Date(endTime) : undefined,
     },
     metadata,
   }

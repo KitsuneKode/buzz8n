@@ -9,6 +9,7 @@ import { SpeedInsights } from '@vercel/speed-insights/next'
 import { getQueryClient } from '@/utils/get-query-client'
 import { Analytics } from '@vercel/analytics/next'
 import { ReactFlowProvider } from '@xyflow/react'
+import NextTopLoader from 'nextjs-toploader'
 import * as React from 'react'
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -22,6 +23,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
       disableTransitionOnChange
       enableColorScheme
     >
+      <NextTopLoader crawl color="oklch(0.6716 0.1368 48.513)" />
+
       <ReactFlowProvider>
         <QueryClientProvider client={queryClient}>
           {children}

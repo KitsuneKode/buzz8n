@@ -8,6 +8,7 @@
   "scripts": {
     "check-types": "tsc --noEmit",
     "redis:migrate": "bun run src/redis/migrate.ts",
+    "redis:flush": "bun run src/redis/flush.ts",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
   },
