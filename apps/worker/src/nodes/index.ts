@@ -6,7 +6,6 @@ import { sendResendEMail } from './email/resend'
 import { runAiAgent } from './ai-agent/agent'
 import type { RFNode } from '@/processor/dag'
 import { logger } from '@/utils'
-import { sleep } from 'bun'
 
 /**
  *

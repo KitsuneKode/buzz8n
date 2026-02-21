@@ -37,7 +37,7 @@ app.use(
 app.use(cors(corsConfig))
 // app.use(timingMiddleware)
 
-app.get('/health', (req, res) => {
+app.get('/health', rateLimitMiddleware.api, (_, res) => {
   res.status(200).send('OK')
 })
 
