@@ -98,7 +98,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Markdownlint
-        run: bun run lint:markdown
+        run: bun run lint:md
 
   lint:
     name: Lint
