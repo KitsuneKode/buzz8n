@@ -1,6 +1,7 @@
 # Contributing to buzz8n
 
-Thank you for your interest in contributing! This document outlines how to develop, test, and submit changes to the project.
+Thank you for your interest in contributing! This document outlines how to develop,
+test, and submit changes to the project.
 
 ## Project Setup
 
@@ -25,8 +26,10 @@ bun run dev:worker
 ## Branch & Commit
 
 - **Branch naming**: `feat/<scope>-<short-desc>`, `fix/<scope>-<short-desc>`, `chore/<scope>-<short-desc>`
-- **Commit style**: Conventional Commits are encouraged (e.g., `feat(dashboard): add executions tab`)
-- **PR scope**: Keep PRs focused and reasonably small; include a summary of changes and screenshots for UI changes
+- **Commit style**: Conventional Commits are encouraged (e.g.,
+  `feat(dashboard): add executions tab`)
+- **PR scope**: Keep PRs focused and reasonably small; include a summary of changes
+  and screenshots for UI changes
 
 ## Code Style
 
@@ -54,10 +57,12 @@ bun run test:ci
 
 ### What to test
 
-- **Flows first**: Prefer integration-style tests of the dashboard and primary user journeys (tabs, empty states, list rendering, actions)
+- **Flows first**: Prefer integration-style tests of the dashboard and primary user
+  journeys (tabs, empty states, list rendering, actions)
 - **Backend behavior**: Queue/Redis, webhook routing, and config utilities
 - **Utilities**: Small pure helpers where beneficial
-- Avoid deep component unit tests unless the component contains complex logic not covered by flows
+- Avoid deep component unit tests unless the component contains complex logic not
+  covered by flows
 
 ### Adding tests
 
@@ -67,11 +72,13 @@ bun run test:ci
   - Packages: `tests/packages/**/*.test.ts`
 - Name files `<subject>.test.ts` or `.test.tsx`
 - Import from `bun:test`
-- Use Testing Library for React flows; the DOM is provided by `happy-dom` via Bun preload
+- Use Testing Library for React flows; the DOM is provided by `happy-dom` via Bun
+  preload
 
 ### Mocking
 
-- **Next.js**: `mock.module('next/navigation', ...)` to control `useSearchParams`, etc.
+- **Next.js**: `mock.module('next/navigation', ...)` to control `useSearchParams`,
+  etc.
 - **TanStack Query**: mock `useSuspenseQuery` return values to avoid providers
 - **Zustand**: mock stores to control UI state
 - **Server**: mock Redis, Prisma, and loggers
@@ -83,7 +90,8 @@ See `tests/apps/web/pages/dashboard.test.tsx` and `tests/apps/server/*` for exam
 - Ensure the branch is up-to-date with `main`
 - Ensure tests pass locally
 - Include a concise description, testing notes, and screenshots (for UI)
-- If you introduce new environment variables, document them in the relevant app README
+- If you introduce new environment variables, document them in the relevant app
+  README
 
 ## Issue Reporting
 

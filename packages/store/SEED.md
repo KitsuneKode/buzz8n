@@ -1,6 +1,7 @@
 # Database Seeding
 
-This directory contains a comprehensive database seeding script that generates realistic test data for the Buzz8n application.
+This directory contains a comprehensive database seeding script that generates realistic
+test data for the Buzz8n application.
 
 ## Overview
 
@@ -62,20 +63,20 @@ Each workflow includes:
 
 ## Running the Seed Script
 
-### From the root directory:
+### From the root directory
 
 ```bash
 bun run db:seed
 ```
 
-### From the store package:
+### From the store package
 
 ```bash
 cd packages/store
 bun run db:seed
 ```
 
-### Direct execution:
+### Direct execution
 
 ```bash
 bun run packages/store/prisma/seed.ts
@@ -111,7 +112,7 @@ You can modify the seed script to adjust:
 
 ## Sample Output
 
-```
+```text
 🌱 Starting database seeding...
 🗑️  Clearing existing data...
 👥 Creating users...

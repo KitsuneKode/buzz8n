@@ -1,11 +1,13 @@
 # buzz8n
 
-AI-powered workflow builder & runtime (n8n-style) built with Next.js, React Flow, and a modern TypeScript stack.
+AI-powered workflow builder & runtime (n8n-style) built with Next.js, React Flow,
+and a modern TypeScript stack.
 
 ## Overview
 
 - **Apps**: Web (Next.js), Server (Express), Worker
-- **Packages**: Shared UI, common types/config, backend-common (Redis, config, logger), store (Prisma)
+- **Packages**: Shared UI, common types/config, backend-common (Redis, config, logger),
+  store (Prisma)
 - **Language/Runtime**: TypeScript + Bun, Turbo monorepo
 - **UI**: Tailwind + shadcn/ui + OKLCH color system
 - **Canvas**: React Flow v12
@@ -40,7 +42,8 @@ bun run dev:server
 bun run dev:worker
 ```
 
-Environment variables are required for server/worker (e.g., `DATABASE_URL`, `REDIS_URL`). See app-specific READMEs or `.env.example` if present.
+Environment variables are required for server/worker (e.g., `DATABASE_URL`, `REDIS_URL`).
+See app-specific READMEs or `.env.example` if present.
 
 ## Testing Quick Start
 
@@ -59,7 +62,8 @@ bun run test:packages
 bun run test:ci
 ```
 
-See `TESTING.md` for structure, mocking strategy, and examples (dashboard flow tests, backend queue tests, utilities).
+See `TESTING.md` for structure, mocking strategy, and examples (dashboard flow tests,
+backend queue tests, utilities).
 
 ## Scripts
 

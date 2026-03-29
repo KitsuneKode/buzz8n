@@ -53,7 +53,8 @@ http {
     gzip on;
     gzip_vary on;
     gzip_min_length 1000;
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+    gzip_types text/plain text/css application/json application/javascript text/xml
+    application/xml;
 
     # Include site configs
     include /etc/nginx/sites-enabled/*;
@@ -90,16 +91,16 @@ sudo systemctl status nginx
 
 Point these subdomains to your server IP:
 
-```
-A    api.yourdomain.com      � YOUR_SERVER_IP
-A    webhook.yourdomain.com  � YOUR_SERVER_IP
-A    ws.yourdomain.com       � YOUR_SERVER_IP
+```text
+A    api.yourdomain.com      → YOUR_SERVER_IP
+A    webhook.yourdomain.com  → YOUR_SERVER_IP
+A    ws.yourdomain.com       → YOUR_SERVER_IP
 ```
 
 ## SSL Setup (Optional - Recommended)
 
 Follow the official Certbot instructions for your OS:
-**https://certbot.eff.org/instructions**
+**<https://certbot.eff.org/instructions>**
 
 Quick setup for Ubuntu/Debian:
 
@@ -120,7 +121,8 @@ sudo certbot --nginx -d api.yourdomain.com -d webhook.yourdomain.com -d ws.yourd
 sudo certbot renew --dry-run
 ```
 
-> **Note**: Certbot will automatically modify your Nginx config to add SSL certificates and create HTTP→HTTPS redirects.
+> **Note**: Certbot will automatically modify your Nginx config to add SSL certificates
+> and create HTTP→HTTPS redirects.
 
 ## Testing
 

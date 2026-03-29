@@ -4,7 +4,9 @@ This guide explains how tests are organized and how to run them in the buzz8n mo
 
 ## Overview
 
-We use Bun's built-in test runner across a dedicated tests app located at `tests/`. Tests are grouped by domain (apps, packages) and focus primarily on end-to-end style UI flows (e.g., the dashboard) and backend behavior with mocks for external systems.
+We use Bun's built-in test runner across a dedicated tests app located at `tests/`.
+Tests are grouped by domain (apps, packages) and focus primarily on end-to-end style
+UI flows (e.g., the dashboard) and backend behavior with mocks for external systems.
 
 ## Quick Start
 
@@ -56,11 +58,14 @@ tests/
 
 ## What we test
 
-- **Dashboard flows**: Tabs, query params, empty states, list rendering, action buttons.
-- **Backend behavior**: Redis client, queue enqueuing, webhook logic (with external systems mocked).
+- **Dashboard flows**: Tabs, query params, empty states, list rendering, action
+  buttons.
+- **Backend behavior**: Redis client, queue enqueuing, webhook logic (with external
+  systems mocked).
 - **Utilities**: Small pure functions (e.g., `cn`).
 
-We avoid deeply testing individual UI components unless a component encapsulates complex logic that cannot be validated via the flow.
+We avoid deeply testing individual UI components unless a component encapsulates
+complex logic that cannot be validated via the flow.
 
 ## Environment & Tooling
 
@@ -72,7 +77,8 @@ We avoid deeply testing individual UI components unless a component encapsulates
 ## Mocking Strategy
 
 - **Next.js**: mock `next/navigation` (e.g., `useSearchParams`) with `mock.module()`
-- **TanStack Query**: mock `useSuspenseQuery` to return `{ data, isLoading }` without providers
+- **TanStack Query**: mock `useSuspenseQuery` to return `{ data, isLoading }` without
+  providers
 - **Zustand stores**: mock store modules to return controlled state/actions
 - **Server deps**: mock Redis, Prisma, and loggers
 
@@ -80,7 +86,7 @@ Example:
 
 ```ts
 mock.module('next/navigation', () => ({
-  useSearchParams: () => ({ get: (k: string) => (k === 'create' ? 'true' : null) }),
+  useSearchParams: () => ({ get: (k) => (k === 'create' ? 'true' : null) }),
 }))
 
 mock.module('@tanstack/react-query', () => ({
@@ -123,7 +129,8 @@ describe('Dashboard flow', () => {
 
 ## Examples
 
-See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practical mocks and patterns.
+See examples under `tests/apps/web/pages/` and `tests/apps/server/` for practical
+mocks and patterns.
 
 ## Test Scenarios Covered
 
@@ -204,7 +211,8 @@ Add tests under `tests/` mirroring the domain structure:
 - **Server behavior**: `tests/apps/server/**.test.ts`
 - **Packages**: `tests/packages/**.test.ts`
 
-Name test files as `<subject>.test.ts` or `.test.tsx`. Import from `bun:test`. Prefer flow tests over isolated component tests.
+Name test files as `<subject>.test.ts` or `.test.tsx`. Import from `bun:test`. Prefer
+flow tests over isolated component tests.
 
 ## Performance Considerations
 
