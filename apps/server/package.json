@@ -1,40 +1,40 @@
 {
   "name": "@buzz8n/server",
-  "module": "src/index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "module": "src/index.ts",
   "scripts": {
-    "check-types": "tsc --noEmit",
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap --production",
+    "check-types": "tsc --noEmit",
+    "dev": "bun run --watch src/index.ts",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
-    "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
-  },
-  "devDependencies": {
-    "@buzz8n/typescript-config": "*",
-    "@buzz8n/eslint-config": "*",
-    "@types/bun": "latest",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/morgan": "^1.9.10",
-    "eslint": "^9.34.0",
-    "@types/cookie-parser": "^1.4.9",
-    "@types/jsonwebtoken": "^9.0.10"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   },
   "dependencies": {
     "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
     "@buzz8n/store": "*",
     "cookie-parser": "^1.4.7",
-    "cors": "^2.8.5",
-    "express": "^5.1.-1",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
     "helmet": "^8.1.0",
-    "jsonwebtoken": "^9.0.2",
+    "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
-    "zod": "^4.1.11"
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@buzz8n/eslint-config": "*",
+    "@buzz8n/typescript-config": "*",
+    "@types/bun": "latest",
+    "@types/cookie-parser": "^1.4.9",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/morgan": "^1.9.10",
+    "eslint": "^9.39.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
   }
 }

@@ -1,17 +1,12 @@
 {
   "name": "@buzz8n/backend-common",
   "version": "1.0.0",
-  "description": "",
-  "type": "module",
-  "main": "./src/index.ts",
   "private": true,
-  "scripts": {
-    "check-types": "tsc --noEmit",
-    "redis:migrate": "bun run src/redis/migrate.ts",
-    "redis:flush": "bun run src/redis/flush.ts",
-    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
-    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix"
-  },
+  "description": "",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
+  "type": "module",
   "exports": {
     ".": "./src/index.ts",
     "./redis": "./src/redis/index.ts",
@@ -19,24 +14,30 @@
     "./config": "./src/utils/config.ts",
     "./types": "./src/types/index.ts"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@buzz8n/typescript-config": "*",
-    "@buzz8n/eslint-config": "*",
-    "@types/bun": "latest",
-    "@types/winston": "^2.4.4",
-    "eslint": "^9.34.0"
+  "main": "./src/index.ts",
+  "scripts": {
+    "check-types": "tsc --noEmit",
+    "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
+    "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
+    "redis:flush": "bun run src/redis/flush.ts",
+    "redis:migrate": "bun run src/redis/migrate.ts"
   },
   "dependencies": {
     "@buzz8n/common": "*",
     "date-fns": "^4.1.0",
-    "redis": "^5.8.3",
+    "redis": "^5.11.0",
     "triple-beam": "^1.4.1",
-    "winston": "^3.17.0"
+    "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "@buzz8n/eslint-config": "*",
+    "@buzz8n/typescript-config": "*",
+    "@types/bun": "latest",
+    "@types/triple-beam": "^1.3.5",
+    "@types/winston": "^2.4.4",
+    "eslint": "^9.39.4"
   },
   "peerDependencies": {
-    "typescript": "^5"
+    "typescript": "^5.9.3"
   }
 }

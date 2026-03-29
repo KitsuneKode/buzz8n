@@ -1,29 +1,30 @@
 {
   "name": "@buzz8n/ws-server",
-  "module": "src/index.ts",
-  "type": "module",
   "private": true,
+  "type": "module",
+  "module": "src/index.ts",
   "scripts": {
     "build": "bun build ./src/index.ts --outdir ./dist --target bun --minify --sourcemap --production",
     "check-types": "tsc --noEmit",
+    "dev": "bun run --watch src/index.ts",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
-    "dev": "bun run --watch src/index.ts",
     "start": "bun run dist/index.js"
-  },
-  "devDependencies": {
-    "@buzz8n/typescript-config": "*",
-    "@buzz8n/eslint-config": "*",
-    "eslint": "^9.34.0",
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
   },
   "dependencies": {
     "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
     "@buzz8n/store": "*",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.3"
+  },
+  "devDependencies": {
+    "@buzz8n/eslint-config": "*",
+    "@buzz8n/typescript-config": "*",
+    "@types/bun": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
+    "eslint": "^9.39.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5.9.3"
   }
 }

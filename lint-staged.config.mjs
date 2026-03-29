@@ -39,7 +39,7 @@ export default {
   },
 
   // Markdown linting and formatting
-  '**/*.md': ['markdownlint-cli2', 'prettier --write'],
+  '**/*.md': ['markdownlint-cli2 --fix', 'prettier --write'],
 
   // Prettier for all supported file types
   '**/{*.json,*.yml,*.yaml}': ['prettier --write'],
