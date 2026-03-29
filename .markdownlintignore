@@ -1,0 +1,7 @@
+# Ignore node_modules and other directories that shouldn't be linted
+node_modules/
+**/.next/
+**/.turbo/
+dist/
+build/
+.coverage/
