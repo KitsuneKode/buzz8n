@@ -38,8 +38,11 @@ export default {
     return commands
   },
 
+  // Markdown linting and formatting
+  '**/*.md': ['markdownlint-cli2', 'prettier --write'],
+
   // Prettier for all supported file types
-  '**/{*.json,*.md,*.yml,*.yaml}': ['prettier --write'],
+  '**/{*.json,*.yml,*.yaml}': ['prettier --write'],
 
   // Prisma schema formatting
   'packages/store/prisma/schema.prisma': (file) => [`prisma format --schema ${file}`],

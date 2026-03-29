@@ -25,6 +25,12 @@
     "lint:fix": {
       "dependsOn": ["^lint:fix"]
     },
+    "lint:markdown": {
+      "cache": true
+    },
+    "lint:markdown:fix": {
+      "cache": false
+    },
     "check-types": {
       "dependsOn": ["^check-types"]
     },
