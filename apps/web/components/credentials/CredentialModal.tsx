@@ -112,11 +112,7 @@ const CredentialModal = () => {
     },
     onError: (error) => {
       if (isAxiosError(error)) {
-        if (error.response?.data) {
-          toast.error(error.response.data)
-        } else {
-          toast.error('Failed to create credentials')
-        }
+        toast.error(getApiErrorMessage(error, 'Failed to create credentials'))
       }
     },
   })

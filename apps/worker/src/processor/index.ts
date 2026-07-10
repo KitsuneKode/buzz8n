@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module processor/index
  * Process a single workflow execution request:
@@ -18,8 +17,8 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
+import { beginExecutionSetStatus, collapsePropertyNodes } from '@/processor/helper'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
-import { beginExecutionSetStatus, collapsePropertyNodes } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store'
@@ -29,6 +28,31 @@ import { redis } from '@/redis'
 interface ProcessExecutionResponseType {
   id: string
   payload: EnqueueExecutionPayload
+}
+
+function stringifyDlqPayload(payload: EnqueueExecutionPayload): string {
+  try {
+    return JSON.stringify(payload)
+  } catch {
+    return String(payload)
+  }
+}
+
+function getPermanentFailureReason({
+  edgesSuccess,
+  executionExists,
+  nodesSuccess,
+  triggerId,
+}: {
+  edgesSuccess: boolean
+  executionExists: boolean
+  nodesSuccess: boolean
+  triggerId: string | undefined
+}): string {
+  if (!executionExists) return 'missing_execution'
+  if (!nodesSuccess || !edgesSuccess) return 'invalid_workflow_definition'
+  if (!triggerId) return 'missing_trigger'
+  return 'invalid_execution_request'
 }
 
 /**
@@ -44,7 +68,8 @@ export const processResponse = async ({
   id,
   payload,
 }: ProcessExecutionResponseType): Promise<void> => {
-  const { workflowId, executionId, data } = payload
+  const { workflowId, executionId, data: triggerData } = payload
+  let shouldAck = true
   logger.info(`Starting execution for workspace ${workflowId} with executionID: ${executionId}`)
 
   try {
@@ -72,20 +97,25 @@ export const processResponse = async ({
     const nodes = (nodesAny ?? []) as RFNode[]
     const edges = (edgesAny ?? []) as RFEdge[]
 
-    // Check if payload.triggerType is 'workflow' or 'manualTrigger'; only proceed if so
-
-    const triggerType = ((data: any) =>
-      data?.triggerType === 'webhook' || data.triggerType === 'manualTrigger'
-        ? [data.triggerType]
-        : [])(JSON.parse(data as unknown as string))
-
-    const triggerId = nodes.find((n) => n?.data?.type && triggerType.includes(n.data.type))?.id
+    const triggerId = nodes.find((n) => n?.data?.type === triggerData.triggerType)?.id
 
     if (!execution || !nodesSuccess || !edgesSuccess || !triggerId) {
       if (!nodesSuccess || !edgesSuccess)
         logger.error('Unable to parse nodes/edges', { id, payload })
       else logger.error('Missing execution/workflow or webhook/manual trigger', { id, payload })
-      await redis.xAck({ messageID: id })
+      shouldAck = false
+      await redis.xAddDlq({
+        originalId: id,
+        reason: getPermanentFailureReason({
+          edgesSuccess,
+          executionExists: Boolean(execution),
+          nodesSuccess,
+          triggerId,
+        }),
+        payload: stringifyDlqPayload(payload),
+        at: String(Date.now()),
+      })
+      shouldAck = true
       return
     }
 
@@ -114,11 +144,15 @@ export const processResponse = async ({
     const { nodeMap, children, indegree } = buildGraph(executableNodes, filteredEdges, allowed)
     validateDAG(children, indegree)
 
-    // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-    const triggerPayload = (payload as any)?.data ?? (execution?.logs as any)?.triggerPayload ?? {}
-
     const ctx: ExecContext = {
-      $json: { body: triggerPayload, executionId, workflowId },
+      userId: execution.userId,
+      $json: {
+        body:
+          triggerData.triggerType === 'manualTrigger' ? (triggerData.body ?? {}) : triggerData.body,
+        trigger: triggerData,
+        executionId,
+        workflowId,
+      },
       $node: {},
     }
 
@@ -134,8 +168,29 @@ export const processResponse = async ({
   } catch (err) {
     // This error now appears AFTER all async nodes have settled
     logger.warn(`Error executing the workflow:${workflowId}`, err)
+
+    try {
+      await redis.xAddDlq({
+        originalId: id,
+        reason: 'execution_failed',
+        payload: stringifyDlqPayload(payload),
+        error: err instanceof Error ? err.message : String(err),
+        at: String(Date.now()),
+      })
+      shouldAck = true
+    } catch (dlqError) {
+      logger.error('Failed to write execution failure to DLQ; leaving message pending', {
+        id,
+        workflowId,
+        executionId,
+        dlqError,
+      })
+      shouldAck = false
+    }
   } finally {
     // Ensure counter/status and ACK always happen
-    await redis.xAck({ messageID: id })
+    if (shouldAck) {
+      await redis.xAck({ messageID: id })
+    }
   }
 }

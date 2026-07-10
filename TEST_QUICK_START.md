@@ -10,12 +10,14 @@ bun install
 ## Run Tests
 
 ```bash
-# All tests (tests app)
-bun run test:all
+# All tests
+bun test
+# or: bun run test / bun run test:all
 
 # Split targets
 bun run test:web
 bun run test:server
+bun run test:worker
 bun run test:packages
 
 # CI-friendly run with coverage
@@ -66,5 +68,5 @@ bun test tests/apps/web/pages/dashboard.test.tsx
 ## Next Steps
 
 1. Run `bun install` to ensure all dependencies are available
-2. Run `bun run test:all` (or the split targets) to execute tests
+2. Run `bun test` (or the split targets) to execute tests
 3. Review `TESTING.md` for detailed structure and mocking patterns

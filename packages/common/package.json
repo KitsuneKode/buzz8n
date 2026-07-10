@@ -3,7 +3,9 @@
   "private": true,
   "type": "module",
   "exports": {
+    ".": "./src/index.ts",
     "./types": "./src/types/index.ts",
+    "./types/*": "./src/types/*.ts",
     "./config": "./src/utils/config-loader.ts",
     "./client-logger": "./src/utils/client-logger.ts"
   },

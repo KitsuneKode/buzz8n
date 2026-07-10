@@ -20,7 +20,7 @@ datasource db {
 model User {
   id            String @id @default(cuid())
   name          String
-  email         String @unique()
+  email         String @unique() // @@index(email) below is redundant with @unique but kept to avoid a migration
   password_hash String
 
   credentials Credential[]
@@ -49,6 +49,7 @@ model Workflow {
   webhook    Webhook?
   executions Execution[]
 
+  // Mirrors the last/current execution-style state (ExecutionStatus), not a separate workflow lifecycle.
   status ExecutionStatus @default(initial)
 
   createdAt DateTime @default(now())

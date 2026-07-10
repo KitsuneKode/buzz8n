@@ -4,6 +4,7 @@ import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import { toast } from '@buzz8n/ui/components/sonner'
+import { getApiErrorMessage } from '@/lib/api-error'
 import { useRouter } from 'nextjs-toploader/app'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
@@ -91,8 +92,7 @@ export function useAuth(): UseAuthReturn {
       toast.success('Sign-in successful')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-in failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-in failed. Please try again.'))
     },
   })
 
@@ -111,8 +111,7 @@ export function useAuth(): UseAuthReturn {
       toast.success('Account created successfully! Please sign in.')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-up failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-up failed. Please try again.'))
     },
   })
 
@@ -136,8 +135,7 @@ export function useAuth(): UseAuthReturn {
       await queryClient.invalidateQueries()
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-out failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-out failed. Please try again.'))
     },
   })
 

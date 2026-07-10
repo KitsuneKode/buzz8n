@@ -7,16 +7,16 @@ export function middleware(request: NextRequest) {
 
   const pathName = request.nextUrl.pathname
 
-  if (!isAuthenticated && pathName !== '/signin') {
+  if (!isAuthenticated && pathName !== '/signin' && pathName !== '/signup') {
     return NextResponse.redirect(new URL('/signin', request.url))
   }
 
-  if (pathName === '/signin' && isAuthenticated) {
+  if ((pathName === '/signin' || pathName === '/signup') && isAuthenticated) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/signin', '/dashboard', '/workflow/:path*'],
+  matcher: ['/signin', '/signup', '/dashboard', '/workflow/:path*'],
 }

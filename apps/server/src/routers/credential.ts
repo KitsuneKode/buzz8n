@@ -1,5 +1,6 @@
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
+import { encryptCredentialData } from '@buzz8n/backend-common/crypto'
 import { prisma, PrismaClientKnownRequestError } from '@buzz8n/store'
 import { credentialSchema } from '@buzz8n/common/types'
 import { auth } from '@/middlewares/auth-middleware'
@@ -33,7 +34,6 @@ router.get('/credential', rateLimitMiddleware.list, async (req, res, next: NextF
       },
       select: {
         id: true,
-        data: true,
         platform: true,
         title: true,
         createdAt: true,
@@ -45,7 +45,7 @@ router.get('/credential', rateLimitMiddleware.list, async (req, res, next: NextF
     const actualCredentials = hasNextPage ? credentials.slice(0, limit) : credentials
     const nextCursor = hasNextPage ? actualCredentials[actualCredentials.length - 1]?.id : undefined
 
-    res.status(200).send({
+    res.status(200).json({
       credentials: actualCredentials,
       cursor: nextCursor,
     })
@@ -65,18 +65,25 @@ router.post(
       if (!isParsed.success) {
         logger.error('not parsed', { body: req.body })
 
-        res.status(422).send('Invalid Data')
+        res.status(422).json({ error: 'Invalid Data' })
         return
       }
 
       const { platform, data, title } = isParsed.data
+      const envelope = await encryptCredentialData(data as Record<string, unknown>)
 
       const credential = await prisma.credential.create({
         data: {
-          data,
+          data: envelope,
           title,
           platform,
           userId: req.user!.userId,
+        },
+        select: {
+          id: true,
+          title: true,
+          platform: true,
+          createdAt: true,
         },
       })
 
@@ -88,7 +95,7 @@ router.post(
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          res.status(409).send('Credential with that title already exists')
+          res.status(409).json({ error: 'Credential with that title already exists' })
           return
         }
       }
@@ -108,7 +115,7 @@ router.delete(
       if (!credentialId) {
         logger.error('no Id', { body: req.body })
 
-        res.status(422).send('Invalid Data')
+        res.status(422).json({ error: 'Invalid Data' })
         return
       }
 
@@ -120,6 +127,12 @@ router.delete(
         data: {
           archived: true,
         },
+        select: {
+          id: true,
+          title: true,
+          platform: true,
+          createdAt: true,
+        },
       })
 
       if (!credential) {
@@ -130,7 +143,7 @@ router.delete(
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          res.status(404).send('Credential with that id does not exists')
+          res.status(404).json({ error: 'Credential with that id does not exist' })
           return
         }
       }

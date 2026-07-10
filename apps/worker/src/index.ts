@@ -1,3 +1,4 @@
+import { parseEnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { REDIS_CONSUMER, config, logger } from '@/utils'
 import { processResponse } from '@/processor'
@@ -12,6 +13,21 @@ interface ConsumerGroupResponseMessage {
 interface ConsumerGroupResponseType {
   name: string
   messages: ConsumerGroupResponseMessage[]
+}
+
+interface ExecutionRequest {
+  id: string
+  payload: EnqueueExecutionPayload
+}
+
+function stringifyStreamMessage(message: unknown): string {
+  if (typeof message === 'string') return message
+
+  try {
+    return JSON.stringify(message)
+  } catch {
+    return String(message)
+  }
 }
 
 await redis.connect()
@@ -40,24 +56,32 @@ async function main(signal: AbortSignal) {
         continue
       }
 
-      const executionRequests = response.flatMap((res) =>
-        res.messages
-          .map(({ id, message }) => {
-            try {
-              const payload =
-                typeof message === 'string'
-                  ? (JSON.parse(message) as EnqueueExecutionPayload)
-                  : (message as EnqueueExecutionPayload)
+      const executionRequests: ExecutionRequest[] = []
 
-              return { id, payload }
-            } catch {
-              logger.warn('Invalid message JSON; skipping', { message })
-              return null
-            }
-          })
-          .filter((v): v is { id: string; payload: EnqueueExecutionPayload } => v !== null),
-      )
-      if (executionRequests && executionRequests.length > 0) {
+      for (const res of response) {
+        for (const { id, message } of res.messages) {
+          const parsed = parseEnqueueExecutionPayload(message)
+          if (!parsed.success) {
+            logger.warn('Invalid queue payload; sending to DLQ', {
+              id,
+              message,
+              issues: parsed.error.issues,
+            })
+            await redis.xAddDlq({
+              originalId: id,
+              reason: 'invalid_payload',
+              payload: stringifyStreamMessage(message),
+              at: String(Date.now()),
+            })
+            await redis.xAck({ messageID: id })
+            continue
+          }
+
+          executionRequests.push({ id, payload: parsed.data })
+        }
+      }
+
+      if (executionRequests.length > 0) {
         await Promise.all(executionRequests.map((req) => processResponse(req)))
       }
     } catch (error) {
@@ -87,15 +111,10 @@ async function shutdown() {
   try {
     await redis.unsubscribe([redis.CHANNELS.EXECUTION_EVENTS])
 
-    /**
-     * 
-    NOTE: COMMENT THIS xGroupDestroy and UNCOMMENT the xGroupDelConsumer in case you think of adding more workers. This deletes the whole consumer group, ideal for a single worker. But for multiple workers we only remove the consumer of the present worker.(ideally should check the pending list for the current consumer before destroying) 
-    */
-
-    await redis.xGroupDestroy()
-
-    // await redis.xGroupDelConsumer({
-    //   consumer: REDIS_CONSUMER,
+    // Remove only this worker from the consumer group so other workers keep running.
+    await redis.xGroupDelConsumer({
+      consumer: REDIS_CONSUMER,
+    })
     await redis.cleanup()
     logger.info('Redis connection closed.')
   } catch (err) {

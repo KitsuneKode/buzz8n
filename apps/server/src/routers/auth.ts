@@ -1,12 +1,13 @@
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
+import { jwtExpiresInToMs } from '@/utils/jwt-expiry'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { auth } from '@/middlewares/auth-middleware'
+import jwt, { type SignOptions } from 'jsonwebtoken'
 import { password as Password } from 'bun'
 import { logger } from '@/utils/logger'
 import { Router } from 'express'
-import jwt from 'jsonwebtoken'
 
 const router = Router()
 //TODO: introduce better auth for better auth practices
@@ -16,7 +17,7 @@ router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
   try {
     const validated = signUpSchema.safeParse(req.body)
     if (!validated.success) {
-      res.status(422).send('Invalid data')
+      res.status(422).json({ error: 'Invalid data' })
       return
     }
 
@@ -39,11 +40,11 @@ router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
       throw new Error('Unable to create user')
     }
 
-    res.status(201).send('Sucessfully signed up')
+    res.status(201).json({ message: 'Successfully signed up' })
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
-        res.status(409).send('User with email already exists')
+        res.status(409).json({ error: 'User with email already exists' })
         return
       }
     }
@@ -69,35 +70,29 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
       },
     })
 
-    if (!user) {
-      logger.info('User with this email does not exist', { email })
-      res.status(400).send('User with this email doesnot exist')
-      return
-    }
-
-    const passwordMatch = await Password.verify(password, user.password_hash)
-
-    if (!passwordMatch) {
-      logger.info('Email or Password Invalid', { email })
-      res.status(400).send('Email or Password Invalid')
-
+    if (!user || !(await Password.verify(password, user.password_hash))) {
+      logger.info('Invalid sign-in attempt', { email })
+      res.status(401).json({ error: 'Invalid email or password' })
       return
     }
 
     const userId = user.id
-    const token = jwt.sign({ email, userId }, JWT_SECRET!)
+    const jwtExpiresIn = process.env.JWT_EXPIRES_IN ?? '7d'
+    const token = jwt.sign({ email, userId }, JWT_SECRET!, {
+      expiresIn: jwtExpiresIn as SignOptions['expiresIn'],
+    })
 
     res
       .status(200)
       .cookie('buzz8n_auth', token, {
         secure: NODE_ENV !== 'development',
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: jwtExpiresInToMs(jwtExpiresIn),
         httpOnly: true,
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-        domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+        domain: process.env.COOKIE_DOMAIN || undefined,
         path: '/',
       })
-      .send('Signed in sucessfully')
+      .json({ message: 'Signed in successfully' })
   } catch (error) {
     next(error)
   }
@@ -129,17 +124,17 @@ router.get('/me', rateLimitMiddleware.api, auth, async (req, res, next) => {
 })
 
 // Sign out user
-router.post('/signout', (req, res) => {
+router.post('/signout', (_req, res) => {
   res
     .status(200)
     .clearCookie('buzz8n_auth', {
       secure: NODE_ENV !== 'development',
       httpOnly: true,
       sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-      domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+      domain: process.env.COOKIE_DOMAIN || undefined,
       path: '/',
     })
-    .send('Signed out successfully')
+    .json({ message: 'Signed out successfully' })
 })
 
 export { router as authRouter }

@@ -25,6 +25,7 @@ import {
 import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
 import { toast } from '@buzz8n/ui/components/sonner'
+import { getApiErrorMessage } from '@/lib/api-error'
 import { useRouter } from 'nextjs-toploader/app'
 import { useWebSocket } from './useWebSocket'
 import { notFound } from 'next/navigation'
@@ -150,8 +151,7 @@ export function useCreateWorkflow(): UseMutationResult<
       })
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to create workflow'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Failed to create workflow'))
     },
   })
 }
@@ -197,9 +197,7 @@ export function useUpdateWorkflow(): UseMutationResult<
       }
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to update workflow'
-
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Failed to update workflow'))
     },
   })
 }
@@ -230,8 +228,7 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
       })
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to delete workflow'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Failed to delete workflow'))
     },
   })
 }
@@ -277,8 +274,7 @@ export function useExecuteWorkflow(): UseMutationResult<
       toast.success('Workflow execution started')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to execute workflow'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Failed to execute workflow'))
     },
   })
 }

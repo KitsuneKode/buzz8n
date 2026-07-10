@@ -6,6 +6,7 @@
     "apps/*",
     "packages/*",
     "toolings/*",
+    "tests",
     "tests/*"
   ],
   "scripts": {
@@ -38,16 +39,21 @@
     "redis:flush": "turbo run redis:flush",
     "redis:migrate": "turbo run redis:migrate",
     "sort-packages": "sort-package-json package.json apps/*/package.json packages/*/package.json toolings/*/package.json tests/*/package.json",
-    "test": "turbo run test -F @buzz8n/tests",
-    "test:ci": "turbo run test:ci -F @buzz8n/tests",
-    "test:packages": "turbo run -F @buzz8n/tests test:packages",
-    "test:server": "turbo run -F @buzz8n/tests test:server",
-    "test:web": "turbo run -F @buzz8n/tests test:web",
-    "test:worker": "turbo run -F @buzz8n/tests test:worker"
+    "test": "bun test",
+    "test:all": "bun test",
+    "test:ci": "bun test --coverage",
+    "test:packages": "bun test tests/packages",
+    "test:server": "bun test tests/apps/server",
+    "test:web": "bun test tests/apps/web",
+    "test:worker": "bun test tests/apps/worker"
   },
   "devDependencies": {
     "@buzz8n/eslint-config": "*",
     "@buzz8n/typescript-config": "*",
+    "@testing-library/dom": "^10.0.0",
+    "@testing-library/react": "^16.0.0",
+    "@testing-library/user-event": "^14.5.2",
+    "happy-dom": "^14.12.3",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@secretlint/secretlint-rule-preset-recommend": "^11.4.1",

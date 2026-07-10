@@ -42,20 +42,32 @@ bun run dev:server
 bun run dev:worker
 ```
 
-Environment variables are required for server/worker (e.g., `DATABASE_URL`, `REDIS_URL`).
-See app-specific READMEs or `.env.example` if present.
+## Environment
+
+Copy the example file and fill in secrets for local development:
+
+```bash
+cp .env.example .env
+```
+
+Required variables cover Postgres, Redis, JWT/auth, credential encryption, and
+Next.js public URLs. See `.env.example` for the full list and optional tuning
+knobs. Credential at-rest encryption is documented in
+[`docs/CREDENTIAL_ENCRYPTION.md`](docs/CREDENTIAL_ENCRYPTION.md).
 
 ## Testing Quick Start
 
-Tests are centralized in the `tests/` app and run with Bun.
+Tests live under `tests/` and run with Bun from the repo root.
 
 ```bash
-# All tests
-bun run test:all
+# All tests (preferred)
+bun test
+# or: bun run test / bun run test:all
 
 # Split targets
 bun run test:web
 bun run test:server
+bun run test:worker
 bun run test:packages
 
 # CI-friendly (coverage)

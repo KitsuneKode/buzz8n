@@ -3,25 +3,32 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test tests",
-    "test:all": "bun test tests",
+    "test": "bun test",
+    "test:all": "bun test",
     "test:web": "bun test apps/web",
     "test:server": "bun test apps/server",
     "test:worker": "bun test apps/worker",
     "test:packages": "bun test packages",
-    "test:ci": "bun test tests --coverage"
+    "test:ci": "bun test --coverage"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/user-event": "^14.5.2",
     "happy-dom": "^14.12.3",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3"
   },
   "dependencies": {
     "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
-    "@buzz8n/store": "*"
+    "@buzz8n/store": "*",
+    "@buzz8n/ui": "*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "peerDependencies": {
     "typescript": "^5"

@@ -23,7 +23,7 @@ mock.module('@/utils/logger', () => ({
 }))
 
 // Import after mocks are set up
-const { enqueueExecution } = await import('@apps/server/src/redis/enqueue')
+const { enqueueExecution } = await import('../../../../apps/server/src/redis/enqueue')
 
 describe('enqueueExecution', () => {
   beforeEach(() => {
@@ -36,7 +36,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: { action: 'test', data: 'sample' },
+      data: { action: 'test', data: 'sample' },
     }
 
     await enqueueExecution(payload)
@@ -59,7 +59,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-empty',
       workflowId: 'workflow-empty',
-      payload: {},
+      data: {},
     }
 
     await enqueueExecution(payload)
@@ -77,7 +77,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-null',
       workflowId: 'workflow-null',
-      payload: null,
+      data: null,
     }
 
     await enqueueExecution(payload)
@@ -95,7 +95,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-complex',
       workflowId: 'workflow-complex',
-      payload: {
+      data: {
         user: { id: 1, name: 'John' },
         items: [
           { id: 'a', qty: 5 },
@@ -119,7 +119,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-error',
       workflowId: 'workflow-error',
-      payload: { test: 'data' },
+      data: { test: 'data' },
     }
 
     await expect(enqueueExecution(payload)).rejects.toThrow(
@@ -142,7 +142,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-network',
       workflowId: 'workflow-network',
-      payload: {},
+      data: {},
     }
 
     await expect(enqueueExecution(payload)).rejects.toThrow()
@@ -153,7 +153,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-special',
       workflowId: 'workflow-special',
-      payload: {
+      data: {
         text: 'Special chars: "quotes", \'apostrophes\', \\backslashes\\',
         unicode: '你好世界 🚀',
       },
@@ -171,7 +171,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-array',
       workflowId: 'workflow-array',
-      payload: [1, 2, 3, 4, 5],
+      data: [1, 2, 3, 4, 5],
     }
 
     await enqueueExecution(payload)
@@ -185,7 +185,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-string',
       workflowId: 'workflow-string',
-      payload: 'simple string payload',
+      data: 'simple string payload',
     }
 
     await enqueueExecution(payload)
@@ -199,7 +199,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-number',
       workflowId: 'workflow-number',
-      payload: 42,
+      data: 42,
     }
 
     await enqueueExecution(payload)
@@ -213,7 +213,7 @@ describe('enqueueExecution', () => {
     const payload = {
       executionId: 'exec-bool',
       workflowId: 'workflow-bool',
-      payload: true,
+      data: true,
     }
 
     await enqueueExecution(payload)

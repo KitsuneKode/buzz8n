@@ -16,6 +16,7 @@ import { logger } from '@/utils'
  *
  */
 export type ExecContext = {
+  userId: string
   logs?: ExecutionLog[]
   $json: {
     body: any

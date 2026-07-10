@@ -2,6 +2,8 @@ import type { Request, Response, NextFunction } from 'express'
 import { logger } from '@/utils/logger'
 import { redis } from '@/redis'
 
+const FAIL_OPEN = process.env.RATE_LIMIT_FAIL_OPEN !== 'false'
+
 // Simple rate limit configuration
 export const RATE_LIMITS = {
   // Auth endpoints - prevent brute force
@@ -17,13 +19,13 @@ export const RATE_LIMITS = {
   api: { windowMs: 60 * 60 * 1000, maxRequests: 1000 }, // 1000 per hour
 
   // List endpoints - prevent expensive queries
-  list: { windowMs: 60 * 60 * 1000, maxRequests: 500 }, // 100 per hour
+  list: { windowMs: 60 * 60 * 1000, maxRequests: 500 }, // 500 per hour
 }
 
 // Simple key generators
 const getKey = (req: Request, type: string) => {
   if (type === 'auth') return `rate:auth:${req.ip}`
-  if (type === 'webhook') return `rate:webhook:${req.params.webhookId}`
+  if (type === 'webhook') return `rate:webhook:${req.params.webhookPath ?? req.ip}`
   if (type === 'execution') return `rate:execution:${req.params.id}`
   if (req.user?.userId) return `rate:user:${req.user.userId}`
   return `rate:ip:${req.ip}`
@@ -54,7 +56,9 @@ async function checkRateLimit(key: string, config: typeof RATE_LIMITS.auth) {
     }
   } catch (error) {
     logger.error('Rate limit check failed', { key, error })
-    // Fail open - allow request if Redis is down
+    if (!FAIL_OPEN) {
+      return { allowed: false, remaining: 0, resetTime: now + config.windowMs }
+    }
     return { allowed: true, remaining: config.maxRequests, resetTime: now + config.windowMs }
   }
 }
@@ -90,7 +94,13 @@ export function createRateLimit(type: keyof typeof RATE_LIMITS) {
       next()
     } catch (error) {
       logger.error('Rate limit check failed', { error })
-      next() // Fail open
+      if (!FAIL_OPEN) {
+        return res.status(429).json({
+          error: 'Too Many Requests',
+          message: 'Rate limit service unavailable.',
+        })
+      }
+      next()
     }
   }
 }

@@ -17,13 +17,35 @@ mock.module('next/navigation', () => ({
   useSearchParams: () => ({
     get: (key: string) => (key === 'create' ? sp.create : key === 'tab' ? sp.tab : null),
   }),
+  useRouter: () => ({
+    replace: mock(() => {}),
+  }),
 }))
 
-mock.module('@tanstack/react-query', () => ({
-  useSuspenseQuery: () => ({ data: workflowsData, isLoading: workflowsLoading }),
+mock.module('@/hooks/useWorkflow', () => ({
+  useInfiniteWorkflowsList: () => ({
+    data: {
+      pages: [
+        {
+          workflows: workflowsData,
+          totalCount: workflowsData.length,
+        },
+      ],
+    },
+    isLoading: workflowsLoading,
+    isFetchingNextPage: false,
+    hasNextPage: false,
+    fetchNextPage: mock(() => {}),
+  }),
 }))
 
-mock.module('@buzz8n/web/stores/dashboard', () => ({
+mock.module('@/hooks/useInfiniteScroll', () => ({
+  useInfiniteScroll: () => ({
+    sentinelRef: mock(() => {}),
+  }),
+}))
+
+mock.module('@/stores/dashboard', () => ({
   useDashboardStore: () => ({
     activeTab: storeState.activeTab,
     setActiveTab: (t: any) => {
@@ -36,7 +58,7 @@ mock.module('@buzz8n/web/stores/dashboard', () => ({
   isTabType: (v: string) => ['workflows', 'credentials', 'executions', 'settings'].includes(v),
 }))
 
-mock.module('@buzz8n/web/components/HeaderNav', () => ({
+mock.module('@/components/HeaderNav', () => ({
   default: ({ onTabChange }: any) => (
     <nav>
       <button onClick={() => onTabChange('workflows')}>Workflows</button>
@@ -47,23 +69,23 @@ mock.module('@buzz8n/web/components/HeaderNav', () => ({
   ),
 }))
 
-mock.module('@buzz8n/web/components/workflow/WorkflowCard', () => ({
+mock.module('@/components/workflow/WorkflowCard', () => ({
   WorkflowCard: ({ workflow }: any) => <div>WorkflowCard:{workflow?.id}</div>,
 }))
 
-mock.module('@buzz8n/web/components/ExecutionsTable', () => ({
-  default: ({ executions }: any) => <div>Executions:{executions?.length ?? 0}</div>,
+mock.module('@/components/DashboardExecutions', () => ({
+  DashboardExecutions: ({ executions }: any) => <div>Executions:{executions?.length ?? 0}</div>,
 }))
 
-mock.module('@buzz8n/web/components/CredentialsList', () => ({
+mock.module('@/components/CredentialsList', () => ({
   default: ({ credentials }: any) => <div>Credentials:{credentials?.length ?? 0}</div>,
 }))
 
-mock.module('@buzz8n/web/components/workflow/WorkflowModal', () => ({
+mock.module('@/components/workflow/WorkflowModal', () => ({
   WorkflowModal: ({ open }: any) => (open ? <div>WorkflowModal:open</div> : null),
 }))
 
-mock.module('@buzz8n/web/components/credentials/CredentialModal', () => ({
+mock.module('@/components/credentials/CredentialModal', () => ({
   default: () => null,
 }))
 

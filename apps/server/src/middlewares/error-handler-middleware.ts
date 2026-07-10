@@ -1,17 +1,11 @@
-import type { Request, Response } from 'express'
+import type { ErrorRequestHandler } from 'express'
 import { logger } from '@/utils/logger'
 
-export const errorHandlerMiddleware = async (error: Error, req: Request, res: Response) => {
-  const errorDetails = {
+export const errorHandlerMiddleware: ErrorRequestHandler = (error, req, res, _next) => {
+  logger.error(`Error on Route : ${req.originalUrl}`, {
     message: error.message,
     stack: error.stack,
-    route: req.originalUrl,
-    method: req.method,
-    time: Date.now(),
-  }
-
-  logger.error(`Error on Route : ${errorDetails.route}`, error, errorHandlerMiddleware)
-
-  // Send a generic, user-friendly error response to the client
-  res.status(500).send('Internal Server Error')
+  })
+  if (res.headersSent) return
+  res.status(500).json({ error: 'Internal Server Error' })
 }

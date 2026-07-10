@@ -1,4 +1,4 @@
-import InputPassword from '@apps/web/components/shadcn-studio/input/password-input'
+import InputPassword from '../../../../../../apps/web/components/shadcn-studio/input/password-input'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, test, expect } from 'bun:test'
 

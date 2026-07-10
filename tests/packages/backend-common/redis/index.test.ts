@@ -1,5 +1,6 @@
-import { RedisClient } from '@packages/backend-common/src/redis'
 import { describe, test, expect, mock } from 'bun:test'
+
+const xAddMock = mock(() => Promise.resolve('1234567890-0'))
 
 // Mock the redis module
 mock.module('redis', () => ({
@@ -8,7 +9,7 @@ mock.module('redis', () => ({
       return this
     }),
     connect: mock(() => Promise.resolve()),
-    xAdd: mock(() => Promise.resolve('1234567890-0')),
+    xAdd: xAddMock,
     xReadGroup: mock(() => Promise.resolve(null)),
     xAck: mock(() => Promise.resolve(1)),
     quit: mock(() => Promise.resolve()),
@@ -41,6 +42,8 @@ mock.module('@packages/backend-common/src/utils/logger', () => ({
     info: mock(() => {}),
   },
 }))
+
+const { RedisClient } = await import('@buzz8n/backend-common/redis')
 
 describe('RedisClient', () => {
   describe('constructor', () => {
@@ -128,6 +131,32 @@ describe('RedisClient', () => {
       })
 
       expect(result).toBeDefined()
+    })
+
+    test('should add poison messages to the DLQ stream', async () => {
+      xAddMock.mockClear()
+      const client = new RedisClient('worker')
+      await client.connect()
+
+      const result = await client.xAddDlq({
+        originalId: '1234567890-0',
+        reason: 'invalid_payload',
+        payload: '{"bad":',
+        at: '1710000000000',
+      })
+
+      expect(result).toBe('1234567890-0')
+      expect(xAddMock).toHaveBeenCalledWith(
+        'workflow:execution:dlq',
+        '*',
+        {
+          originalId: '1234567890-0',
+          reason: 'invalid_payload',
+          payload: '{"bad":',
+          at: '1710000000000',
+        },
+        expect.any(Object),
+      )
     })
   })
 

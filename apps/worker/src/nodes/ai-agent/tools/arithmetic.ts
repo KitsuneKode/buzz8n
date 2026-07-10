@@ -2,9 +2,11 @@ import { tool } from '@langchain/core/tools'
 
 import { z } from 'zod'
 
+import { logger } from '@/utils'
+
 export const sum = tool(
   async (input) => {
-    console.log('sum tool called')
+    logger.debug('sum tool called')
     return input.a + input.b
   },
   {
@@ -19,7 +21,7 @@ export const sum = tool(
 
 export const multiply = tool(
   async (input) => {
-    console.log('multiply tool called')
+    logger.debug('multiply tool called')
     return input.a * input.b
   },
   {
@@ -34,7 +36,7 @@ export const multiply = tool(
 
 export const exponent = tool(
   async (input) => {
-    console.log('exponent tool called')
+    logger.debug('exponent tool called')
     return input.a ** input.b
   },
   {

@@ -1,20 +1,37 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test'
-import type { Request, Response, NextFunction } from 'express'
+import express from 'express'
+import * as commonTypes from '../../../../packages/common/src/types'
 
-// Mock dependencies
-const mockEnqueueExecution: any = mock(() => Promise.resolve())
-const mockLoggerInfo: any = mock(() => {})
-const mockLoggerError: any = mock(() => {})
-const mockPrismaWebhookFindUnique: any = mock(() => Promise.resolve(null))
-const mockPrismaExecutionCreate: any = mock(() => Promise.resolve({ id: 'exec-123' }))
+type MockWebhook = {
+  workflowId: string
+  workflow: { userId: string; active: boolean }
+  secret: string | null
+}
 
-mock.module('@apps/server/src/redis/enqueue', () => ({
+type MockExecution = {
+  id: string
+}
+
+const mockEnqueueExecution = mock(() => Promise.resolve())
+const mockLoggerError = mock(() => {})
+const mockPrismaWebhookFindFirst = mock((): Promise<MockWebhook | null> => Promise.resolve(null))
+const mockPrismaExecutionCreate = mock(
+  (): Promise<MockExecution> => Promise.resolve({ id: 'exec-123' }),
+)
+
+mock.module('@/middlewares/rate-limiter-middleware', () => ({
+  rateLimitMiddleware: {
+    webhook: (_req: unknown, _res: unknown, next: () => void) => next(),
+  },
+}))
+
+mock.module('@/redis/enqueue', () => ({
   enqueueExecution: mockEnqueueExecution,
 }))
 
-mock.module('@apps/server/src/utils/logger', () => ({
+mock.module('@/utils/logger', () => ({
   logger: {
-    info: mockLoggerInfo,
+    info: mock(() => {}),
     error: mockLoggerError,
   },
 }))
@@ -22,15 +39,23 @@ mock.module('@apps/server/src/utils/logger', () => ({
 mock.module('@buzz8n/store', () => ({
   prisma: {
     webhook: {
-      findUnique: mockPrismaWebhookFindUnique,
+      findFirst: mockPrismaWebhookFindFirst,
     },
     execution: {
       create: mockPrismaExecutionCreate,
     },
   },
+  PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {
+    code: string
+    constructor(message: string, { code }: { code: string }) {
+      super(message)
+      this.code = code
+    }
+  },
 }))
 
 mock.module('@buzz8n/common/types', () => ({
+  ...commonTypes,
   supportedMethodsSchema: {
     safeParse: mock((method: string) => {
       const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
@@ -42,319 +67,233 @@ mock.module('@buzz8n/common/types', () => ({
   },
 }))
 
+const { webhookRouter } = await import('../../../../apps/server/src/routers/webhook')
+
+type RequestOptions = {
+  method?: string
+  path?: string
+  headers?: Record<string, string>
+  body?: unknown
+}
+
+async function requestWebhook({
+  method = 'POST',
+  path = '/webhook/webhook-123',
+  headers = {},
+  body = {},
+}: RequestOptions = {}) {
+  const app = express()
+  app.use(express.json())
+  app.use(webhookRouter)
+  app.use((error: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    res.status(500).json({ error: error.message })
+  })
+
+  const server = app.listen(0)
+  const address = server.address()
+  const port = typeof address === 'object' && address ? address.port : 0
+
+  try {
+    const methodAllowsBody = !['GET', 'HEAD', 'OPTIONS'].includes(method)
+    const response = await fetch(`http://127.0.0.1:${port}${path}`, {
+      method,
+      headers: {
+        'content-type': 'application/json',
+        ...headers,
+      },
+      body: methodAllowsBody ? JSON.stringify(body) : undefined,
+    })
+    const text = await response.text()
+    let responseBody: unknown = text
+    try {
+      responseBody = JSON.parse(text)
+    } catch {
+      // Plain-text error responses are expected for several webhook branches.
+    }
+
+    return { status: response.status, body: responseBody }
+  } finally {
+    server.close()
+  }
+}
+
 describe('Webhook Router', () => {
   beforeEach(() => {
     mockEnqueueExecution.mockClear()
-    mockLoggerInfo.mockClear()
     mockLoggerError.mockClear()
-    mockPrismaWebhookFindUnique.mockClear()
+    mockPrismaWebhookFindFirst.mockClear()
     mockPrismaExecutionCreate.mockClear()
   })
 
-  const createMockRequest = (overrides: Partial<Request> = {}): Partial<Request> => ({
-    params: { webhookId: 'webhook-123' },
-    method: 'POST',
-    headers: {},
-    body: {},
-    ...overrides,
+  test('returns 422 when HTTP method is not supported', async () => {
+    const response = await requestWebhook({ method: 'OPTIONS' })
+
+    expect(response.status).toBe(422)
+    expect(response.body).toEqual({ error: 'Invalid Data' })
+    expect(mockPrismaWebhookFindFirst).not.toHaveBeenCalled()
   })
 
-  const createMockResponse = (): Partial<Response> => {
-    const res: any = {
-      status: mock(function (this: any, code: number) {
-        this.statusCode = code
-        return this
-      }),
-      send: mock(function (this: any, data: any) {
-        this.body = data
-        return this
-      }),
-      json: mock(function (this: any, data: any) {
-        this.body = data
-        return this
-      }),
-      statusCode: 200,
-      body: null,
-    }
-    return res
-  }
+  test('returns 404 when webhook is not found', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce(null)
 
-  const createMockNext = (): NextFunction => mock(() => {}) as any
+    const response = await requestWebhook()
 
-  test('should return 422 when webhookId is missing', async () => {
-    const req = createMockRequest({ params: {} })
-    const res = createMockResponse()
-    const next = createMockNext()
-
-    const webhookId = (req as any).params.webhookId
-    if (!webhookId) {
-      res.status!(422).send!('Invalid Data')
-    }
-
-    expect(res.status).toHaveBeenCalledWith(422)
-    expect(res.send).toHaveBeenCalledWith('Invalid Data')
-  })
-
-  test('should return 422 when HTTP method is not supported', async () => {
-    const req = createMockRequest({ method: 'INVALID' })
-    const res = createMockResponse()
-    const next = createMockNext()
-
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-    const { success } = supportedMethodsSchema.safeParse(req.method)
-
-    if (!success) {
-      res.status!(422).send!('Invalid Data')
-    }
-
-    expect(res.status).toHaveBeenCalledWith(422)
-  })
-
-  test('should return 404 when webhook is not found', async () => {
-    mockPrismaWebhookFindUnique.mockResolvedValueOnce(null)
-
-    const req = createMockRequest()
-    const res = createMockResponse()
-    const next = createMockNext()
-
-    const { prisma } = await import('@buzz8n/store')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
-    const webhookId = req.params!.webhookId
-    const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-
-    if (success) {
-      const webhook = await prisma.webhook.findUnique({
-        where: { method, path: webhookId },
-        select: {
-          workflowId: true,
-          workflow: { select: { userId: true } },
-          secret: true,
+    expect(mockPrismaWebhookFindFirst).toHaveBeenCalledWith({
+      where: {
+        method: 'POST',
+        path: 'webhook-123',
+      },
+      select: {
+        workflowId: true,
+        workflow: {
+          select: {
+            userId: true,
+            active: true,
+          },
         },
-      })
-
-      if (!webhook) {
-        res.status!(404).send!('Invalid Request')
-      }
-    }
-
-    expect(mockPrismaWebhookFindUnique).toHaveBeenCalled()
-    expect(res.status).toHaveBeenCalledWith(404)
+        secret: true,
+      },
+    })
+    expect(response.status).toBe(404)
+    expect(response.body).toEqual({ error: 'Invalid Request' })
     expect(mockLoggerError).toHaveBeenCalledWith('webhook not found')
   })
 
-  test('should return 403 when secret does not match', async () => {
-    mockPrismaWebhookFindUnique.mockResolvedValueOnce({
+  test('returns 403 when secret does not match', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce({
       workflowId: 'workflow-123',
-      workflow: { userId: 'user-123' },
+      workflow: { userId: 'user-123', active: true },
       secret: 'correct-secret',
     })
 
-    const req = createMockRequest({
+    const response = await requestWebhook({
       headers: { authorization: 'Bearer wrong-secret' },
     })
-    const res = createMockResponse()
 
-    const { prisma } = await import('@buzz8n/store')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
-    const authorization = req.headers!.authorization
-    const secret_token = authorization?.trim().split(/\s+/).at(1)
-    const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-
-    if (success) {
-      const webhook = await prisma.webhook.findUnique({
-        where: { method, path: req.params!.webhookId },
-        select: {
-          workflowId: true,
-          workflow: { select: { userId: true } },
-          secret: true,
-        },
-      })
-
-      if (webhook && webhook.secret && webhook.secret !== secret_token) {
-        res.status!(403).send!('Not authorized')
-      }
-    }
-
-    expect(res.status).toHaveBeenCalledWith(403)
-    expect(res.send).toHaveBeenCalledWith('Not authorized')
+    expect(response.status).toBe(403)
+    expect(response.body).toEqual({
+      error: 'Webhook called with invalid secret. Not authorized',
+    })
+    expect(mockEnqueueExecution).not.toHaveBeenCalled()
   })
 
-  test('should successfully trigger webhook execution when secret matches', async () => {
-    mockPrismaWebhookFindUnique.mockResolvedValueOnce({
+  test('returns 409 when workflow is inactive', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce({
       workflowId: 'workflow-123',
-      workflow: { userId: 'user-123' },
-      secret: 'correct-secret',
+      workflow: { userId: 'user-123', active: false },
+      secret: null,
     })
 
+    const response = await requestWebhook()
+
+    expect(response.status).toBe(409)
+    expect(response.body).toEqual({
+      error: 'Workflow is not active to execute. Please activate the workflow first.',
+    })
+    expect(mockEnqueueExecution).not.toHaveBeenCalled()
+  })
+
+  test('successfully triggers webhook execution when secret matches', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce({
+      workflowId: 'workflow-123',
+      workflow: { userId: 'user-123', active: true },
+      secret: 'correct-secret',
+    })
     mockPrismaExecutionCreate.mockResolvedValueOnce({
       id: 'exec-456',
     })
 
-    const req = createMockRequest({
+    const response = await requestWebhook({
       headers: { authorization: 'Bearer correct-secret' },
+      body: { ok: true },
     })
-    const res = createMockResponse()
 
-    const { prisma } = await import('@buzz8n/store')
-    const { enqueueExecution } = await import('@apps/server/src/redis/enqueue')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
-    const authorization = req.headers!.authorization
-    const secret_token = authorization?.trim().split(/\s+/).at(1)
-    const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-
-    if (success) {
-      const webhook = await prisma.webhook.findUnique({
-        where: { method, path: req.params!.webhookId },
-        select: {
-          workflowId: true,
-          workflow: { select: { userId: true } },
-          secret: true,
-        },
-      })
-
-      if (webhook && (!webhook.secret || webhook.secret === secret_token)) {
-        const execution = await prisma.execution.create({
-          data: {
-            workflowId: webhook.workflowId,
-            userId: webhook.workflow.userId,
-          },
-        })
-
-        await enqueueExecution({
-          executionId: execution.id,
-          workflowId: webhook.workflowId,
-          payload: {},
-        })
-
-        res.status!(200).json!({
-          message: 'Execution started',
-          executionId: execution.id,
-        })
-      }
-    }
-
-    expect(mockPrismaExecutionCreate).toHaveBeenCalled()
-    expect(mockEnqueueExecution).toHaveBeenCalledWith({
-      executionId: 'exec-456',
-      workflowId: 'workflow-123',
-      payload: {},
-    })
-    expect(res.status).toHaveBeenCalledWith(200)
-    expect(res.json).toHaveBeenCalledWith({
-      message: 'Execution started',
+    expect(response.status).toBe(202)
+    expect(response.body).toEqual({
+      message: 'Execution accepted',
       executionId: 'exec-456',
     })
+    expect(mockPrismaExecutionCreate).toHaveBeenCalledWith({
+      data: {
+        workflowId: 'workflow-123',
+        userId: 'user-123',
+      },
+    })
+    expect(mockEnqueueExecution).toHaveBeenCalledWith(
+      expect.objectContaining({
+        executionId: 'exec-456',
+        workflowId: 'workflow-123',
+        data: expect.objectContaining({
+          triggerType: 'webhook',
+          body: { ok: true },
+        }),
+      }),
+    )
   })
 
-  test('should successfully trigger webhook execution when no secret is set', async () => {
-    mockPrismaWebhookFindUnique.mockResolvedValueOnce({
+  test('successfully triggers webhook execution when no secret is set', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce({
       workflowId: 'workflow-no-secret',
-      workflow: { userId: 'user-456' },
+      workflow: { userId: 'user-456', active: true },
       secret: null,
     })
-
     mockPrismaExecutionCreate.mockResolvedValueOnce({
       id: 'exec-no-secret',
     })
 
-    const req = createMockRequest({
+    const response = await requestWebhook({
       headers: {},
     })
-    const res = createMockResponse()
 
-    const { prisma } = await import('@buzz8n/store')
-    const { enqueueExecution } = await import('@apps/server/src/redis/enqueue')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
-    const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-
-    if (success) {
-      const webhook = await prisma.webhook.findUnique({
-        where: { method, path: req.params!.webhookId },
-        select: {
-          workflowId: true,
-          workflow: { select: { userId: true } },
-          secret: true,
-        },
-      })
-
-      if (webhook && !webhook.secret) {
-        const execution = await prisma.execution.create({
-          data: {
-            workflowId: webhook.workflowId,
-            userId: webhook.workflow.userId,
-          },
-        })
-
-        await enqueueExecution({
-          executionId: execution.id,
-          workflowId: webhook.workflowId,
-          payload: {},
-        })
-
-        res.status!(200).json!({
-          message: 'Execution started',
-          executionId: execution.id,
-        })
-      }
-    }
-
-    expect(res.status).toHaveBeenCalledWith(200)
+    expect(response.status).toBe(202)
+    expect(response.body).toEqual({
+      message: 'Execution accepted',
+      executionId: 'exec-no-secret',
+    })
   })
 
-  test('should handle authorization header with multiple spaces', async () => {
-    mockPrismaWebhookFindUnique.mockResolvedValueOnce({
+  test('handles authorization header with multiple spaces', async () => {
+    mockPrismaWebhookFindFirst.mockResolvedValueOnce({
       workflowId: 'workflow-123',
-      workflow: { userId: 'user-123' },
+      workflow: { userId: 'user-123', active: true },
       secret: 'my-secret',
     })
+    mockPrismaExecutionCreate.mockResolvedValueOnce({
+      id: 'exec-456',
+    })
 
-    const req = createMockRequest({
+    const response = await requestWebhook({
       headers: { authorization: 'Bearer   my-secret' },
     })
-    const res = createMockResponse()
 
-    const authorization = req.headers!.authorization
-    const secret_token = authorization?.trim().split(/\s+/).at(1)
-
-    expect(secret_token).toBe('my-secret')
+    expect(response.status).toBe(202)
   })
 
-  test('should handle different HTTP methods (GET, PUT, DELETE, PATCH)', async () => {
+  test('handles different HTTP methods (GET, PUT, DELETE, PATCH)', async () => {
     const methods = ['GET', 'PUT', 'DELETE', 'PATCH']
 
     for (const method of methods) {
-      const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-      const result = supportedMethodsSchema.safeParse(method)
-      expect(result.success).toBe(true)
-      expect(result.data).toBe(method)
+      mockPrismaWebhookFindFirst.mockResolvedValueOnce({
+        workflowId: `workflow-${method}`,
+        workflow: { userId: 'user-123', active: true },
+        secret: null,
+      })
+      mockPrismaExecutionCreate.mockResolvedValueOnce({
+        id: `exec-${method}`,
+      })
+
+      const response = await requestWebhook({ method })
+
+      expect(response.status).toBe(202)
     }
   })
 
-  test('should call next() on unexpected errors', async () => {
-    mockPrismaWebhookFindUnique.mockRejectedValueOnce(new Error('Database error'))
+  test('passes unexpected errors to error middleware', async () => {
+    mockPrismaWebhookFindFirst.mockRejectedValueOnce(new Error('Database error'))
 
-    const req = createMockRequest()
-    const res = createMockResponse()
-    const next = createMockNext()
+    const response = await requestWebhook()
 
-    const { prisma } = await import('@buzz8n/store')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
-    try {
-      const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-      if (success) {
-        await prisma.webhook.findUnique({
-          where: { method, path: req.params!.webhookId },
-        })
-      }
-    } catch (error) {
-      next(error)
-    }
-
-    expect(next).toHaveBeenCalledWith(expect.any(Error))
+    expect(response.status).toBe(500)
+    expect(response.body).toEqual({ error: 'Database error' })
   })
 })
