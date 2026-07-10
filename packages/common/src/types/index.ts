@@ -55,6 +55,7 @@ export type {
   ExecutionComplete,
   ExecutionLog,
   ExecutionStatus,
+  ExecutionsInfiniteResponse,
   NodeCategory,
   NodeTemplate,
   NodeType,
