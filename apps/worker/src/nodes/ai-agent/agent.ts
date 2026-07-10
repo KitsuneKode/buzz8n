@@ -75,10 +75,10 @@ export const runAiAgent = async (
       logger.warn('AI Agent: Invalid credential data or config', { success, prompt, model })
       throw new Error('Invalid credential data')
     }
-    // Log for debugging
     logger.info('AI Agent config', {
-      raw: { prompt, model, allowedTools },
-      resolved: { prompt: resolvedPrompt, model, allowedTools },
+      model,
+      promptLength: resolvedPrompt.length,
+      toolCount: allowedTools?.length ?? 0,
     })
     const selectedModel = getModel(model, data)
 

@@ -42,6 +42,17 @@ export interface UseAuthReturn {
 
 const AUTH_QUERY_KEY = ['auth', 'user']
 
+function getApiErrorMessage(error: AxiosError, fallback: string): string {
+  const data = error.response?.data
+  if (typeof data === 'string' && data.trim()) return data
+  if (data && typeof data === 'object') {
+    const record = data as Record<string, unknown>
+    if (typeof record.error === 'string') return record.error
+    if (typeof record.message === 'string') return record.message
+  }
+  return fallback
+}
+
 export function useAuth(): UseAuthReturn {
   const router = useRouter()
   const queryClient = getQueryClient()
@@ -91,8 +102,7 @@ export function useAuth(): UseAuthReturn {
       toast.success('Sign-in successful')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-in failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-in failed. Please try again.'))
     },
   })
 
@@ -111,8 +121,7 @@ export function useAuth(): UseAuthReturn {
       toast.success('Account created successfully! Please sign in.')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-up failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-up failed. Please try again.'))
     },
   })
 
@@ -136,8 +145,7 @@ export function useAuth(): UseAuthReturn {
       await queryClient.invalidateQueries()
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Sign-out failed. Please try again.'
-      toast.error(errorMessage)
+      toast.error(getApiErrorMessage(error, 'Sign-out failed. Please try again.'))
     },
   })
 

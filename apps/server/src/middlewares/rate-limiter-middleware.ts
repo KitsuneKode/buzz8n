@@ -19,7 +19,7 @@ export const RATE_LIMITS = {
   api: { windowMs: 60 * 60 * 1000, maxRequests: 1000 }, // 1000 per hour
 
   // List endpoints - prevent expensive queries
-  list: { windowMs: 60 * 60 * 1000, maxRequests: 500 }, // 100 per hour
+  list: { windowMs: 60 * 60 * 1000, maxRequests: 500 }, // 500 per hour
 }
 
 // Simple key generators

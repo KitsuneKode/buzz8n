@@ -19,7 +19,7 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
 
     if (!webhookPath || !success) {
       logger.error('not parsed')
-      res.status(422).send('Invalid Data')
+      res.status(422).json({ error: 'Invalid Data' })
       return
     }
 
@@ -43,17 +43,19 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
     if (!webhook) {
       logger.error('webhook not found')
 
-      res.status(404).send('Invalid Request')
+      res.status(404).json({ error: 'Invalid Request' })
       return
     }
 
     if (webhook.secret && webhook.secret !== secret_token) {
-      res.status(403).send('Webhook called with invalid secret. Not authorized')
+      res.status(403).json({ error: 'Webhook called with invalid secret. Not authorized' })
       return
     }
 
     if (!webhook.workflow.active) {
-      res.status(409).send('Workflow is not active to execute. Please activate the workflow first.')
+      res.status(409).json({
+        error: 'Workflow is not active to execute. Please activate the workflow first.',
+      })
       return
     }
 

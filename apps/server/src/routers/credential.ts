@@ -65,7 +65,7 @@ router.post(
       if (!isParsed.success) {
         logger.error('not parsed', { body: req.body })
 
-        res.status(422).send('Invalid Data')
+        res.status(422).json({ error: 'Invalid Data' })
         return
       }
 
@@ -95,7 +95,7 @@ router.post(
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
-          res.status(409).send('Credential with that title already exists')
+          res.status(409).json({ error: 'Credential with that title already exists' })
           return
         }
       }
@@ -115,7 +115,7 @@ router.delete(
       if (!credentialId) {
         logger.error('no Id', { body: req.body })
 
-        res.status(422).send('Invalid Data')
+        res.status(422).json({ error: 'Invalid Data' })
         return
       }
 
@@ -143,7 +143,7 @@ router.delete(
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          res.status(404).send('Credential with that id does not exists')
+          res.status(404).json({ error: 'Credential with that id does not exist' })
           return
         }
       }

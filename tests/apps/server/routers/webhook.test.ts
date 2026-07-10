@@ -129,7 +129,7 @@ describe('Webhook Router', () => {
     const response = await requestWebhook({ method: 'OPTIONS' })
 
     expect(response.status).toBe(422)
-    expect(response.body).toBe('Invalid Data')
+    expect(response.body).toEqual({ error: 'Invalid Data' })
     expect(mockPrismaWebhookFindFirst).not.toHaveBeenCalled()
   })
 
@@ -155,7 +155,7 @@ describe('Webhook Router', () => {
       },
     })
     expect(response.status).toBe(404)
-    expect(response.body).toBe('Invalid Request')
+    expect(response.body).toEqual({ error: 'Invalid Request' })
     expect(mockLoggerError).toHaveBeenCalledWith('webhook not found')
   })
 
@@ -171,7 +171,9 @@ describe('Webhook Router', () => {
     })
 
     expect(response.status).toBe(403)
-    expect(response.body).toBe('Webhook called with invalid secret. Not authorized')
+    expect(response.body).toEqual({
+      error: 'Webhook called with invalid secret. Not authorized',
+    })
     expect(mockEnqueueExecution).not.toHaveBeenCalled()
   })
 
@@ -185,7 +187,9 @@ describe('Webhook Router', () => {
     const response = await requestWebhook()
 
     expect(response.status).toBe(409)
-    expect(response.body).toBe('Workflow is not active to execute. Please activate the workflow first.')
+    expect(response.body).toEqual({
+      error: 'Workflow is not active to execute. Please activate the workflow first.',
+    })
     expect(mockEnqueueExecution).not.toHaveBeenCalled()
   })
 

@@ -17,7 +17,7 @@ router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
   try {
     const validated = signUpSchema.safeParse(req.body)
     if (!validated.success) {
-      res.status(422).send('Invalid data')
+      res.status(422).json({ error: 'Invalid data' })
       return
     }
 
@@ -40,11 +40,11 @@ router.post('/signup', rateLimitMiddleware.auth, async (req, res, next) => {
       throw new Error('Unable to create user')
     }
 
-    res.status(201).send('Sucessfully signed up')
+    res.status(201).json({ message: 'Successfully signed up' })
   } catch (error) {
     if (error instanceof PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
-        res.status(409).send('User with email already exists')
+        res.status(409).json({ error: 'User with email already exists' })
         return
       }
     }
@@ -92,7 +92,7 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
         domain: process.env.COOKIE_DOMAIN || undefined,
         path: '/',
       })
-      .send('Signed in sucessfully')
+      .json({ message: 'Signed in successfully' })
   } catch (error) {
     next(error)
   }
@@ -124,7 +124,7 @@ router.get('/me', rateLimitMiddleware.api, auth, async (req, res, next) => {
 })
 
 // Sign out user
-router.post('/signout', (req, res) => {
+router.post('/signout', (_req, res) => {
   res
     .status(200)
     .clearCookie('buzz8n_auth', {
@@ -134,7 +134,7 @@ router.post('/signout', (req, res) => {
       domain: process.env.COOKIE_DOMAIN || undefined,
       path: '/',
     })
-    .send('Signed out successfully')
+    .json({ message: 'Signed out successfully' })
 })
 
 export { router as authRouter }

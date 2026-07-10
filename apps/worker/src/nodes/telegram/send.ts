@@ -26,10 +26,9 @@ export const sendTelegramMessage = async (
     const resolvedMessage = renderTemplate(message, context)
     const resolvedChatId = renderTemplate(chatId, context)
 
-    // Log for debugging
     logger.info('Telegram config', {
-      raw: { message, chatId },
-      resolved: { message: resolvedMessage, chatId: resolvedChatId },
+      messageLength: String(resolvedMessage).length,
+      chatIdPresent: Boolean(resolvedChatId),
     })
 
     const { botToken } = data

@@ -173,7 +173,7 @@ describe('Auth Router sign-in', () => {
     const result = await signInRequest()
 
     expect(result.status).toBe(200)
-    expect(result.body).toBe('Signed in sucessfully')
+    expect(result.body).toEqual({ message: 'Signed in successfully' })
 
     const setCookie = result.headers.get('set-cookie')
     expect(setCookie).toContain('buzz8n_auth=')

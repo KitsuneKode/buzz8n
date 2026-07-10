@@ -58,15 +58,17 @@ mock.module('@buzz8n/common/types', () => ({
 
 mock.module('@/processor/dag', () => ({
   buildGraph: mock(() => ({ children: new Map(), indegree: new Map(), nodeMap: new Map() })),
-  collectReachableFrom: mock(() => new Set()),
-  executeGraphConcurrent: mock(async () => ({})),
+  collectReachableFrom: mock(() => new Set(['trigger-1'])),
+  executeGraphConcurrent: mock(async () => {
+    throw new Error('node boom')
+  }),
   validateDAG: mock(() => {}),
 }))
 
 mock.module('@/processor/helper', () => ({
   beginExecutionSetStatus: mock(async () => {}),
   collapsePropertyNodes: mock(() => ({
-    executableNodes: [],
+    executableNodes: [{ id: 'trigger-1', data: { type: 'manualTrigger' } }],
     filteredEdges: [],
     nonExecutableIds: new Set(),
   })),
@@ -86,6 +88,17 @@ describe('processResponse', () => {
     prismaFindFirst.mockClear()
     nodesSafeParse.mockClear()
     edgesSafeParse.mockClear()
+
+    prismaFindFirst.mockImplementation(async () => ({
+      id: 'execution-1',
+      userId: 'user-1',
+      workflow: {
+        nodes: { invalid: true },
+        edges: [],
+      },
+    }))
+    nodesSafeParse.mockImplementation(() => ({ success: false }))
+    edgesSafeParse.mockImplementation(() => ({ success: true, data: [] }))
   })
 
   test('writes invalid workflow definitions to the DLQ before ACKing the stream message', async () => {
@@ -108,6 +121,44 @@ describe('processResponse', () => {
       at: expect.any(String),
     })
     expect(xAck).toHaveBeenCalledWith({ messageID: 'message-1' })
+    expect(operations).toEqual(['dlq', 'ack'])
+  })
+
+  test('writes execution failures to the DLQ before ACKing', async () => {
+    nodesSafeParse.mockImplementation(() => ({
+      success: true,
+      data: [{ id: 'trigger-1', data: { type: 'manualTrigger' } }],
+    }))
+    edgesSafeParse.mockImplementation(() => ({ success: true, data: [] }))
+    prismaFindFirst.mockImplementation(async () => ({
+      id: 'execution-1',
+      userId: 'user-1',
+      workflow: {
+        nodes: [],
+        edges: [],
+      },
+    }))
+
+    await processResponse({
+      id: 'message-2',
+      payload: {
+        workflowId: 'workflow-1',
+        executionId: 'execution-1',
+        data: {
+          triggerType: 'manualTrigger',
+          body: {},
+        },
+      },
+    })
+
+    expect(xAddDlq).toHaveBeenCalledWith({
+      originalId: 'message-2',
+      reason: 'execution_failed',
+      payload: expect.stringContaining('"executionId":"execution-1"'),
+      error: 'node boom',
+      at: expect.any(String),
+    })
+    expect(xAck).toHaveBeenCalledWith({ messageID: 'message-2' })
     expect(operations).toEqual(['dlq', 'ack'])
   })
 })

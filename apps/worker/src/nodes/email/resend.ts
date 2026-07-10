@@ -12,7 +12,7 @@ export const sendResendEMail = async (
 ) => {
   try {
     if (!credentialId || typeof config !== 'object') {
-      throw new Error('Credentials to execute sendTelegram Message not provided')
+      throw new Error('Credentials to execute send email not provided')
     }
 
     const plain = await loadCredentialData(credentialId, context.userId)
@@ -27,10 +27,10 @@ export const sendResendEMail = async (
     const resolvedSubject = renderTemplate(subject, context)
     const resolvedBody = renderTemplate(body, context)
 
-    // Log for debugging
     logger.info('Email config', {
-      raw: { to, subject, body },
-      resolved: { to: resolvedTo, subject: resolvedSubject, body: resolvedBody },
+      toLength: resolvedTo.length,
+      subjectLength: resolvedSubject.length,
+      bodyLength: resolvedBody.length,
     })
 
     const resend = new Resend(data.resendApiKey)

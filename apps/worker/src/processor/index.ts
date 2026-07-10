@@ -17,8 +17,8 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
+import { beginExecutionSetStatus, collapsePropertyNodes } from '@/processor/helper'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
-import { beginExecutionSetStatus, collapsePropertyNodes } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
 import { prisma } from '@buzz8n/store'
@@ -168,6 +168,25 @@ export const processResponse = async ({
   } catch (err) {
     // This error now appears AFTER all async nodes have settled
     logger.warn(`Error executing the workflow:${workflowId}`, err)
+
+    try {
+      await redis.xAddDlq({
+        originalId: id,
+        reason: 'execution_failed',
+        payload: stringifyDlqPayload(payload),
+        error: err instanceof Error ? err.message : String(err),
+        at: String(Date.now()),
+      })
+      shouldAck = true
+    } catch (dlqError) {
+      logger.error('Failed to write execution failure to DLQ; leaving message pending', {
+        id,
+        workflowId,
+        executionId,
+        dlqError,
+      })
+      shouldAck = false
+    }
   } finally {
     // Ensure counter/status and ACK always happen
     if (shouldAck) {
