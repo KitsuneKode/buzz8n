@@ -15,14 +15,18 @@ Run from the repo root:
 ```bash
 bun install
 
-# Run the entire test suite (tests app)
-bun run test:all
+# Run the entire test suite
+bun test
+# or: bun run test / bun run test:all
 
 # Run only web tests
 bun run test:web
 
 # Run only server tests
 bun run test:server
+
+# Run only worker tests
+bun run test:worker
 
 # Run only package tests
 bun run test:packages

@@ -55,15 +55,17 @@ See `.env.example` for the full list and optional tuning knobs.
 
 ## Testing Quick Start
 
-Tests are centralized in the `tests/` app and run with Bun.
+Tests live under `tests/` and run with Bun from the repo root.
 
 ```bash
-# All tests
-bun run test:all
+# All tests (preferred)
+bun test
+# or: bun run test / bun run test:all
 
 # Split targets
 bun run test:web
 bun run test:server
+bun run test:worker
 bun run test:packages
 
 # CI-friendly (coverage)

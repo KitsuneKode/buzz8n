@@ -48,15 +48,17 @@ bun run dev:worker
 
 ## Testing
 
-All tests are centralized in the `tests/` app and executed with Bun.
+All tests live under `tests/` and are executed with Bun from the repo root.
 
 ```bash
 # Run the entire suite
-bun run test:all
+bun test
+# or: bun run test / bun run test:all
 
 # Targeted runs
 bun run test:web
 bun run test:server
+bun run test:worker
 bun run test:packages
 
 # CI coverage
