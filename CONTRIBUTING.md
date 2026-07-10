@@ -23,6 +23,14 @@ bun run dev:server
 bun run dev:worker
 ```
 
+## Bun practices
+
+- Use `bun` / `bun test` / `bun install` (not npm/yarn/jest).
+- Prefer `Bun.password` for password hashing (already used in auth).
+- Prefer Web Crypto / `Bun.CryptoHasher` for new crypto (see `@buzz8n/backend-common/crypto`).
+- Prefer structured `logger` over `console.log` in apps.
+- Do not rewrite Express → `Bun.serve` without a dedicated migration plan.
+
 ## Branch & Commit
 
 - **Branch naming**: `feat/<scope>-<short-desc>`, `fix/<scope>-<short-desc>`, `chore/<scope>-<short-desc>`

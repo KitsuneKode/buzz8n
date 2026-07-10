@@ -12,8 +12,7 @@ const fetchFullExecutionDetails = async (executionId: string): Promise<Execution
       withCredentials: true,
     })
     return response.data
-  } catch (error) {
-    console.error('Failed to fetch execution details:', error)
+  } catch {
     return null
   }
 }
@@ -57,14 +56,12 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
     // Prevent multiple connections
     if (ws?.readyState === WebSocket.OPEN || isConnecting) {
-      console.log('WebSocket already connected or connecting')
       return
     }
 
     // Mark that we want to be connected
     shouldBeConnected = true
 
-    console.log('🔄 Connecting WebSocket...')
     set({ isConnecting: true, error: null })
 
     const websocket = new WebSocket(WS_URL!)
@@ -73,25 +70,21 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     websocket.onopen = () => {
       reconnectAttempts = 0 // Reset reconnect attempts on successful connection
       set({ isConnected: true, isConnecting: false, error: null })
-      console.log('✅ WebSocket connected')
     }
 
     websocket.onmessage = (event) => {
       try {
         // Handle ping messages from server
         if (event.data === 'ping') {
-          console.log('🏓 Received ping, sending pong')
           websocket.send('pong')
           return
         }
 
         const message = JSON.parse(event.data)
-        console.log('📨 WebSocket message:', message)
 
         // Handle ExecutionLog messages
         if ('nodeId' in message && 'status' in message && message.type === 'node_event') {
           const log = message as ExecutionLog
-          console.log('📝 Processing ExecutionLog:', log)
 
           // Import store dynamically to avoid circular dependency
           import('@/stores/workflow-editor').then(({ useWorkflowEditorStore }) => {
@@ -114,8 +107,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
         // Handle execution completion
         if (message.type === 'execution_complete' && 'executionSummary' in message) {
-          console.log('✅ Execution completed:', message)
-
           const { unsubscribe } = get()
           import('@/stores/workflow-editor').then(({ useWorkflowEditorStore }) => {
             const { setCurrentExecution, currentExecution } = useWorkflowEditorStore.getState()
@@ -128,20 +119,14 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
                 durationMs: message.durationMs,
                 logs: message.logs || currentExecution.logs, // Include logs if available
               }
-              console.log('🔄 Setting current execution:', newExecution)
               setCurrentExecution(newExecution)
 
               // Fetch full execution details from the database
-              fetchFullExecutionDetails(currentExecution.id)
-                .then((fullExecution) => {
-                  if (fullExecution) {
-                    console.log('📊 Fetched full execution details:', fullExecution)
-                    setCurrentExecution(fullExecution)
-                  }
-                })
-                .catch((error) => {
-                  console.error('❌ Failed to fetch full execution details:', error)
-                })
+              fetchFullExecutionDetails(currentExecution.id).then((fullExecution) => {
+                if (fullExecution) {
+                  setCurrentExecution(fullExecution)
+                }
+              })
             }
           })
 
@@ -151,17 +136,14 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           toastT(message.executionSummary || 'Execution completed')
           return
         }
-
-        console.log('❓ Unknown message type:', message)
-      } catch (error) {
-        console.error('❌ Error parsing message:', error)
+      } catch {
+        // Ignore malformed messages
       }
     }
 
     websocket.onclose = (event) => {
       const { connect } = get()
       set({ isConnected: false, isConnecting: false })
-      console.log('❌ WebSocket disconnected', { code: event.code, reason: event.reason })
 
       // Only auto-reconnect if:
       // 1. We WANT to be connected (not an intentional disconnect)
@@ -169,9 +151,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       // 3. Haven't exceeded retry limit
       if (shouldBeConnected && event.code !== 1000 && reconnectAttempts < maxReconnectAttempts) {
         const delay = Math.min(1000 * Math.pow(2, reconnectAttempts), 30000)
-        console.log(
-          `🔄 Reconnecting in ${delay}ms (attempt ${reconnectAttempts + 1}/${maxReconnectAttempts})`,
-        )
 
         reconnectTimer = setTimeout(() => {
           reconnectAttempts++
@@ -180,12 +159,10 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
       } else {
         // Reset on normal close or max retries
         reconnectAttempts = 0
-        console.log('WebSocket closed, no reconnect')
       }
     }
 
-    websocket.onerror = (error) => {
-      console.error('❌ WebSocket error:', error)
+    websocket.onerror = () => {
       set({ error: 'Connection failed', isConnecting: false })
     }
   },
@@ -205,8 +182,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
 
     const { ws, unsubscribe } = get()
     if (ws) {
-      console.log('🔌 Disconnecting WebSocket')
-
       // Unsubscribe before closing
       unsubscribe()
 
@@ -222,8 +197,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   subscribe: (workflowId: string, executionId: string) => {
     const { ws } = get()
     if (ws?.readyState === WebSocket.OPEN) {
-      console.log('📡 Subscribing to execution:', executionId)
-      console.log('📡 Subscribing to workflow:', workflowId)
       ws.send(
         JSON.stringify({
           type: 'subscribe',
@@ -237,7 +210,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   unsubscribe: () => {
     const { ws } = get()
     if (ws?.readyState === WebSocket.OPEN) {
-      console.log('📡Unsubscribing to workflow')
       ws.send(JSON.stringify({ type: 'unsubscribe' }))
     }
   },
