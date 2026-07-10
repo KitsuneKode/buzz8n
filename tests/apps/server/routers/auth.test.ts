@@ -207,4 +207,27 @@ describe('Auth Router sign-in', () => {
     const setCookie = result.headers.get('set-cookie')
     expect(setCookie).toContain('Domain=auth.example.com')
   })
+
+  test('cookie Max-Age matches JWT_EXPIRES_IN', async () => {
+    process.env.JWT_EXPIRES_IN = '1h'
+
+    const passwordHash = await Password.hash(validPassword, {
+      algorithm: 'bcrypt',
+      cost: 4,
+    })
+
+    mockPrismaUserFindUnique.mockResolvedValueOnce({
+      id: 'user-1',
+      email: validSignInBody.email,
+      password_hash: passwordHash,
+    })
+
+    const result = await signInRequest()
+
+    expect(result.status).toBe(200)
+    const setCookie = result.headers.get('set-cookie')
+    expect(setCookie).toContain('Max-Age=3600')
+
+    delete process.env.JWT_EXPIRES_IN
+  })
 })

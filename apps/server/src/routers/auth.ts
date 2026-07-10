@@ -1,6 +1,7 @@
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
+import { jwtExpiresInToMs } from '@/utils/jwt-expiry'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { auth } from '@/middlewares/auth-middleware'
 import jwt, { type SignOptions } from 'jsonwebtoken'
@@ -76,15 +77,16 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
     }
 
     const userId = user.id
+    const jwtExpiresIn = process.env.JWT_EXPIRES_IN ?? '7d'
     const token = jwt.sign({ email, userId }, JWT_SECRET!, {
-      expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as SignOptions['expiresIn'],
+      expiresIn: jwtExpiresIn as SignOptions['expiresIn'],
     })
 
     res
       .status(200)
       .cookie('buzz8n_auth', token, {
         secure: NODE_ENV !== 'development',
-        maxAge: 1000 * 60 * 60 * 24 * 7,
+        maxAge: jwtExpiresInToMs(jwtExpiresIn),
         httpOnly: true,
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
         domain: process.env.COOKIE_DOMAIN || undefined,

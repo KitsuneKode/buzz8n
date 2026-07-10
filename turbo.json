@@ -1,6 +1,18 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "NODE_ENV",
+    "DATABASE_URL",
+    "REDIS_URL",
+    "JWT_SECRET",
+    "JWT_EXPIRES_IN",
+    "CREDENTIALS_ENCRYPTION_KEY",
+    "COOKIE_DOMAIN",
+    "RATE_LIMIT_FAIL_OPEN",
+    "ALLOWED_ORIGINS",
+    "PORT"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -11,6 +23,10 @@
         "DATABASE_URL",
         "REDIS_URL",
         "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CREDENTIALS_ENCRYPTION_KEY",
+        "COOKIE_DOMAIN",
+        "RATE_LIMIT_FAIL_OPEN",
         "ALLOWED_ORIGINS",
         "PORT",
         "NEXT_PUBLIC_APP_URL",
@@ -48,6 +64,10 @@
         "DATABASE_URL",
         "REDIS_URL",
         "JWT_SECRET",
+        "JWT_EXPIRES_IN",
+        "CREDENTIALS_ENCRYPTION_KEY",
+        "COOKIE_DOMAIN",
+        "RATE_LIMIT_FAIL_OPEN",
         "ALLOWED_ORIGINS",
         "PORT",
         "NEXT_PUBLIC_APP_URL",
