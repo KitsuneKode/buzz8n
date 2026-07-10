@@ -42,8 +42,16 @@ bun run dev:server
 bun run dev:worker
 ```
 
-Environment variables are required for server/worker (e.g., `DATABASE_URL`, `REDIS_URL`).
-See app-specific READMEs or `.env.example` if present.
+## Environment
+
+Copy the example file and fill in secrets for local development:
+
+```bash
+cp .env.example .env
+```
+
+Required variables cover Postgres, Redis, JWT/auth, and Next.js public URLs.
+See `.env.example` for the full list and optional tuning knobs.
 
 ## Testing Quick Start
 
