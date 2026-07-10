@@ -6,103 +6,103 @@ describe('EnqueueExecutionPayload Type', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: { data: 'test' },
+      data: { data: 'test' },
     }
 
     expect(payload.executionId).toBe('exec-123')
     expect(payload.workflowId).toBe('workflow-456')
-    expect(payload.payload).toEqual({ data: 'test' })
+    expect(payload.data).toEqual({ data: 'test' })
   })
 
-  test('should accept payload with null', () => {
+  test('should accept data with null', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: null,
+      data: null,
     }
 
-    expect(payload.payload).toBeNull()
+    expect(payload.data).toBeNull()
   })
 
-  test('should accept payload with undefined', () => {
+  test('should accept data with undefined', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: undefined,
+      data: undefined,
     }
 
-    expect(payload.payload).toBeUndefined()
+    expect(payload.data).toBeUndefined()
   })
 
-  test('should accept payload with object', () => {
+  test('should accept data with object', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {
+      data: {
         user: { id: 1, name: 'John' },
         action: 'create',
         timestamp: '2024-01-01',
       },
     }
 
-    expect(typeof payload.payload).toBe('object')
+    expect(typeof payload.data).toBe('object')
   })
 
-  test('should accept payload with array', () => {
+  test('should accept data with array', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: [1, 2, 3, 4, 5],
+      data: [1, 2, 3, 4, 5],
     }
 
-    expect(Array.isArray(payload.payload)).toBe(true)
+    expect(Array.isArray(payload.data)).toBe(true)
   })
 
-  test('should accept payload with string', () => {
+  test('should accept data with string', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: 'simple string payload',
+      data: 'simple string payload',
     }
 
-    expect(typeof payload.payload).toBe('string')
+    expect(typeof payload.data).toBe('string')
   })
 
-  test('should accept payload with number', () => {
+  test('should accept data with number', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: 42,
+      data: 42,
     }
 
-    expect(typeof payload.payload).toBe('number')
+    expect(typeof payload.data).toBe('number')
   })
 
-  test('should accept payload with boolean', () => {
+  test('should accept data with boolean', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: true,
+      data: true,
     }
 
-    expect(typeof payload.payload).toBe('boolean')
+    expect(typeof payload.data).toBe('boolean')
   })
 
-  test('should accept empty object as payload', () => {
+  test('should accept empty object as data', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {},
+      data: {},
     }
 
-    expect(payload.payload).toEqual({})
+    expect(payload.data).toEqual({})
   })
 
-  test('should accept deeply nested object as payload', () => {
+  test('should accept deeply nested object as data', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {
+      data: {
         level1: {
           level2: {
             level3: {
@@ -113,26 +113,26 @@ describe('EnqueueExecutionPayload Type', () => {
       },
     }
 
-    expect((payload.payload as any).level1.level2.level3.value).toBe('deep')
+    expect((payload.data as any).level1.level2.level3.value).toBe('deep')
   })
 
   test('should validate required fields are present', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {},
+      data: {},
     }
 
     expect(payload).toHaveProperty('executionId')
     expect(payload).toHaveProperty('workflowId')
-    expect(payload).toHaveProperty('payload')
+    expect(payload).toHaveProperty('data')
   })
 
   test('should handle special characters in IDs', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123-abc_def',
       workflowId: 'workflow-456-xyz_uvw',
-      payload: {},
+      data: {},
     }
 
     expect(payload.executionId).toContain('_')

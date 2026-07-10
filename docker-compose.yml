@@ -5,7 +5,8 @@ services:
     container_name: buzz8n-postgres
     environment:
       POSTGRES_USER: buzz8n
-      POSTGRES_PASSWORD: 'password'
+      # Set POSTGRES_PASSWORD in the environment before `docker compose up`
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       POSTGRES_DB: buzz8n
     volumes:
       - postgres_data:/var/lib/postgresql/data

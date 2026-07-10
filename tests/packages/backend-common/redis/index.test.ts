@@ -1,4 +1,3 @@
-import { RedisClient } from '@packages/backend-common/src/redis'
 import { describe, test, expect, mock } from 'bun:test'
 
 // Mock the redis module
@@ -15,8 +14,8 @@ mock.module('redis', () => ({
   })),
 }))
 
-// Mock config and logger modules
-mock.module('@packages/backend-common/src/utils/config', () => ({
+// Mock config and logger modules (match package import paths)
+mock.module('@buzz8n/backend-common/config', () => ({
   backendConfig: {
     getConfig: mock((key: string) => {
       if (key === 'redisUrl') return 'redis://localhost:6379'
@@ -31,7 +30,7 @@ mock.module('@packages/backend-common/src/utils/config', () => ({
   },
 }))
 
-mock.module('@packages/backend-common/src/utils/logger', () => ({
+mock.module('@buzz8n/backend-common/logger', () => ({
   backendLogger: {
     error: mock(() => {}),
     info: mock(() => {}),
@@ -41,6 +40,35 @@ mock.module('@packages/backend-common/src/utils/logger', () => ({
     info: mock(() => {}),
   },
 }))
+
+// Also mock relative paths used inside the redis module
+mock.module('../../../../packages/backend-common/src/utils/config.ts', () => ({
+  backendConfig: {
+    getConfig: mock((key: string) => {
+      if (key === 'redisUrl') return 'redis://localhost:6379'
+      return null
+    }),
+  },
+  workerConfig: {
+    getConfig: mock((key: string) => {
+      if (key === 'redisUrl') return 'redis://worker:6379'
+      return null
+    }),
+  },
+}))
+
+mock.module('../../../../packages/backend-common/src/utils/logger.ts', () => ({
+  backendLogger: {
+    error: mock(() => {}),
+    info: mock(() => {}),
+  },
+  workerLogger: {
+    error: mock(() => {}),
+    info: mock(() => {}),
+  },
+}))
+
+const { RedisClient } = await import('@buzz8n/backend-common/redis')
 
 describe('RedisClient', () => {
   describe('constructor', () => {

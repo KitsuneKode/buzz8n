@@ -448,13 +448,16 @@ export const getProviderIcon = (provider: Provider) => {
   )
 }
 
+const SUPPORTED_PROVIDER_IDS: Provider[] = ['Telegram', 'Email', 'OpenAI', 'Gemini', 'Anthropic']
+
 const ProviderPicker = ({ onSelect }: ProviderPickerProps) => {
   const [searchTerm, setSearchTerm] = useState('')
 
   const filteredProviders = providers.filter(
     (provider) =>
-      provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      provider.description.toLowerCase().includes(searchTerm.toLowerCase()),
+      SUPPORTED_PROVIDER_IDS.includes(provider.id) &&
+      (provider.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        provider.description.toLowerCase().includes(searchTerm.toLowerCase())),
   )
 
   return (

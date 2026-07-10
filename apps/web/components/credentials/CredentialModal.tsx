@@ -10,21 +10,19 @@ import {
   AnthropicFormData,
 } from '@/lib/types/credentials'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@buzz8n/ui/components/dialog'
-import { CredentialResponse } from '@buzz8n/common/types/credentials'
+import { CredentialListItem } from '@buzz8n/common/types/credentials'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { apiClient, getApiErrorMessage } from '@/lib/api-client'
 import { useDashboardStore } from '@/stores/dashboard'
 import { Button } from '@buzz8n/ui/components/button'
 import { toast } from '@buzz8n/ui/components/sonner'
 import ProviderPicker from './ProviderPicker'
 import { useEffect, useState } from 'react'
-import axios, { isAxiosError } from 'axios'
 import TelegramForm from './TelegramForm'
-import { API_URL } from '@/utils/config'
 import OpenAIForm from './OpenAIForm'
 import GeminiForm from './GeminiForm'
 import ClaudeForm from './ClaudeForm'
-import OAuthForm from './OAuthForm'
 import EmailForm from './EmailForm'
 
 const CredentialModal = () => {
@@ -72,20 +70,15 @@ const CredentialModal = () => {
         data: credentialData.config,
       }
 
-      const response = await axios.post<CredentialResponse>(`${API_URL}/credential`, payload, {
-        headers: { 'Content-Type': 'application/json' },
-        withCredentials: true,
-      })
-
+      const response = await apiClient.post<CredentialListItem>('/credential', payload)
       return response.data
     },
-    onSuccess: (responseData: CredentialResponse) => {
+    onSuccess: (responseData: CredentialListItem) => {
       const newCredential = {
         id: responseData.id,
         name: responseData.title,
         provider: responseData.platform,
-        config: responseData.data,
-        createdAt: responseData.createdAt,
+        createdAt: new Date(responseData.createdAt),
       }
 
       addCredential(newCredential)
@@ -111,13 +104,7 @@ const CredentialModal = () => {
       setCredentialCreationContext(null)
     },
     onError: (error) => {
-      if (isAxiosError(error)) {
-        if (error.response?.data) {
-          toast.error(error.response.data)
-        } else {
-          toast.error('Failed to create credentials')
-        }
-      }
+      toast.error(getApiErrorMessage(error, 'Failed to create credentials'))
     },
   })
 
@@ -129,22 +116,6 @@ const CredentialModal = () => {
       | GeminiFormData
       | AnthropicFormData,
   ) => {
-    if (!selectedProvider) {
-      toast.error('Please select a provider')
-      return
-    }
-    saveCredentialMuate({
-      config: formData,
-      name: formData.name,
-      provider: selectedProvider,
-    })
-  }
-
-  const handleOAuthFormSubmit = async (formData: {
-    name: string
-    accessToken?: string
-    refreshToken?: string
-  }) => {
     if (!selectedProvider) {
       toast.error('Please select a provider')
       return
@@ -178,38 +149,12 @@ const CredentialModal = () => {
         return <GeminiForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
       case 'Anthropic':
         return <ClaudeForm onBack={handleBack} onSubmit={handleFormSubmit} onCancel={onClose} />
-      case 'Gmail':
-        return (
-          <OAuthForm
-            provider="gmail"
-            onBack={handleBack}
-            onSubmit={handleOAuthFormSubmit}
-            onCancel={onClose}
-          />
-        )
-      case 'Discord':
-        return (
-          <OAuthForm
-            provider="discord"
-            onBack={handleBack}
-            onSubmit={handleOAuthFormSubmit}
-            onCancel={onClose}
-          />
-        )
-      case 'Slack':
-        return (
-          <OAuthForm
-            provider="slack"
-            onBack={handleBack}
-            onSubmit={handleOAuthFormSubmit}
-            onCancel={onClose}
-          />
-        )
       default:
         return (
-          <div className="p-6 text-center">
+          <div className="p-6 text-center space-y-3">
             <p className="text-muted-foreground">
-              Form for {selectedProvider} is not implemented yet.
+              {selectedProvider} credentials are not available yet. OAuth providers (Gmail, Discord,
+              Slack) will ship in a later release.
             </p>
             <div className="flex justify-between mt-6">
               <Button variant="ghost" onClick={handleBack}>

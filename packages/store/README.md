@@ -1,16 +1,22 @@
-# store
+# @buzz8n/store
 
-To install dependencies:
+Prisma schema and client for PostgreSQL.
 
-```bash
-bun install
-```
-
-To run:
+## Commands
 
 ```bash
-bun run index.ts
+bun run db:generate
+bun run db:migrate
+bun run db:seed
+bun run db:studio
 ```
 
-This project was created using `bun init` in bun v1.2.18.
-[Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Seed
+
+`prisma/seed.ts` is **idempotent for a single test user** (`testuser@me.com`).
+
+- It does **not** wipe the database.
+- It only seeds when that user already exists (create the user via signup first, or uncomment user creation in the seed script).
+- Volume is tuned for local UI testing (dozens of credentials / workflows), not the historical “50 users / 25k executions” numbers in older docs.
+
+See `SEED.md` for details.

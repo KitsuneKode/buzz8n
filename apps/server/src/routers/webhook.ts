@@ -1,6 +1,6 @@
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
-import { supportedMethodsSchema } from '@buzz8n/common/types'
+import { supportedMethodsSchema, apiError } from '@buzz8n/common/types'
 import { enqueueExecution } from '@/redis/enqueue'
 import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
@@ -19,7 +19,7 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
 
     if (!webhookPath || !success) {
       logger.error('not parsed')
-      res.status(422).send('Invalid Data')
+      res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
       return
     }
 
@@ -43,17 +43,23 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
     if (!webhook) {
       logger.error('webhook not found')
 
-      res.status(404).send('Invalid Request')
+      res.status(404).json(apiError('Invalid request', { code: 'NOT_FOUND' }))
       return
     }
 
     if (webhook.secret && webhook.secret !== secret_token) {
-      res.status(403).send('Webhook called with invalid secret. Not authorized')
+      res
+        .status(403)
+        .json(apiError('Webhook called with invalid secret. Not authorized', { code: 'FORBIDDEN' }))
       return
     }
 
     if (!webhook.workflow.active) {
-      res.status(409).send('Workflow is not active to execute. Please activate the workflow first.')
+      res.status(409).json(
+        apiError('Workflow is not active to execute. Please activate the workflow first.', {
+          code: 'WORKFLOW_INACTIVE',
+        }),
+      )
       return
     }
 
@@ -79,12 +85,6 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
       executionId: execution.id,
     })
   } catch (error) {
-    // if (error instanceof PrismaClientKnownRequestError) {
-    //   if (error.code === 'P2025') {
-    //     res.status(404).send('Webhook with that id does not exists')
-    //     return
-    //   }
-    // }
     next(error)
   }
 })

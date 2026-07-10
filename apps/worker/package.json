@@ -9,7 +9,8 @@
     "dev": "bun run --watch src/index.ts",
     "lint": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0",
     "lint:fix": "tsc --noEmit && eslint \"src/**/*.ts*\" --max-warnings 0 --fix",
-    "start": "bun run dist/index.js"
+    "start": "bun run dist/index.js",
+    "start:migrate": "bun run scripts/entrypoint.ts"
   },
   "dependencies": {
     "@buzz8n/backend-common": "*",

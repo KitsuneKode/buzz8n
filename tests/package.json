@@ -3,25 +3,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test tests",
-    "test:all": "bun test tests",
+    "test": "bun test packages apps/server apps/worker apps/web/lib",
+    "test:all": "bun test packages apps/server apps/worker apps/web",
     "test:web": "bun test apps/web",
     "test:server": "bun test apps/server",
     "test:worker": "bun test apps/worker",
     "test:packages": "bun test packages",
-    "test:ci": "bun test tests --coverage"
+    "test:ci": "bun test packages/common packages/types packages/backend-common/credentials-crypto.test.ts packages/backend-common/redis/migrate.test.ts apps/server apps/worker apps/web/lib --coverage"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/user-event": "^14.5.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.1.7",
     "happy-dom": "^14.12.3",
     "@types/bun": "latest"
   },
   "dependencies": {
     "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
-    "@buzz8n/store": "*"
+    "@buzz8n/store": "*",
+    "@buzz8n/ui": "*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "peerDependencies": {
     "typescript": "^5"

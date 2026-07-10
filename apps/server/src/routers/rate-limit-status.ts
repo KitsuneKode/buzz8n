@@ -1,5 +1,6 @@
 import { auth } from '@/middlewares/auth-middleware'
 import type { Request, Response } from 'express'
+import { apiError } from '@buzz8n/common/types'
 import { logger } from '@/utils/logger'
 import { Router } from 'express'
 import { redis } from '@/redis'
@@ -25,7 +26,7 @@ router.get('/rate-limits/status', auth, async (req: Request, res: Response) => {
     res.json(status)
   } catch (error) {
     logger.error('Failed to get rate limit status', { error })
-    res.status(500).json({ error: 'Failed to get rate limit status' })
+    res.status(500).json(apiError('Failed to get rate limit status', { code: 'INTERNAL_ERROR' }))
   }
 })
 
