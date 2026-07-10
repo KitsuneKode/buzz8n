@@ -242,7 +242,7 @@ git commit -m "chore(web): add check-types script for turbo CI"
 ```bash
 # Shared
 NODE_ENV=development
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/buzz8n
+DATABASE_URL=postgresql://USER:PASSWORD@localhost:5432/buzz8n
 REDIS_URL=redis://localhost:6379
 
 # Auth / crypto
