@@ -1,3 +1,4 @@
 {
-  "extends": "@buzz8n/typescript-config/backend.json"
+  "extends": "@buzz8n/typescript-config/backend.json",
+  "exclude": ["prisma/scripts/**"]
 }
