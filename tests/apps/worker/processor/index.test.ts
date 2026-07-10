@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, mock, test } from 'bun:test'
+import * as commonTypes from '../../../../packages/common/src/types'
 
 const operations: string[] = []
 
@@ -46,6 +47,7 @@ mock.module('@buzz8n/store', () => ({
 }))
 
 mock.module('@buzz8n/common/types', () => ({
+  ...commonTypes,
   edgesSchema: {
     safeParse: edgesSafeParse,
   },

@@ -25,7 +25,10 @@
   "dependencies": {
     "@buzz8n/backend-common": "*",
     "@buzz8n/common": "*",
-    "@buzz8n/store": "*"
+    "@buzz8n/store": "*",
+    "@buzz8n/ui": "*",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4"
   },
   "peerDependencies": {
     "typescript": "^5"

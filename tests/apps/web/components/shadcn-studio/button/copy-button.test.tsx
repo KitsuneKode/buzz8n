@@ -3,9 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import CopyButton from '@buzz8n/web/components/shadcn-studio/button/copy-button'
 
 // Mock navigator.clipboard
-;(globalThis.navigator as any).clipboard = {
-  writeText: mock(() => Promise.resolve()),
-} as any
+Object.defineProperty(globalThis.navigator, 'clipboard', {
+  configurable: true,
+  value: {
+    writeText: mock(() => Promise.resolve()),
+  },
+})
 
 describe.skip('CopyButton Component (skipped; focus on flows)', () => {
   beforeEach(() => {

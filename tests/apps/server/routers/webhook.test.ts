@@ -1,5 +1,6 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test'
 import express from 'express'
+import * as commonTypes from '../../../../packages/common/src/types'
 
 type MockWebhook = {
   workflowId: string
@@ -44,9 +45,17 @@ mock.module('@buzz8n/store', () => ({
       create: mockPrismaExecutionCreate,
     },
   },
+  PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {
+    code: string
+    constructor(message: string, { code }: { code: string }) {
+      super(message)
+      this.code = code
+    }
+  },
 }))
 
 mock.module('@buzz8n/common/types', () => ({
+  ...commonTypes,
   supportedMethodsSchema: {
     safeParse: mock((method: string) => {
       const validMethods = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
