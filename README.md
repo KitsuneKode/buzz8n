@@ -50,8 +50,10 @@ Copy the example file and fill in secrets for local development:
 cp .env.example .env
 ```
 
-Required variables cover Postgres, Redis, JWT/auth, and Next.js public URLs.
-See `.env.example` for the full list and optional tuning knobs.
+Required variables cover Postgres, Redis, JWT/auth, credential encryption, and
+Next.js public URLs. See `.env.example` for the full list and optional tuning
+knobs. Credential at-rest encryption is documented in
+[`docs/CREDENTIAL_ENCRYPTION.md`](docs/CREDENTIAL_ENCRYPTION.md).
 
 ## Testing Quick Start
 

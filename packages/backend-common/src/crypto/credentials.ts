@@ -5,6 +5,38 @@ export type CredentialEnvelope = {
   ciphertext: string
 }
 
+/**
+ * Resolve CREDENTIALS_ENCRYPTION_KEY to 32 raw bytes.
+ *
+ * Accepted forms (in order):
+ * 1. 64-char hex (32 bytes) — preferred for production
+ * 2. base64 that decodes to exactly 32 bytes
+ * 3. any other string — SHA-256 hashed to 32 bytes (dev-friendly)
+ *
+ * This keeps Bun Web Crypto as the sole implementation while remaining
+ * compatible with keys provisioned for the older node:crypto helper.
+ */
+export function resolveCredentialKeyBytes(secret: string): Uint8Array {
+  const trimmed = secret.trim()
+
+  if (/^[0-9a-fA-F]{64}$/.test(trimmed)) {
+    return Uint8Array.from(Buffer.from(trimmed, 'hex'))
+  }
+
+  try {
+    const fromB64 = Buffer.from(trimmed, 'base64')
+    if (fromB64.length === 32) {
+      return new Uint8Array(fromB64)
+    }
+  } catch {
+    // fall through to hash
+  }
+
+  const keyBytes = new Uint8Array(32)
+  Bun.CryptoHasher.hash('sha256', trimmed, keyBytes)
+  return keyBytes
+}
+
 function getKeyBytes(): Uint8Array {
   const secret = process.env.CREDENTIALS_ENCRYPTION_KEY
 
@@ -12,9 +44,7 @@ function getKeyBytes(): Uint8Array {
     throw new Error('CREDENTIALS_ENCRYPTION_KEY is required')
   }
 
-  const keyBytes = new Uint8Array(32)
-  Bun.CryptoHasher.hash('sha256', secret, keyBytes)
-  return keyBytes
+  return resolveCredentialKeyBytes(secret)
 }
 
 async function importKey(): Promise<CryptoKey> {

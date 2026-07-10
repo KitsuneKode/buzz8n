@@ -45,7 +45,7 @@ router.get('/credential', rateLimitMiddleware.list, async (req, res, next: NextF
     const actualCredentials = hasNextPage ? credentials.slice(0, limit) : credentials
     const nextCursor = hasNextPage ? actualCredentials[actualCredentials.length - 1]?.id : undefined
 
-    res.status(200).send({
+    res.status(200).json({
       credentials: actualCredentials,
       cursor: nextCursor,
     })

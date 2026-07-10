@@ -4,6 +4,7 @@ import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { getQueryClient } from '@/utils/get-query-client'
 import { toast } from '@buzz8n/ui/components/sonner'
+import { getApiErrorMessage } from '@/lib/api-error'
 import { useRouter } from 'nextjs-toploader/app'
 import axios, { AxiosError } from 'axios'
 import { API_URL } from '@/utils/config'
@@ -41,17 +42,6 @@ export interface UseAuthReturn {
 }
 
 const AUTH_QUERY_KEY = ['auth', 'user']
-
-function getApiErrorMessage(error: AxiosError, fallback: string): string {
-  const data = error.response?.data
-  if (typeof data === 'string' && data.trim()) return data
-  if (data && typeof data === 'object') {
-    const record = data as Record<string, unknown>
-    if (typeof record.error === 'string') return record.error
-    if (typeof record.message === 'string') return record.message
-  }
-  return fallback
-}
 
 export function useAuth(): UseAuthReturn {
   const router = useRouter()

@@ -1,6 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { auth } from '@/middlewares/auth-middleware'
+import { logger } from '@/utils/logger'
 import { prisma } from '@buzz8n/store'
 
 const router = Router()
@@ -14,7 +15,7 @@ router.get(
       const executionId = req.params.executionId
 
       if (!executionId) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json({ error: 'Invalid Data' })
         return
       }
 
@@ -37,7 +38,7 @@ router.get(
       })
 
       if (!execution) {
-        res.status(404).send('Execution not found')
+        res.status(404).json({ error: 'Execution not found' })
         return
       }
 
@@ -48,7 +49,7 @@ router.get(
           try {
             return typeof log === 'string' ? JSON.parse(log) : log
           } catch (error) {
-            console.error('Failed to parse log:', log, error)
+            logger.error('Failed to parse execution log', { error })
             return log
           }
         }),
@@ -108,7 +109,7 @@ router.get(
           try {
             return typeof log === 'string' ? JSON.parse(log) : log
           } catch (error) {
-            console.error('Failed to parse log:', log, error)
+            logger.error('Failed to parse execution log', { error })
             return log
           }
         }),
