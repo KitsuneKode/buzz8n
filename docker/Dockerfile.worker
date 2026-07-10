@@ -55,9 +55,8 @@ ENV NODE_ENV=production
 # HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 #   CMD curl -f http://localhost:8080/health || exit 1
 
-# Start the application
-
-CMD ["bun", "--filter", "@buzz8n/worker", "start"]
+# Migrate Redis consumer group (idempotent), then start built worker
+CMD ["sh", "-c", "bun --filter @buzz8n/backend-common redis:migrate; bun --filter @buzz8n/worker start"]
 
 
 

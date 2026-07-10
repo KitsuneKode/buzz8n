@@ -11,12 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@buzz8n/ui/components/alert-dialog'
-import { Trash2, Eye, EyeOff, Copy, Check, Loader2, ChevronDown } from 'lucide-react'
 import { getProviderIcon } from '@/components/credentials/ProviderPicker'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { Trash2, Loader2, ChevronDown, Shield } from 'lucide-react'
+import { apiClient, getApiErrorMessage } from '@/lib/api-client'
 import { useInfiniteCredentials } from '@/hooks/useCredentials'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
-import { CredentialResponse } from '@buzz8n/common/types'
+import { CredentialListItem } from '@buzz8n/common/types'
 import { Spinner } from '@buzz8n/ui/components/spinner'
 import { useDashboardStore } from '@/stores/dashboard'
 import { motion, AnimatePresence } from 'motion/react'
@@ -25,24 +26,21 @@ import { toast } from '@buzz8n/ui/components/sonner'
 import { Credential } from '@/lib/types/credentials'
 import { Badge } from '@buzz8n/ui/components/badge'
 import { Card } from '@buzz8n/ui/components/card'
-import { API_URL } from '@/utils/config'
 import { useState } from 'react'
-import axios from 'axios'
 
-interface CredentialsListProps {
-  credentials?: Credential[]
+function mapCredential(credential: CredentialListItem): Credential {
+  return {
+    id: credential.id,
+    name: credential.title,
+    provider: credential.platform,
+    createdAt: new Date(credential.createdAt),
+  }
 }
 
-const CredentialsList = ({ credentials: initialCredentials }: CredentialsListProps) => {
+const CredentialsList = () => {
   const { removeCredential, openCredentialModal } = useDashboardStore()
-  const [visibleSecrets, setVisibleSecrets] = useState<Set<string>>(new Set())
-  const [copiedFields, setCopiedFields] = useState<Set<string>>(new Set())
   const [expandedCredential, setExpandedCredential] = useState<string | null>(null)
 
-  // Skip infinite query when initial credentials are provided
-  const shouldUseInfiniteQuery = !initialCredentials
-
-  // Use infinite query for credentials only when needed
   const {
     data: infiniteCredentialsData,
     isLoading,
@@ -51,92 +49,37 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteCredentials(10, { enabled: shouldUseInfiniteQuery })
+  } = useInfiniteCredentials(10)
 
-  // Flatten credentials data and transform to frontend format
   const credentials =
-    infiniteCredentialsData?.pages.flatMap((page) =>
-      page.credentials.map((credential) => ({
-        config: credential.data,
-        id: credential.id,
-        name: credential.title,
-        provider: credential.platform,
-        createdAt: new Date(credential.createdAt),
-      })),
-    ) || []
+    infiniteCredentialsData?.pages.flatMap((page) => page.credentials.map(mapCredential)) || []
 
-  // Use infinite scroll hook with conditional values
   const { sentinelRef } = useInfiniteScroll({
-    hasNextPage: shouldUseInfiniteQuery ? hasNextPage : false,
-    isFetchingNextPage: shouldUseInfiniteQuery ? isFetchingNextPage : false,
-    fetchNextPage: shouldUseInfiniteQuery ? fetchNextPage : () => {},
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
   })
-
-  // Use initial credentials if provided, otherwise use infinite query data
-  const displayCredentials = initialCredentials || credentials
-
-  const toggleSecretVisibility = (credentialId: string, field: string) => {
-    const key = `${credentialId}-${field}`
-    setVisibleSecrets((prev) => {
-      const newSet = new Set(prev)
-      if (newSet.has(key)) {
-        newSet.delete(key)
-      } else {
-        newSet.add(key)
-      }
-      return newSet
-    })
-  }
 
   const queryClient = useQueryClient()
 
   const { isPending, mutate: handleDeleteCredential } = useMutation({
     mutationFn: async (credentialId: string) => {
-      const response = await axios.delete<CredentialResponse>(`${API_URL}/credential`, {
-        data: {
-          id: credentialId,
-        },
-        withCredentials: true,
+      const response = await apiClient.delete<CredentialListItem>('/credential', {
+        data: { id: credentialId },
       })
-
       return response.data
     },
-
     onSuccess: (responseData) => {
       toast.success('Credential successfully deleted')
-
       removeCredential(responseData.id)
-
-      // Invalidate infinite credentials cache to refresh the list
       queryClient.invalidateQueries({
         queryKey: ['credentials', 'infinite'],
       })
-
-      queryClient.setQueryData(['credentials'], (old: Array<CredentialResponse>) =>
-        old?.filter((c) => c?.id !== responseData.id),
-      )
     },
-    onError: () => {
-      toast.error('Failed to delete credential')
+    onError: (err) => {
+      toast.error(getApiErrorMessage(err, 'Failed to delete credential'))
     },
   })
-
-  const copyToClipboard = async (text: string, credentialId: string, field: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      const key = `${credentialId}-${field}`
-      setCopiedFields((prev) => new Set(prev).add(key))
-      setTimeout(() => {
-        setCopiedFields((prev) => {
-          const newSet = new Set(prev)
-          newSet.delete(key)
-          return newSet
-        })
-      }, 2000)
-    } catch (err) {
-      console.error('Failed to copy:', err)
-    }
-  }
 
   const formatDate = (date: Date) => {
     return new Intl.DateTimeFormat('en-US', {
@@ -146,76 +89,6 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
       hour: '2-digit',
       minute: '2-digit',
     }).format(new Date(date))
-  }
-
-  const renderConfigField = (
-    credential: Credential,
-    key: string,
-    value: string | boolean | number,
-  ) => {
-    const isSecret =
-      key.toLowerCase().includes('token') ||
-      key.toLowerCase().includes('password') ||
-      key.toLowerCase().includes('secret') ||
-      key.toLowerCase().includes('key')
-
-    const secretKey = `${credential.id}-${key}`
-    const isVisible = visibleSecrets.has(secretKey)
-    const isCopied = copiedFields.has(secretKey)
-
-    if (typeof value === 'boolean') {
-      return (
-        <div key={key} className="flex items-center justify-between py-2">
-          <span className="text-sm text-muted-foreground capitalize">
-            {key.replace(/([A-Z])/g, ' $1')}
-          </span>
-          <Badge variant={value ? 'default' : 'secondary'}>{value ? 'Enabled' : 'Disabled'}</Badge>
-        </div>
-      )
-    }
-
-    if (typeof value === 'string') {
-      const displayValue = isSecret && !isVisible ? '•'.repeat(Math.min(value.length, 20)) : value
-
-      return (
-        <div key={key} className="flex items-center justify-between py-2 group">
-          <span className="text-sm text-muted-foreground capitalize">
-            {key.replace(/([A-Z])/g, ' $1')}
-          </span>
-          <div className="flex items-center space-x-2">
-            <code className="text-xs bg-muted px-2 py-1 rounded font-mono max-w-48 truncate">
-              {displayValue}
-            </code>
-            <div className="flex opacity-0 group-hover:opacity-100 transition-opacity">
-              {isSecret && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => toggleSecretVisibility(credential.id, key)}
-                >
-                  {isVisible ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
-                </Button>
-              )}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 w-6"
-                onClick={() => copyToClipboard(value, credential.id, key)}
-              >
-                {isCopied ? (
-                  <Check className="h-3 w-3 text-green-500" />
-                ) : (
-                  <Copy className="h-3 w-3" />
-                )}
-              </Button>
-            </div>
-          </div>
-        </div>
-      )
-    }
-
-    return null
   }
 
   return (
@@ -234,7 +107,7 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
             <Loader2 className="w-5 h-5 animate-spin mr-2" />
             <span>Loading credentials...</span>
           </div>
-        ) : displayCredentials.length === 0 ? (
+        ) : credentials.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-4xl mb-4">🔑</div>
             <h3 className="text-lg font-semibold text-foreground mb-2">No credentials yet</h3>
@@ -245,7 +118,7 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
           </div>
         ) : (
           <>
-            {displayCredentials.map((credential) => {
+            {credentials.map((credential) => {
               const isExpanded = expandedCredential === credential.id
 
               return (
@@ -255,16 +128,13 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                     initial={false}
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                   >
-                    {/* List Item - Always Visible */}
                     <div
                       className="flex items-center gap-4 p-4 cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => setExpandedCredential(isExpanded ? null : credential.id)}
                     >
-                      {/* Provider Icon */}
                       <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0">
                         {getProviderIcon(credential.provider)}
                       </div>
-                      {/* Content Area */}
                       <div className="flex-1 min-w-0 flex items-center gap-4">
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -280,7 +150,6 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                           </p>
                         </div>
                       </div>
-                      {/* Action Buttons */}
                       <div className="flex items-center gap-1 shrink-0">
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
@@ -304,8 +173,8 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                             <AlertDialogHeader>
                               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                               <AlertDialogDescription>
-                                This action cannot be undone. This will permanently delete the
-                                credential.
+                                This will archive the credential. Workflows using it will fail until
+                                you attach a new one.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -335,24 +204,22 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                       </div>
                     </div>
 
-                    {/* Expanded Details */}
                     <AnimatePresence initial={false}>
-                      {isExpanded && credential.config && (
+                      {isExpanded && (
                         <motion.div
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: 'auto', opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
                           transition={{ duration: 0.3, ease: 'easeInOut' }}
                         >
-                          <div className="border-t border-border px-4 pb-4 space-y-1">
-                            <div className="pt-4 pb-2">
-                              <h4 className="text-sm font-semibold text-foreground mb-3">
-                                Configuration Details
-                              </h4>
+                          <div className="border-t border-border px-4 pb-4">
+                            <div className="pt-4 flex items-start gap-3 text-sm text-muted-foreground">
+                              <Shield className="h-4 w-4 mt-0.5 shrink-0" />
+                              <p>
+                                Secret values are encrypted at rest and are not shown in the
+                                dashboard. Delete and recreate a credential to rotate keys.
+                              </p>
                             </div>
-                            {Object.entries(credential.config).map(([key, value]) =>
-                              renderConfigField(credential, key, value),
-                            )}
                           </div>
                         </motion.div>
                       )}
@@ -362,7 +229,6 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
               )
             })}
 
-            {/* Infinite scroll sentinel */}
             <div ref={sentinelRef} className="py-4">
               {isError && (
                 <div className="text-center text-sm text-destructive">
@@ -375,7 +241,7 @@ const CredentialsList = ({ credentials: initialCredentials }: CredentialsListPro
                   <span className="text-sm text-muted-foreground">Loading more credentials...</span>
                 </div>
               )}
-              {!hasNextPage && displayCredentials.length > 0 && (
+              {!hasNextPage && credentials.length > 0 && (
                 <div className="text-center text-sm text-muted-foreground">
                   No more credentials to load
                 </div>

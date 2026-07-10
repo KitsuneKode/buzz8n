@@ -9,6 +9,7 @@
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "start": "next start",
+    "check-types": "tsc --noEmit",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

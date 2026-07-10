@@ -6,6 +6,7 @@ import { WorkflowModal } from '@/components/workflow/WorkflowModal'
 import { WorkflowCard } from '@/components/workflow/WorkflowCard'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { WorkflowsInfiniteResponse } from '@buzz8n/common/types'
+import { useInfiniteCredentials } from '@/hooks/useCredentials'
 import { TabType, useDashboardStore } from '@/stores/dashboard'
 import { useInfiniteWorkflowsList } from '@/hooks/useWorkflow'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
@@ -20,11 +21,12 @@ import { ChevronUp } from 'lucide-react'
 const DashboardPage = () => {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const { activeTab, setActiveTab, credentials, openCredentialModal } = useDashboardStore()
+  const { activeTab, setActiveTab, openCredentialModal } = useDashboardStore()
 
   const [showWorkflowModal, setShowWorkflowModal] = useState(false)
-  const [isClient, setIsClient] = useState(false)
   const [scrollY, setScrollY] = useState(0)
+  const { data: credentialsData, isLoading: credentialsLoading } = useInfiniteCredentials(10)
+  const hasCredentials = credentialsData?.pages.some((page) => page.credentials.length > 0) ?? false
   // Use infinite query for workflows
   const {
     data: infiniteWorkflowsData,
@@ -75,10 +77,6 @@ const DashboardPage = () => {
   }, [])
 
   useEffect(() => {
-    setIsClient(true)
-  }, [])
-
-  useEffect(() => {
     if (tab && isTabType(tab as string)) {
       onTabChange(tab as TabType)
     }
@@ -89,12 +87,6 @@ const DashboardPage = () => {
 
   const onCreateWorkflow = () => {
     setShowWorkflowModal(true)
-  }
-
-  const hasCredentials = credentials.length > 0
-
-  if (!isClient) {
-    return null
   }
 
   const renderTabContent = () => {
@@ -237,7 +229,12 @@ const DashboardPage = () => {
       case 'credentials':
         return (
           <div className="flex flex-col items-center justify-center min-h-96">
-            {!hasCredentials ? (
+            {credentialsLoading ? (
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Spinner className="size-5" />
+                <span>Loading credentials…</span>
+              </div>
+            ) : !hasCredentials ? (
               <div className="text-center space-y-4">
                 <div className="text-4xl">👋</div>
                 <h2 className="text-xl font-semibold text-foreground">

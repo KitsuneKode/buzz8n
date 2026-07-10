@@ -1,8 +1,7 @@
 import { emailFormSchema } from '@buzz8n/common/types'
+import { getDecryptedCredential, logger } from '@/utils'
 import { renderTemplate } from '@/nodes/helper'
 import type { ExecContext } from '@/nodes'
-import { prisma } from '@buzz8n/store/'
-import { logger } from '@/utils'
 import { Resend } from 'resend'
 
 export const sendResendEMail = async (
@@ -12,16 +11,12 @@ export const sendResendEMail = async (
 ) => {
   try {
     if (!credentialId || typeof config !== 'object') {
-      throw new Error('Credentials to execute sendTelegram Message not provided')
+      throw new Error('Credentials to execute send email not provided')
     }
 
-    const credential = await prisma.credential.findUnique({
-      where: {
-        id: credentialId,
-      },
-    })
+    const credential = await getDecryptedCredential(credentialId)
     if (!credential || !credential.data) {
-      throw new Error('Credential to execute sendTelegram Message does not exists')
+      throw new Error('Credential to execute send email does not exist')
     }
     const { data, success } = emailFormSchema.safeParse(credential.data)
     const { to, subject, body } = config as { to: string; subject: string; body: string }

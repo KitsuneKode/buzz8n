@@ -28,6 +28,8 @@ export class RedisClient {
   private EXECUTION_GROUP = 'workflow:executors'
   private logger
   public LOG_GROUP = '[REDIS]'
+  /** Dead-letter queue stream for failed executions after max retries */
+  public readonly DLQ_STREAM_KEY = 'workflow:execution:dlq'
   // Channel names for different event types
   public readonly CHANNELS = {
     // WORKFLOW_EVENTS: 'workflow:events',
@@ -84,10 +86,15 @@ export class RedisClient {
     consumerGroup = this.EXECUTION_GROUP,
     consumer,
     streamKey = this.EXECUTION_QUEUE_KEY,
+    blockMs = 0,
+    count = 10,
   }: {
     consumerGroup?: string
     consumer: string
     streamKey?: string
+    /** Milliseconds to block waiting for messages; 0 = block indefinitely */
+    blockMs?: number
+    count?: number
   }) {
     return this.redisClient.xReadGroup(
       consumerGroup,
@@ -98,8 +105,8 @@ export class RedisClient {
         id: '>',
       },
       {
-        BLOCK: 0,
-        COUNT: 10,
+        BLOCK: blockMs,
+        COUNT: count,
       },
     )
   }
@@ -143,6 +150,52 @@ export class RedisClient {
     messageID: string
   }) {
     return this.redisClient.xAck(streamKey, consumerGroup, messageID)
+  }
+
+  /**
+   * Claim idle pending messages from the execution consumer group (XAUTOCLAIM).
+   * Used to reclaim work abandoned by crashed consumers.
+   */
+  async xAutoClaim({
+    consumer,
+    minIdleMs = 60_000,
+    count = 10,
+    start = '0-0',
+  }: {
+    consumer: string
+    minIdleMs?: number
+    count?: number
+    start?: string
+  }) {
+    return this.redisClient.xAutoClaim(
+      this.EXECUTION_QUEUE_KEY,
+      this.EXECUTION_GROUP,
+      consumer,
+      minIdleMs,
+      start,
+      { COUNT: count },
+    )
+  }
+
+  /**
+   * Add a failed execution payload to the dead-letter queue stream.
+   */
+  async xAddDlq({
+    payload,
+    reason,
+    originalId,
+  }: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    payload: Record<string, any>
+    reason: string
+    originalId: string
+  }) {
+    return this.redisClient.xAdd(this.DLQ_STREAM_KEY, '*', {
+      ...payload,
+      reason,
+      originalId,
+      failedAt: String(Date.now()),
+    })
   }
 
   async incr(key: string) {
@@ -200,6 +253,14 @@ export class RedisClient {
 
   async cleanup() {
     return this.redisClient.quit()
+  }
+
+  get isOpen() {
+    return this.redisClient.isOpen
+  }
+
+  async ping() {
+    return this.redisClient.ping()
   }
 
   // Rate limiting methods

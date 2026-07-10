@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'bun:test'
-import { cn } from '@buzz8n/web/lib/utils'
+import { cn } from '@buzz8n/ui/lib/utils'
 
 describe('cn utility function', () => {
   test('should merge class names correctly', () => {

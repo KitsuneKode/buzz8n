@@ -84,7 +84,7 @@ export function SmartFAQ({ className = '' }: SmartFAQProps) {
       id: 'data-security',
       question: 'How secure is my data when using AI features?',
       answer:
-        "All data is encrypted in transit and at rest. AI processing happens in isolated environments with zero data retention for model training unless explicitly opted in. We're SOC 2 compliant with enterprise-grade security controls.",
+        "All data in transit uses TLS. Credential secrets are encrypted at rest with AES-256-GCM. AI processing runs in isolated worker environments; we do not use your workflow data to train models unless you explicitly opt in.",
       category: 'technical',
       relatedQuestions: ['compliance-standards', 'data-privacy', 'enterprise-security'],
     },

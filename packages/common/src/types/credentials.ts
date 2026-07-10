@@ -9,19 +9,30 @@ export const credentialSchema = z.object({
   data: z.record(z.string(), z.any()), // <-- returns Record<string, any>
 })
 
+/** Full credential including secret payload (create response / internal). */
 export const credentialResponse = z.object({
   id: z.string(),
   title: z.string(),
   platform: SupportedPlatforms,
-  data: z.record(z.string(), z.any()),
-  createdAt: z.date(),
+  data: z.record(z.string(), z.any()).optional(),
+  createdAt: z.coerce.date(),
 })
 
 export type CredentialResponse = z.infer<typeof credentialResponse>
 
+/** List/public credential metadata — secrets are never included. */
+export const credentialListItemSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  platform: SupportedPlatforms,
+  createdAt: z.coerce.date(),
+})
+
+export type CredentialListItem = z.infer<typeof credentialListItemSchema>
+
 // Infinite query response schema (cursor-based pagination)
 export const credentialsInfiniteResponseSchema = z.object({
-  credentials: z.array(credentialResponse),
+  credentials: z.array(credentialListItemSchema),
   cursor: z.string().optional(),
 })
 

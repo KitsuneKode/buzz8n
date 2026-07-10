@@ -2,14 +2,11 @@
 
 import { InfiniteData, useInfiniteQuery, UseInfiniteQueryResult } from '@tanstack/react-query'
 import { CredentialsInfiniteResponse } from '@buzz8n/common/types'
-import { API_URL } from '@/utils/config'
-import axios from 'axios'
+import { apiClient } from '@/lib/api-client'
 
 /**
- * Fetches credentials with infinite scrolling support
- * @param limit - Number of credentials per page (default: 10)
- * @param options - Additional query options
- * @returns Infinite query result with flattened credentials array
+ * Fetches credentials with infinite scrolling support.
+ * List responses never include secret `data` payloads.
  */
 export function useInfiniteCredentials(
   limit: number = 10,
@@ -24,17 +21,14 @@ export function useInfiniteCredentials(
         params.append('cursor', pageParam)
       }
 
-      const response = await axios.get<CredentialsInfiniteResponse>(
-        `${API_URL}/credential?${params.toString()}`,
-        {
-          withCredentials: true,
-        },
+      const response = await apiClient.get<CredentialsInfiniteResponse>(
+        `/credential?${params.toString()}`,
       )
       return response.data
     },
     getNextPageParam: (lastPage): string | undefined => lastPage.cursor || undefined,
     initialPageParam: undefined as string | undefined,
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
     enabled: options?.enabled,
   })
 }

@@ -301,7 +301,7 @@ export function ContextualPricing({ className = '' }: ContextualPricingProps) {
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-primary" />
-              <span>SOC 2 Compliant</span>
+              <span>Encrypted credentials</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-primary" />

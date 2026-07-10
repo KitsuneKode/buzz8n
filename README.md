@@ -5,8 +5,8 @@ and a modern TypeScript stack.
 
 ## Overview
 
-- **Apps**: Web (Next.js), Server (Express), Worker
-- **Packages**: Shared UI, common types/config, backend-common (Redis, config, logger),
+- **Apps**: Web (Next.js), Server (Express), Worker, WebSocket server
+- **Packages**: Shared UI, common types/config, backend-common (Redis, config, logger, crypto),
   store (Prisma)
 - **Language/Runtime**: TypeScript + Bun, Turbo monorepo
 - **UI**: Tailwind + shadcn/ui + OKLCH color system
@@ -42,8 +42,11 @@ bun run dev:server
 bun run dev:worker
 ```
 
-Environment variables are required for server/worker (e.g., `DATABASE_URL`, `REDIS_URL`).
-See app-specific READMEs or `.env.example` if present.
+Environment variables are required for server/worker/ws-server.
+Copy [`.env.example`](./.env.example) and set at least `DATABASE_URL`, `REDIS_URL`,
+`JWT_SECRET`, and `CREDENTIALS_ENCRYPTION_KEY` (generate with `openssl rand -hex 32`).
+
+See [`docs/IMPROVEMENT_PLAN.md`](./docs/IMPROVEMENT_PLAN.md) for the incremental hardening roadmap.
 
 ## Testing Quick Start
 

@@ -24,12 +24,12 @@ import {
 } from '@tanstack/react-query'
 import { EdgeData, NodeData, WorkflowData } from '@/lib/types/workflow'
 import { useWorkflowEditorStore } from '@/stores/workflow-editor'
+import { apiClient, getApiErrorMessage } from '@/lib/api-client'
 import { toast } from '@buzz8n/ui/components/sonner'
 import { useRouter } from 'nextjs-toploader/app'
 import { useWebSocket } from './useWebSocket'
 import { notFound } from 'next/navigation'
 import axios, { AxiosError } from 'axios'
-import { API_URL } from '@/utils/config'
 import { useTransition } from 'react'
 
 // Query Keys
@@ -80,9 +80,7 @@ export function useWorkflow(id: string): UseQueryResult<WorkflowData, Error> {
   return useQuery({
     queryKey: WORKFLOW_QUERY_KEYS.detail(id),
     queryFn: async (): Promise<WorkflowData> => {
-      const response = await axios.get<WorkflowResponse>(`${API_URL}/workflow/${id}`, {
-        withCredentials: true,
-      })
+      const response = await apiClient.get<WorkflowResponse>(`/workflow/${id}`)
       return transformWorkflowResponse(response.data)
     },
     enabled: !!id && id !== 'new',
@@ -106,12 +104,7 @@ export function useWorkflowsList(
       if (filters.limit) params.append('limit', filters.limit.toString())
       // if (filters.archived !== undefined) params.append('archived', filters.archived.toString())
 
-      const response = await axios.get<WorkflowsListResponse>(
-        `${API_URL}/workflow?${params.toString()}`,
-        {
-          withCredentials: true,
-        },
-      )
+      const response = await apiClient.get<WorkflowsListResponse>(`/workflow?${params.toString()}`)
       return response.data.workflows.map(transformWorkflowListItem)
     },
     staleTime: 2 * 60 * 1000, // 2 minutes
@@ -131,9 +124,7 @@ export function useCreateWorkflow(): UseMutationResult<
 
   return useMutation({
     mutationFn: async (data: CreateWorkflow): Promise<WorkflowData> => {
-      const response = await axios.post<WorkflowResponse>(`${API_URL}/workflow`, data, {
-        withCredentials: true,
-      })
+      const response = await apiClient.post<WorkflowResponse>(`/workflow`, data)
       return transformWorkflowResponse(response.data)
     },
     onSuccess: (workflow) => {
@@ -150,7 +141,7 @@ export function useCreateWorkflow(): UseMutationResult<
       })
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to create workflow'
+      const errorMessage = getApiErrorMessage(error, 'Failed to create workflow')
       toast.error(errorMessage)
     },
   })
@@ -173,9 +164,7 @@ export function useUpdateWorkflow(): UseMutationResult<
 
   return useMutation({
     mutationFn: async ({ id, data }: UpdateWorkflowArgs): Promise<WorkflowData> => {
-      const response = await axios.put<WorkflowResponse>(`${API_URL}/workflow/${id}`, data, {
-        withCredentials: true,
-      })
+      const response = await apiClient.put<WorkflowResponse>(`/workflow/${id}`, data)
       return transformWorkflowResponse(response.data)
     },
     onSuccess: (workflow, { activeChange }) => {
@@ -197,7 +186,7 @@ export function useUpdateWorkflow(): UseMutationResult<
       }
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to update workflow'
+      const errorMessage = getApiErrorMessage(error, 'Failed to update workflow')
 
       toast.error(errorMessage)
     },
@@ -212,9 +201,7 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
 
   return useMutation({
     mutationFn: async (id: string): Promise<void> => {
-      await axios.delete(`${API_URL}/workflow/${id}`, {
-        withCredentials: true,
-      })
+      await apiClient.delete(`/workflow/${id}`)
     },
     onSuccess: (_, id) => {
       startTransition(() => {
@@ -230,7 +217,7 @@ export function useDeleteWorkflow(): UseMutationResult<void, Error, string, unkn
       })
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to delete workflow'
+      const errorMessage = getApiErrorMessage(error, 'Failed to delete workflow')
       toast.error(errorMessage)
     },
   })
@@ -250,13 +237,7 @@ export function useExecuteWorkflow(): UseMutationResult<
     mutationFn: async (
       id: string,
     ): Promise<{ payload: { executionId: string; workflowId: string } }> => {
-      const response = await axios.post(
-        `${API_URL}/workflow/${id}/execute`,
-        {},
-        {
-          withCredentials: true,
-        },
-      )
+      const response = await apiClient.post(`/workflow/${id}/execute`, {})
       return response.data
     },
 
@@ -277,7 +258,7 @@ export function useExecuteWorkflow(): UseMutationResult<
       toast.success('Workflow execution started')
     },
     onError: (error: AxiosError) => {
-      const errorMessage = (error.response?.data as string) || 'Failed to execute workflow'
+      const errorMessage = getApiErrorMessage(error, 'Failed to execute workflow')
       toast.error(errorMessage)
     },
   })
@@ -297,12 +278,10 @@ export async function prefetchWorkflow(
         },
       }
     } else {
-      config = {
-        withCredentials: true,
-      }
+      config = {}
     }
 
-    const response = await axios.get<WorkflowResponse>(`${API_URL}/workflow/${id}`, config)
+    const response = await apiClient.get<WorkflowResponse>(`/workflow/${id}`, config)
     return transformWorkflowResponse(response.data)
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 404) {
@@ -332,12 +311,10 @@ export async function prefetchWorkflowsList(
         },
       }
     } else {
-      config = {
-        withCredentials: true,
-      }
+      config = {}
     }
-    const response = await axios.get<WorkflowsListResponse>(
-      `${API_URL}/workflow?${params.toString()}`,
+    const response = await apiClient.get<WorkflowsListResponse>(
+      `/workflow?${params.toString()}`,
       config,
     )
     return response.data.workflows.map(transformWorkflowListItem)
@@ -363,13 +340,11 @@ export async function prefetchInfiniteWorkflowsList(
         },
       }
     } else {
-      config = {
-        withCredentials: true,
-      }
+      config = {}
     }
 
-    const response = await axios.get<WorkflowsInfiniteResponse>(
-      `${API_URL}/workflow?${params.toString()}`,
+    const response = await apiClient.get<WorkflowsInfiniteResponse>(
+      `/workflow?${params.toString()}`,
       config,
     )
     return response.data
@@ -395,13 +370,11 @@ export async function prefetchInfiniteExecutions(
         },
       }
     } else {
-      config = {
-        withCredentials: true,
-      }
+      config = {}
     }
 
-    const response = await axios.get<ExecutionsInfiniteResponse>(
-      `${API_URL}/execution?${params.toString()}`,
+    const response = await apiClient.get<ExecutionsInfiniteResponse>(
+      `/execution?${params.toString()}`,
       config,
     )
     return response.data
@@ -420,9 +393,8 @@ export function useInfiniteWorkflowsList(
       const params = new URLSearchParams()
       params.append('limit', limit.toString())
       if (pageParam) params.append('cursor', pageParam as unknown as string)
-      const response = await axios.get<WorkflowsInfiniteResponse>(
-        `${API_URL}/workflow?${params.toString()}`,
-        { withCredentials: true },
+      const response = await apiClient.get<WorkflowsInfiniteResponse>(
+        `/workflow?${params.toString()}`,
       )
       return response.data
     },
@@ -445,11 +417,8 @@ export function useInfiniteWorkflowExecutions(
         params.append('cursor', pageParam)
       }
 
-      const response = await axios.get<ExecutionsInfiniteResponse>(
-        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
-        {
-          withCredentials: true,
-        },
+      const response = await apiClient.get<ExecutionsInfiniteResponse>(
+        `/workflow/${workflowId}/executions?${params.toString()}`,
       )
       return response.data
     },
@@ -473,11 +442,8 @@ export function useInfiniteExecutions(
         params.append('cursor', pageParam)
       }
 
-      const response = await axios.get<ExecutionsInfiniteResponse>(
-        `${API_URL}/execution?${params.toString()}`,
-        {
-          withCredentials: true,
-        },
+      const response = await apiClient.get<ExecutionsInfiniteResponse>(
+        `/execution?${params.toString()}`,
       )
       return response.data
     },
@@ -499,11 +465,8 @@ export function useWorkflowExecutions(
       if (filters.limit) params.append('limit', filters.limit.toString())
       if (filters.cursor) params.append('cursor', filters.cursor)
 
-      const response = await axios.get<{ executions: Execution[] }>(
-        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
-        {
-          withCredentials: true,
-        },
+      const response = await apiClient.get<{ executions: Execution[] }>(
+        `/workflow/${workflowId}/executions?${params.toString()}`,
       )
       return response.data.executions.map((execution) => ({
         ...execution,
@@ -525,9 +488,7 @@ export function useExecutionDetail(executionId: string): UseQueryResult<Executio
   return useQuery({
     queryKey: ['executions', 'detail', executionId],
     queryFn: async (): Promise<Execution> => {
-      const response = await axios.get<Execution>(`${API_URL}/execution/${executionId}`, {
-        withCredentials: true,
-      })
+      const response = await apiClient.get<Execution>(`/execution/${executionId}`)
       const execution = response.data
       return {
         ...execution,
@@ -555,9 +516,8 @@ export function useLatestExecution(workflowId: string): UseQueryResult<Execution
       const params = new URLSearchParams()
       params.append('limit', '1')
 
-      const response = await axios.get<ExecutionsInfiniteResponse>(
-        `${API_URL}/workflow/${workflowId}/executions?${params.toString()}`,
-        { withCredentials: true },
+      const response = await apiClient.get<ExecutionsInfiniteResponse>(
+        `/workflow/${workflowId}/executions?${params.toString()}`,
       )
 
       const latestExecution = response.data.executions[0]

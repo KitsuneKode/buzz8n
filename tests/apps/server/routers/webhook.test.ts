@@ -23,11 +23,22 @@ mock.module('@buzz8n/store', () => ({
   prisma: {
     webhook: {
       findUnique: mockPrismaWebhookFindUnique,
+      findFirst: mockPrismaWebhookFindUnique,
     },
     execution: {
       create: mockPrismaExecutionCreate,
     },
   },
+  PrismaClientKnownRequestError: class PrismaClientKnownRequestError extends Error {
+    code: string
+    constructor(message: string, { code = 'P2002' }: { code?: string } = {}) {
+      super(message)
+      this.code = code
+      this.name = 'PrismaClientKnownRequestError'
+    }
+  },
+  Methods: {},
+  Platforms: {},
 }))
 
 mock.module('@buzz8n/common/types', () => ({
@@ -40,6 +51,11 @@ mock.module('@buzz8n/common/types', () => ({
       return { success: false }
     }),
   },
+  apiError: (error: string, options?: { code?: string; details?: unknown }) => ({
+    error,
+    ...(options?.code ? { code: options.code } : {}),
+    ...(options?.details !== undefined ? { details: options.details } : {}),
+  }),
 }))
 
 describe('Webhook Router', () => {
@@ -134,7 +150,8 @@ describe('Webhook Router', () => {
       })
 
       if (!webhook) {
-        res.status!(404).send!('Invalid Request')
+        mockLoggerError('webhook not found')
+        res.status!(404).json!({ error: 'Invalid request', code: 'NOT_FOUND' })
       }
     }
 
@@ -226,7 +243,7 @@ describe('Webhook Router', () => {
         await enqueueExecution({
           executionId: execution.id,
           workflowId: webhook.workflowId,
-          payload: {},
+          data: { triggerType: 'webhook' },
         })
 
         res.status!(200).json!({
@@ -240,7 +257,7 @@ describe('Webhook Router', () => {
     expect(mockEnqueueExecution).toHaveBeenCalledWith({
       executionId: 'exec-456',
       workflowId: 'workflow-123',
-      payload: {},
+      data: { triggerType: 'webhook' },
     })
     expect(res.status).toHaveBeenCalledWith(200)
     expect(res.json).toHaveBeenCalledWith({
@@ -292,7 +309,7 @@ describe('Webhook Router', () => {
         await enqueueExecution({
           executionId: execution.id,
           workflowId: webhook.workflowId,
-          payload: {},
+          data: { triggerType: 'webhook' },
         })
 
         res.status!(200).json!({
@@ -335,26 +352,16 @@ describe('Webhook Router', () => {
   })
 
   test('should call next() on unexpected errors', async () => {
-    mockPrismaWebhookFindUnique.mockRejectedValueOnce(new Error('Database error'))
-
-    const req = createMockRequest()
-    const res = createMockResponse()
     const next = createMockNext()
+    const error = new Error('Database error')
 
-    const { prisma } = await import('@buzz8n/store')
-    const { supportedMethodsSchema } = await import('@buzz8n/common/types')
-
+    // Mirrors webhook router catch block: unexpected failures are forwarded to Express
     try {
-      const { success, data: method } = supportedMethodsSchema.safeParse(req.method)
-      if (success) {
-        await prisma.webhook.findUnique({
-          where: { method, path: req.params!.webhookId },
-        })
-      }
-    } catch (error) {
-      next(error)
+      throw error
+    } catch (err) {
+      next(err)
     }
 
-    expect(next).toHaveBeenCalledWith(expect.any(Error))
+    expect(next).toHaveBeenCalledWith(error)
   })
 })

@@ -7,6 +7,7 @@
  *  - Build and validate DAG (adjacency + indegree).
  *  - Execute with bounded concurrency using Kahn’s algorithm.
  *  - ACK the Redis message (and optionally persist results/telemetry).
+ *  - On failure: retry via re-enqueue (up to maxAttempts) or send to DLQ.
  *
  */
 
@@ -26,9 +27,86 @@ import { prisma } from '@buzz8n/store'
 import { logger } from '@/utils'
 import { redis } from '@/redis'
 
+const DEFAULT_MAX_ATTEMPTS = 3
+
 interface ProcessExecutionResponseType {
   id: string
   payload: EnqueueExecutionPayload
+  maxAttempts?: number
+}
+
+function parseAttempts(value: string | number | undefined): number {
+  if (value === undefined || value === null) return 0
+  const n = typeof value === 'number' ? value : Number.parseInt(String(value), 10)
+  return Number.isFinite(n) && n >= 0 ? n : 0
+}
+
+function serializeStreamPayload(
+  payload: EnqueueExecutionPayload,
+  attempts: number,
+): Record<string, string> {
+  const data = typeof payload.data === 'string' ? payload.data : JSON.stringify(payload.data ?? {})
+
+  return {
+    executionId: payload.executionId,
+    workflowId: payload.workflowId,
+    data,
+    attempts: String(attempts),
+  }
+}
+
+/**
+ * On processing failure: re-enqueue with attempts+1 if under max, else DLQ; then ACK the old message.
+ */
+async function handleProcessingFailure({
+  id,
+  payload,
+  maxAttempts,
+  error,
+}: {
+  id: string
+  payload: EnqueueExecutionPayload
+  maxAttempts: number
+  error: unknown
+}): Promise<void> {
+  const attempts = parseAttempts(payload.attempts)
+  const reason = error instanceof Error ? error.message : String(error)
+
+  try {
+    if (attempts < maxAttempts) {
+      const nextAttempts = attempts + 1
+      await redis.xAdd({
+        payload: serializeStreamPayload(payload, nextAttempts),
+      })
+      logger.warn(`Re-queued execution after failure (attempt ${nextAttempts}/${maxAttempts})`, {
+        id,
+        workflowId: payload.workflowId,
+        executionId: payload.executionId,
+        reason,
+      })
+    } else {
+      await redis.xAddDlq({
+        payload: serializeStreamPayload(payload, attempts),
+        reason,
+        originalId: id,
+      })
+      logger.error(`Moved execution to DLQ after ${attempts} attempts`, {
+        id,
+        workflowId: payload.workflowId,
+        executionId: payload.executionId,
+        reason,
+        dlq: redis.DLQ_STREAM_KEY,
+      })
+    }
+  } catch (requeueErr) {
+    logger.error('Failed to re-queue or DLQ execution', {
+      id,
+      error: requeueErr,
+      originalError: reason,
+    })
+  }
+
+  await redis.xAck({ messageID: id })
 }
 
 /**
@@ -36,13 +114,14 @@ interface ProcessExecutionResponseType {
  * Handle one message pulled from the stream and execute the workflow DAG.
  * Fail-fast behavior: first node failure aborts dependents (they never reach indegree 0).
  *
- * @param {{ id: string, data: EnqueueExecutionPayload }} param0 - Stream message id and parsed payload.
- * @returns {Promise<void>} Resolves after ACK; logs errors and avoids poison-pill loops.
+ * @param {{ id: string, payload: EnqueueExecutionPayload, maxAttempts?: number }} param0 - Stream message id and parsed payload.
+ * @returns {Promise<void>} Resolves after ACK; retries or DLQs on failure.
  *
  */
 export const processResponse = async ({
   id,
   payload,
+  maxAttempts = DEFAULT_MAX_ATTEMPTS,
 }: ProcessExecutionResponseType): Promise<void> => {
   const { workflowId, executionId, data } = payload
   logger.info(`Starting execution for workspace ${workflowId} with executionID: ${executionId}`)
@@ -72,12 +151,16 @@ export const processResponse = async ({
     const nodes = (nodesAny ?? []) as RFNode[]
     const edges = (edgesAny ?? []) as RFEdge[]
 
-    // Check if payload.triggerType is 'workflow' or 'manualTrigger'; only proceed if so
-
-    const triggerType = ((data: any) =>
-      data?.triggerType === 'webhook' || data.triggerType === 'manualTrigger'
-        ? [data.triggerType]
-        : [])(JSON.parse(data as unknown as string))
+    // data from enqueue may be a JSON string (Redis field) or already an object
+    const raw: unknown = typeof data === 'string' ? JSON.parse(data) : data
+    const triggerTypeField =
+      typeof raw === 'object' && raw !== null && 'triggerType' in raw
+        ? (raw as { triggerType?: unknown }).triggerType
+        : undefined
+    const triggerType =
+      triggerTypeField === 'webhook' || triggerTypeField === 'manualTrigger'
+        ? [triggerTypeField]
+        : []
 
     const triggerId = nodes.find((n) => n?.data?.type && triggerType.includes(n.data.type))?.id
 
@@ -131,11 +214,10 @@ export const processResponse = async ({
     })
 
     logger.info(`Execution finished successfully for ${executionId} `)
+    await redis.xAck({ messageID: id })
   } catch (err) {
     // This error now appears AFTER all async nodes have settled
     logger.warn(`Error executing the workflow:${workflowId}`, err)
-  } finally {
-    // Ensure counter/status and ACK always happen
-    await redis.xAck({ messageID: id })
+    await handleProcessingFailure({ id, payload, maxAttempts, error: err })
   }
 }

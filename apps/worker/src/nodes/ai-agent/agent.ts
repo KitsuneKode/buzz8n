@@ -10,14 +10,13 @@
  */
 import { aiAgentFormSchema, type AiAgentFormData } from '@buzz8n/common/types'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
+import { getDecryptedCredential, logger } from '@/utils'
 import { HumanMessage, createAgent } from 'langchain'
 import { ChatAnthropic } from '@langchain/anthropic'
 import { renderTemplate } from '@/nodes/helper'
 import { ChatOpenAI } from '@langchain/openai'
 import type { ExecContext } from '@/nodes'
 import { availableTools } from './tools'
-import { prisma } from '@buzz8n/store/'
-import { logger } from '@/utils'
 import { z } from 'zod'
 
 // Initialize the model with tools
@@ -59,11 +58,7 @@ export const runAiAgent = async (
       throw new Error('Credentials to execute AI Agent not provided')
     }
 
-    const credential = await prisma.credential.findUnique({
-      where: {
-        id: credentialId,
-      },
-    })
+    const credential = await getDecryptedCredential(credentialId)
     if (!credential || !credential.data) {
       logger.warn('AI Agent: Credential not found', { credentialId })
       throw new Error('Credential to execute AI Agent does not exists')

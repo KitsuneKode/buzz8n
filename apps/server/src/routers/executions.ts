@@ -1,6 +1,7 @@
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
 import { auth } from '@/middlewares/auth-middleware'
+import { apiError } from '@buzz8n/common/types'
 import { prisma } from '@buzz8n/store'
 
 const router = Router()
@@ -14,7 +15,7 @@ router.get(
       const executionId = req.params.executionId
 
       if (!executionId) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
@@ -37,7 +38,7 @@ router.get(
       })
 
       if (!execution) {
-        res.status(404).send('Execution not found')
+        res.status(404).json(apiError('Execution not found', { code: 'NOT_FOUND' }))
         return
       }
 
@@ -72,7 +73,7 @@ router.get(
       const userId = req.user!.userId
 
       if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
-        return res.status(400).json({ error: 'Invalid cursor format' })
+        return res.status(400).json(apiError('Invalid cursor format', { code: 'INVALID_CURSOR' }))
       }
       const executions = await prisma.execution.findMany({
         where: {

@@ -1,4 +1,4 @@
-import { createWorkflowSchema, updateWorkflowSchema } from '@buzz8n/common/types'
+import { createWorkflowSchema, updateWorkflowSchema, apiError } from '@buzz8n/common/types'
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { Methods, PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
@@ -20,7 +20,7 @@ router.get(
       const cursor = req.query.cursor as string | undefined
 
       if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
-        return res.status(400).json({ error: 'Invalid cursor format' })
+        return res.status(400).json(apiError('Invalid cursor format', { code: 'INVALID_CURSOR' }))
       }
 
       const userId = req.user!.userId
@@ -76,7 +76,7 @@ router.get(
       const id = req.params.id
 
       if (!id) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
@@ -86,11 +86,12 @@ router.get(
         where: {
           id,
           userId,
+          archived: false,
         },
       })
 
       if (!workflow) {
-        res.status(404).send('Data not found')
+        res.status(404).json(apiError('Data not found', { code: 'NOT_FOUND' }))
         return
       }
 
@@ -110,7 +111,7 @@ router.post(
 
       if (!success) {
         logger.error('not parsed')
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
@@ -131,13 +132,6 @@ router.post(
 
       res.status(201).json(workflow)
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          res.status(409).send('Workflow with that name already exists')
-          return
-        }
-      }
-
       next(error)
     }
   },
@@ -152,7 +146,7 @@ router.post(
 
       if (!workflowId) {
         logger.error('not parsed')
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
@@ -162,18 +156,21 @@ router.post(
         where: {
           id: workflowId,
           userId,
+          archived: false,
         },
       })
 
       if (!workflow) {
-        res.status(404).send('Workflow not found')
+        res.status(404).json(apiError('Workflow not found', { code: 'NOT_FOUND' }))
         return
       }
 
       if (!workflow.active) {
-        res
-          .status(409)
-          .send('Workflow is not active to execute. Please activate the workflow first.')
+        res.status(409).json(
+          apiError('Workflow is not active to execute. Please activate the workflow first.', {
+            code: 'WORKFLOW_INACTIVE',
+          }),
+        )
         return
       }
 
@@ -203,10 +200,6 @@ router.post(
         payload: queuePayload,
       })
     } catch (error: unknown) {
-      // if (error instanceof Error && error.cause === 'rate-limit') {
-      //   res.status(409).send('Execution with id already exists')
-      //   return
-      // }
       next(error)
     }
   },
@@ -218,24 +211,22 @@ router.put(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id
-      // const nodesdata = req.body.nodes
-      // console.log(nodesdata)
       const { success, data } = updateWorkflowSchema.safeParse(req.body)
       const userId = req.user!.userId
       if (!id || !success) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
       const { active, nodes, edges } = data
 
-      // console.log(data?.active)
       let workflow = null
 
       workflow = await prisma.workflow.findUnique({
         where: {
           id,
           userId,
+          archived: false,
         },
         select: {
           id: true,
@@ -251,7 +242,7 @@ router.put(
       })
 
       if (!workflow) {
-        res.status(404).send('Workflow not found')
+        res.status(404).json(apiError('Workflow not found', { code: 'NOT_FOUND' }))
         return
       }
 
@@ -259,49 +250,27 @@ router.put(
       const existingWebhookSecret = workflow.webhook?.secret
       const existingWebhookMethod = workflow.webhook?.method
 
-      // console.log('=== WEBHOOK DEBUG ===')
-      // console.log('existingWebhookPath:', existingWebhookPath)
-      // console.log('existingWebhookSecret:', existingWebhookSecret)
-      // console.log('nodes:', JSON.stringify(nodes, null, 2))
-
       let newWebhook = null
       let deletedWebhook = false
       if (nodes && nodes.length > 0) {
-        // Find webhook node in the workflow
         const webhookNode = nodes.find((node) => node.data.type === 'webhook')
 
         if (webhookNode) {
-          // console.log('webhookNode.data.config:', webhookNode.data.config)
-          // console.log('webhookNode.data.config.path:', webhookNode.data.config.path)
-          // console.log('webhookNode.data.config.secret:', webhookNode.data.config.secret)
-
-          // Check if this is a new webhook (different from existing or no existing webhook)
           const isNewWebhook =
             !existingWebhookPath ||
             webhookNode.data.config.path !== existingWebhookPath ||
             webhookNode.data.config.secret !== existingWebhookSecret ||
             webhookNode.data.config.method !== existingWebhookMethod
 
-          // console.log('isNewWebhook:', isNewWebhook)
-          // console.log('!existingWebhookPath:', !existingWebhookPath)
-          // console.log('path different:', webhookNode.data.config.path !== existingWebhookPath)
-          // console.log('secret different:', webhookNode.data.config.secret !== existingWebhookSecret)
-
           if (isNewWebhook) {
             newWebhook = webhookNode
           }
         }
 
-        // Check if webhook was deleted (had existing webhook but no webhook node in new workflow)
         deletedWebhook = !!(existingWebhookPath && !webhookNode)
       } else {
         deletedWebhook = active === undefined ? !!existingWebhookPath : false
       }
-
-      // console.log('newWebhook:', newWebhook)
-      // console.log('deletedWebhook:', deletedWebhook)
-      // console.log('=== END WEBHOOK DEBUG ===')
-      // // return res.status(404).send('not found')
 
       if (newWebhook) {
         logger.info('Creating/updating webhook...')
@@ -311,12 +280,9 @@ router.put(
           secret: newWebhook.data.config.secret as string | undefined,
         }
 
-        // console.log('webhookData:', webhookData)
-
-        // Validate webhook data
         if (!webhookData.path || webhookData.path.trim() === '') {
           logger.error('Webhook path is empty or invalid:', webhookData.path)
-          res.status(422).send('Webhook path is required')
+          res.status(422).json(apiError('Webhook path is required', { code: 'VALIDATION_ERROR' }))
           return
         }
 
@@ -344,19 +310,7 @@ router.put(
               },
             },
           },
-
-          // include: {
-          //   webhook: {
-          //     select: {
-          //       id: true,
-          //       method: true,
-          //       path: true,
-          //       secret: true,
-          //     },
-          //   },
-          // },
         })
-        // console.log('Webhook created/updated successfully:', workflow?.webhook)
       } else {
         if (deletedWebhook) {
           workflow = await prisma.workflow.update({
@@ -388,7 +342,7 @@ router.put(
         }
       }
       if (!workflow) {
-        res.status(404).send('Workflow not found')
+        res.status(404).json(apiError('Workflow not found', { code: 'NOT_FOUND' }))
         return
       }
       res.status(200).json(workflow)
@@ -406,22 +360,34 @@ router.delete(
       const id = req.params.id
       const userId = req.user!.userId
       if (!id) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
-      await prisma.workflow.delete({
+      const workflow = await prisma.workflow.update({
         where: {
           id,
           userId,
         },
+        data: {
+          archived: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          active: true,
+          archived: true,
+          updatedAt: true,
+        },
       })
 
-      res.status(200).send('Workflow deleted successfully')
+      res.status(200).json(workflow)
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          res.status(404).send('Workflow with that id does not exists')
+          res
+            .status(404)
+            .json(apiError('Workflow with that id does not exist', { code: 'NOT_FOUND' }))
           return
         }
       }
@@ -440,12 +406,12 @@ router.get(
       const cursor = req.query.cursor as string
 
       if (!workflowId) {
-        res.status(422).send('Invalid Data')
+        res.status(422).json(apiError('Invalid data', { code: 'VALIDATION_ERROR' }))
         return
       }
 
       if (cursor && !/^[a-zA-Z0-9_-]+$/.test(cursor)) {
-        return res.status(400).json({ error: 'Invalid cursor format' })
+        return res.status(400).json(apiError('Invalid cursor format', { code: 'INVALID_CURSOR' }))
       }
       const userId = req.user!.userId
 

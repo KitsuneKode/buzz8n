@@ -8,12 +8,16 @@ const backendConfigSchema = {
   jwtSecret: () => process.env.JWT_SECRET,
   allowedOrigins: () => process.env.ALLOWED_ORIGINS,
   redisUrl: () => process.env.REDIS_URL,
+  credentialsEncryptionKey: () => process.env.CREDENTIALS_ENCRYPTION_KEY,
+  cookieDomain: () => process.env.COOKIE_DOMAIN || 'localhost',
+  jwtExpiresIn: () => process.env.JWT_EXPIRES_IN || '7d',
 }
 const workerSchema = {
   nodeEnv: () => process.env.NODE_ENV,
   dbUrl: () => process.env.DATABASE_URL,
   redisUrl: () => process.env.REDIS_URL,
   redisConsumer: () => `worker-${process.pid}`,
+  credentialsEncryptionKey: () => process.env.CREDENTIALS_ENCRYPTION_KEY,
 }
 
 const wsServerSchema = {

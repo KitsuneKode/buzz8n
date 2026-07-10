@@ -112,7 +112,6 @@ export function PropertiesPanel() {
                   openCredentialModal()
                   return
                 }
-                // Fetch the credential details from the cache or store
                 const cred = credentials.find((c) => c.id === id)
                 if (cred) {
                   setSelectedNodeCredentialRef({
@@ -121,11 +120,9 @@ export function PropertiesPanel() {
                     provider: cred.provider,
                   })
                 } else {
-                  // If not in cache, set with just the ID
-                  // The backend should handle this case
                   setSelectedNodeCredentialRef({
                     id: id,
-                    name: '',
+                    name: id,
                     provider: requiredCredentials[0] || '',
                   })
                 }

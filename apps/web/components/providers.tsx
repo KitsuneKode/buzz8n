@@ -28,7 +28,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
       <ReactFlowProvider>
         <QueryClientProvider client={queryClient}>
           {children}
-          <ReactQueryDevtools buttonPosition="bottom-right" />
+          {process.env.NODE_ENV === 'development' && (
+            <ReactQueryDevtools buttonPosition="bottom-right" />
+          )}
         </QueryClientProvider>
       </ReactFlowProvider>
       <Analytics />

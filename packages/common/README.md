@@ -1,16 +1,11 @@
-# common
+# @buzz8n/common
 
-To install dependencies:
+Shared Zod schemas and TypeScript types used by web, server, worker, and ws-server.
 
-```bash
-bun install
-```
+## Exports
 
-To run:
+- `@buzz8n/common/types` — auth, credentials, workflow, webhook, API error helpers
+- `@buzz8n/common/config` — `ConfigLoader` for env validation
+- `@buzz8n/common/client-logger` — browser-safe logger
 
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.2.18.
-[Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Keep domain contracts here so frontend and backend stay aligned.
