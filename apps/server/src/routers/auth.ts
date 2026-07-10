@@ -3,10 +3,10 @@ import { PrismaClientKnownRequestError, prisma } from '@buzz8n/store'
 import { signInSchema, signUpSchema } from '@buzz8n/common/types'
 import { JWT_SECRET, NODE_ENV } from '@/utils/config'
 import { auth } from '@/middlewares/auth-middleware'
+import jwt, { type SignOptions } from 'jsonwebtoken'
 import { password as Password } from 'bun'
 import { logger } from '@/utils/logger'
 import { Router } from 'express'
-import jwt from 'jsonwebtoken'
 
 const router = Router()
 //TODO: introduce better auth for better auth practices
@@ -69,23 +69,16 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
       },
     })
 
-    if (!user) {
-      logger.info('User with this email does not exist', { email })
-      res.status(400).send('User with this email doesnot exist')
-      return
-    }
-
-    const passwordMatch = await Password.verify(password, user.password_hash)
-
-    if (!passwordMatch) {
-      logger.info('Email or Password Invalid', { email })
-      res.status(400).send('Email or Password Invalid')
-
+    if (!user || !(await Password.verify(password, user.password_hash))) {
+      logger.info('Invalid sign-in attempt', { email })
+      res.status(401).json({ error: 'Invalid email or password' })
       return
     }
 
     const userId = user.id
-    const token = jwt.sign({ email, userId }, JWT_SECRET!)
+    const token = jwt.sign({ email, userId }, JWT_SECRET!, {
+      expiresIn: (process.env.JWT_EXPIRES_IN ?? '7d') as SignOptions['expiresIn'],
+    })
 
     res
       .status(200)
@@ -94,7 +87,7 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-        domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+        domain: process.env.COOKIE_DOMAIN || undefined,
         path: '/',
       })
       .send('Signed in sucessfully')
@@ -136,7 +129,7 @@ router.post('/signout', (req, res) => {
       secure: NODE_ENV !== 'development',
       httpOnly: true,
       sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-      domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+      domain: process.env.COOKIE_DOMAIN || undefined,
       path: '/',
     })
     .send('Signed out successfully')
