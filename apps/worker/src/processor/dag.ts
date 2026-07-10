@@ -29,28 +29,20 @@
  */
 
 import { endExecutionSetStatus, renderGraphAscii } from '@/processor/helper'
-import type { ExecutionLog } from '@buzz8n/common/types'
+import { TRIGGER_TYPES, initialReady, type RFNode } from './graph'
+import { nodeResultToExecutionLog } from './execution-log'
 import { publishNodeEvent } from '@/services/publisher'
 import type { ExecContext, RunNode } from '@/nodes'
 import Mustache from 'mustache'
 
-/**
- * Execution log entry format for persisting and displaying node execution details.
- * This structure is used for both real-time updates and historical query.
- */
-
-/**
- * Minimal node shape the executor needs: a unique id and optional data for dispatch/config.
- */
-export type RFNode = {
-  id: string
-
-  data?: { type?: string; config?: Record<string, any> }
-} & Record<string, any>
-/**
- * Minimal directed edge shape: id, source, and target encode the arrow u -> v in the DAG.
- */
-export type RFEdge = { id: string; source: string; target: string } & Record<string, any>
+export {
+  buildGraph,
+  collectReachableFrom,
+  initialReady,
+  validateDAG,
+  type RFEdge,
+  type RFNode,
+} from './graph'
 
 /**
  * DAG lifecycle events suitable for forwarding to an external executor/telemetry.
@@ -67,175 +59,6 @@ export type DagEvent =
   | { type: 'await_race'; at: number; running: number }
   | { type: 'race_done'; at: number; running: number }
   | { type: 'execution_finished'; at: number; succeeded: boolean; completed: number; total: number }
-
-/**
- *
- * Treat these as “do not execute”: they unlock downstream nodes but aren’t run as tasks.
- * Node types that act as triggers/entry points: auto-completed to unlock children without work.
- * This mirrors common workflow semantics where trigger nodes only inject/forward payload.
- *
- */
-const TRIGGER_TYPES = new Set(['webhook', 'manualTrigger'])
-
-/**
- *
- *  Computes the forward-reachable set of node ids from a starting node (e.g., a webhook trigger)
- * by following directed edges source -> target using a BFS over a children adjacency list.
- *
- * Rationale:
- *  - Execute only the subgraph reachable from the trigger to avoid running stray nodes.
- *  - Aligns with directed execution semantics of DAG workflows.
- *
- * Complexity: O(V + E) over the explored subgraph.
- *
- * @param {string} startId - Node id to start traversal from.
- * @param {RFEdge[]} edges - All directed edges; only forward direction is followed.
- * @returns {Set<string>} All node ids reachable from startId via directed edges.
- *
- */
-export function collectReachableFrom(startId: string, edges: RFEdge[]): Set<string> {
-  const children = new Map<string, string[]>()
-  for (const e of edges) {
-    if (!children.has(e.source)) children.set(e.source, [])
-    children.get(e.source)!.push(e.target)
-  }
-  const seen = new Set<string>()
-  const q = [startId]
-  while (q.length) {
-    const u = q.shift()!
-    if (seen.has(u)) continue // skip if already visited
-    seen.add(u)
-    for (const v of children.get(u) ?? []) q.push(v) // follow u -> v
-  }
-  return seen
-}
-
-/**
- * Builds graph structures (node map, forward adjacency, and indegree counts) limited to the provided allowed node ids.
- *
- * Constructs:
- * - nodeMap: mapping from node id to RFNode for quick lookup,
- * - children: parent id -> array of child ids (forward adjacency),
- * - indegree: node id -> number of incoming edges from nodes within `allowed`.
- *
- * This representation is intended for use with Kahn’s algorithm where nodes with indegree equal to zero are ready to run.
- *
- * @param nodes - All available nodes; only nodes whose `id` is in `allowed` are included in the result
- * @param edges - All available directed edges; only edges whose source and target are both in `allowed` are applied
- * @param allowed - Set of node ids to include in the constructed graph
- * @returns An object containing `nodeMap`, `children`, and `indegree` for the restricted graph
- */
-export function buildGraph(nodes: RFNode[], edges: RFEdge[], allowed: Set<string>) {
-  const nodeMap = new Map(nodes.filter((n) => allowed.has(n.id)).map((n) => [n.id, n]))
-  const children = new Map<string, string[]>()
-  const indegree = new Map<string, number>()
-
-  // Initialize adjacency and indegree for allowed nodes
-  for (const id of nodeMap.keys()) {
-    children.set(id, [])
-    indegree.set(id, 0)
-  }
-
-  // Wire directed edges within the allowed set
-  for (const e of edges) {
-    if (!allowed.has(e.source) || !allowed.has(e.target)) continue
-    children.get(e.source)!.push(e.target)
-    indegree.set(e.target, (indegree.get(e.target) ?? 0) + 1)
-  }
-
-  return { nodeMap, children, indegree }
-}
-
-/**
- * Checks that the directed graph contains no cycles by performing a dry run of Kahn's algorithm.
- *
- * @param children - Adjacency map from a node id to its child node ids.
- * @param indegree - Map of node id to its incoming-edge count.
- * @throws Error if a cycle is detected (no topological ordering exists).
- */
-export function validateDAG(children: Map<string, string[]>, indegree: Map<string, number>) {
-  const copy = new Map(indegree)
-  const q: string[] = [...Array.from(copy)].filter(([, d]) => d === 0).map(([id]) => id)
-  let seen = 0
-
-  while (q.length) {
-    const u = q.shift()!
-    seen++
-    for (const v of children.get(u) ?? []) {
-      copy.set(v, copy.get(v)! - 1)
-      if (copy.get(v) === 0) q.push(v)
-    }
-  }
-
-  if (seen !== indegree.size) throw new Error('Cycle detected: not a DAG')
-}
-
-/**
- * Collects node ids that have zero remaining prerequisites to seed the ready queue.
- *
- * @param indegree - Map from node id to remaining prerequisite count.
- * @returns An array of node ids that have zero remaining prerequisites.
- */
-function initialReady(indegree: Map<string, number>): string[] {
-  return [...Array.from(indegree)].filter(([, d]) => d === 0).map(([id]) => id)
-}
-
-/**
- * Converts node execution results to ExecutionLog format for persistence and real-time updates.
- * This helper extracts input, output, timing, and error information from the execution context.
- *
- * @param nodeId - The ID of the node
- * @param node - The node object containing type and config
- * @param ctx - Execution context with $node results
- * @param startTime - When the node started execution
- * @param endTime - When the node finished execution (undefined for failed nodes)
- * @param error - Error object if the node failed
- * @param metadata - Additional metadata like workflowId, executionId, userId
- * @returns ExecutionLog entry ready for persistence or publishing
- */
-export function nodeResultToExecutionLog(
-  nodeId: string,
-  node: RFNode,
-  ctx: ExecContext,
-  startTime: number | undefined,
-  endTime: number | undefined,
-  error?: Error | string,
-  metadata?: { workflowId?: string; executionId?: string; userId?: string },
-  customStatus?: 'loading' | 'success' | 'error',
-): ExecutionLog {
-  const nodeResult = ctx.$node[nodeId]
-  const duration = startTime && endTime ? endTime - startTime : undefined
-  const status = customStatus || (error ? 'error' : 'success')
-
-  // Use endTime for completed logs (success/error), startTime for loading logs
-  const timestamp = endTime ?? startTime ?? Date.now()
-
-  return {
-    id: `${nodeId}_${Date.now()}`,
-    timestamp: new Date(timestamp),
-    nodeId,
-    type: 'node_event',
-    status,
-    level: error ? 'error' : 'info',
-    message: error
-      ? `Node ${nodeId} (${node.data?.type}) failed: ${typeof error === 'string' ? error : error.message}`
-      : `Node ${nodeId} (${node.data?.type}) completed successfully`,
-    context: {
-      input: nodeResult?.input || node.data?.config || {},
-      output: nodeResult?.output,
-      error: error
-        ? {
-            message: typeof error === 'string' ? error : error.message,
-            // stack: typeof error !== 'string' ? error.stack : undefined,
-          }
-        : undefined,
-      duration,
-      startedAt: startTime ? new Date(startTime) : undefined,
-      endedAt: endTime ? new Date(endTime) : undefined,
-    },
-    metadata,
-  }
-}
 
 /**
  * Schedule and execute nodes of a DAG in topological order using a bounded worker pool.
@@ -270,7 +93,7 @@ export async function executeGraphConcurrent(
     metadata?: { workflowId?: string; executionId?: string; userId?: string } // for ExecutionLog
   },
 ) {
-  const maxConcurrency = opts?.maxConcurrency ?? 4
+  const maxConcurrency = (opts?.maxConcurrency ?? Number(process.env.DAG_MAX_CONCURRENCY)) || 4
   const failFast = opts?.failFast ?? true
   const logger = opts?.logger
   const metadata = opts?.metadata
@@ -279,7 +102,7 @@ export async function executeGraphConcurrent(
   if (opts?.printGraph && logger) {
     logger.info('[DAG] Graph structure: \n\n')
     const snapshot = renderGraphAscii(nodeMap, children, indegree)
-    snapshot.forEach((line) => console.log(line)) // Optional: print graph structure
+    snapshot.forEach((line) => logger.info(line))
   }
 
   const ready: string[] = initialReady(indegree)
@@ -406,6 +229,7 @@ export async function executeGraphConcurrent(
         indegree.set(v, prevIndegree - 1)
         if (indegree.get(v) === 0) {
           ready.push(v)
+          ready.sort()
           timeline.push({ t: Date.now(), ev: 'enqueue_ready', id: v, info: { parent: id } })
           logger?.debug('[DAG] enqueue_ready:', { nodeId: v, afterParent: id })
         }
@@ -434,7 +258,6 @@ export async function executeGraphConcurrent(
           metadata,
         )
         ctx.logs?.push(failureLog)
-        console.log(failureLog)
 
         await publishNodeEvent(ctx.$json.executionId, failureLog)
 
