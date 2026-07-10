@@ -39,6 +39,31 @@ function parseQueueData<T>(data: unknown): T {
   return data as T
 }
 
+function stringifyDlqPayload(payload: EnqueueExecutionPayload): string {
+  try {
+    return JSON.stringify(payload)
+  } catch {
+    return String(payload)
+  }
+}
+
+function getPermanentFailureReason({
+  edgesSuccess,
+  executionExists,
+  nodesSuccess,
+  triggerId,
+}: {
+  edgesSuccess: boolean
+  executionExists: boolean
+  nodesSuccess: boolean
+  triggerId: string | undefined
+}): string {
+  if (!executionExists) return 'missing_execution'
+  if (!nodesSuccess || !edgesSuccess) return 'invalid_workflow_definition'
+  if (!triggerId) return 'missing_trigger'
+  return 'invalid_execution_request'
+}
+
 /**
  *
  * Handle one message pulled from the stream and execute the workflow DAG.
@@ -53,10 +78,24 @@ export const processResponse = async ({
   payload,
 }: ProcessExecutionResponseType): Promise<void> => {
   const { workflowId, executionId, data } = payload
+  let shouldAck = true
   logger.info(`Starting execution for workspace ${workflowId} with executionID: ${executionId}`)
 
   try {
-    const triggerData = parseQueueData<WebhookTriggerData | ManualTriggerData>(data)
+    let triggerData: WebhookTriggerData | ManualTriggerData
+    try {
+      triggerData = parseQueueData<WebhookTriggerData | ManualTriggerData>(data)
+    } catch {
+      shouldAck = false
+      await redis.xAddDlq({
+        originalId: id,
+        reason: 'invalid_trigger_data',
+        payload: stringifyDlqPayload(payload),
+        at: String(Date.now()),
+      })
+      shouldAck = true
+      return
+    }
 
     const execution = await prisma.execution.findFirst({
       where: {
@@ -88,7 +127,19 @@ export const processResponse = async ({
       if (!nodesSuccess || !edgesSuccess)
         logger.error('Unable to parse nodes/edges', { id, payload })
       else logger.error('Missing execution/workflow or webhook/manual trigger', { id, payload })
-      await redis.xAck({ messageID: id })
+      shouldAck = false
+      await redis.xAddDlq({
+        originalId: id,
+        reason: getPermanentFailureReason({
+          edgesSuccess,
+          executionExists: Boolean(execution),
+          nodesSuccess,
+          triggerId,
+        }),
+        payload: stringifyDlqPayload(payload),
+        at: String(Date.now()),
+      })
+      shouldAck = true
       return
     }
 
@@ -143,6 +194,8 @@ export const processResponse = async ({
     logger.warn(`Error executing the workflow:${workflowId}`, err)
   } finally {
     // Ensure counter/status and ACK always happen
-    await redis.xAck({ messageID: id })
+    if (shouldAck) {
+      await redis.xAck({ messageID: id })
+    }
   }
 }

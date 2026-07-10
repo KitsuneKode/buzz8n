@@ -24,6 +24,7 @@ const getLogger = (service: ServiceType) => {
 export class RedisClient {
   private redisClient
   private EXECUTION_QUEUE_KEY = 'workflow:execution'
+  private EXECUTION_DLQ_KEY = 'workflow:execution:dlq'
   private EXECUTION_QUEUE_MAX_LENGTH = 10000
   private EXECUTION_GROUP = 'workflow:executors'
   private logger
@@ -67,6 +68,13 @@ export class RedisClient {
         strategyModifier: '~',
         threshold: maxlen,
       },
+    })
+  }
+
+  async xAddDlq(payload: Record<string, string>) {
+    return this.xAdd({
+      streamKey: this.EXECUTION_DLQ_KEY,
+      payload,
     })
   }
 
