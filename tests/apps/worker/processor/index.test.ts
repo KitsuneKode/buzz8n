@@ -92,7 +92,10 @@ describe('processResponse', () => {
       payload: {
         workflowId: 'workflow-1',
         executionId: 'execution-1',
-        data: JSON.stringify({ triggerType: 'manualTrigger', body: {} }),
+        data: {
+          triggerType: 'manualTrigger',
+          body: {},
+        },
       },
     })
 

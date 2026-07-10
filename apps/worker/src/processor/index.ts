@@ -17,11 +17,7 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
-import type {
-  EnqueueExecutionPayload,
-  ManualTriggerData,
-  WebhookTriggerData,
-} from '@buzz8n/backend-common/types'
+import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { beginExecutionSetStatus, collapsePropertyNodes } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
@@ -32,11 +28,6 @@ import { redis } from '@/redis'
 interface ProcessExecutionResponseType {
   id: string
   payload: EnqueueExecutionPayload
-}
-
-function parseQueueData<T>(data: unknown): T {
-  if (typeof data === 'string') return JSON.parse(data) as T
-  return data as T
 }
 
 function stringifyDlqPayload(payload: EnqueueExecutionPayload): string {
@@ -77,26 +68,11 @@ export const processResponse = async ({
   id,
   payload,
 }: ProcessExecutionResponseType): Promise<void> => {
-  const { workflowId, executionId, data } = payload
+  const { workflowId, executionId, data: triggerData } = payload
   let shouldAck = true
   logger.info(`Starting execution for workspace ${workflowId} with executionID: ${executionId}`)
 
   try {
-    let triggerData: WebhookTriggerData | ManualTriggerData
-    try {
-      triggerData = parseQueueData<WebhookTriggerData | ManualTriggerData>(data)
-    } catch {
-      shouldAck = false
-      await redis.xAddDlq({
-        originalId: id,
-        reason: 'invalid_trigger_data',
-        payload: stringifyDlqPayload(payload),
-        at: String(Date.now()),
-      })
-      shouldAck = true
-      return
-    }
-
     const execution = await prisma.execution.findFirst({
       where: {
         id: executionId,

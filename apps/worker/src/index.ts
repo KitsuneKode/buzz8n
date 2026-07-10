@@ -1,3 +1,4 @@
+import { parseEnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
 import { REDIS_CONSUMER, config, logger } from '@/utils'
 import { processResponse } from '@/processor'
@@ -59,15 +60,13 @@ async function main(signal: AbortSignal) {
 
       for (const res of response) {
         for (const { id, message } of res.messages) {
-          try {
-            const payload =
-              typeof message === 'string'
-                ? (JSON.parse(message) as EnqueueExecutionPayload)
-                : (message as EnqueueExecutionPayload)
-
-            executionRequests.push({ id, payload })
-          } catch {
-            logger.warn('Invalid message JSON; sending to DLQ', { id, message })
+          const parsed = parseEnqueueExecutionPayload(message)
+          if (!parsed.success) {
+            logger.warn('Invalid queue payload; sending to DLQ', {
+              id,
+              message,
+              issues: parsed.error.issues,
+            })
             await redis.xAddDlq({
               originalId: id,
               reason: 'invalid_payload',
@@ -75,7 +74,10 @@ async function main(signal: AbortSignal) {
               at: String(Date.now()),
             })
             await redis.xAck({ messageID: id })
+            continue
           }
+
+          executionRequests.push({ id, payload: parsed.data })
         }
       }
 

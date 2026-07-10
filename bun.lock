@@ -152,6 +152,7 @@
         "redis": "^5.11.0",
         "triple-beam": "^1.4.1",
         "winston": "^3.19.0",
+        "zod": "^4.3.6",
       },
       "devDependencies": {
         "@buzz8n/eslint-config": "*",
