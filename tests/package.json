@@ -3,13 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "bun test tests",
-    "test:all": "bun test tests",
+    "test": "bun test",
+    "test:all": "bun test",
     "test:web": "bun test apps/web",
     "test:server": "bun test apps/server",
     "test:worker": "bun test apps/worker",
     "test:packages": "bun test packages",
-    "test:ci": "bun test tests --coverage"
+    "test:ci": "bun test --coverage"
   },
   "devDependencies": {
     "@testing-library/react": "^16.0.0",
