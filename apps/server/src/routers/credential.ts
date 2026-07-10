@@ -1,5 +1,6 @@
 import { Router, type NextFunction, type Request, type Response } from 'express'
 import { rateLimitMiddleware } from '@/middlewares/rate-limiter-middleware'
+import { encryptCredentialData } from '@buzz8n/backend-common/crypto'
 import { prisma, PrismaClientKnownRequestError } from '@buzz8n/store'
 import { credentialSchema } from '@buzz8n/common/types'
 import { auth } from '@/middlewares/auth-middleware'
@@ -33,7 +34,6 @@ router.get('/credential', rateLimitMiddleware.list, async (req, res, next: NextF
       },
       select: {
         id: true,
-        data: true,
         platform: true,
         title: true,
         createdAt: true,
@@ -70,13 +70,20 @@ router.post(
       }
 
       const { platform, data, title } = isParsed.data
+      const envelope = await encryptCredentialData(data as Record<string, unknown>)
 
       const credential = await prisma.credential.create({
         data: {
-          data,
+          data: envelope,
           title,
           platform,
           userId: req.user!.userId,
+        },
+        select: {
+          id: true,
+          title: true,
+          platform: true,
+          createdAt: true,
         },
       })
 
@@ -119,6 +126,12 @@ router.delete(
         },
         data: {
           archived: true,
+        },
+        select: {
+          id: true,
+          title: true,
+          platform: true,
+          createdAt: true,
         },
       })
 

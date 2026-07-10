@@ -1,7 +1,7 @@
+import { loadCredentialData } from '@/nodes/load-credential'
 import { emailFormSchema } from '@buzz8n/common/types'
 import { renderTemplate } from '@/nodes/helper'
 import type { ExecContext } from '@/nodes'
-import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
 import { Resend } from 'resend'
 
@@ -15,15 +15,8 @@ export const sendResendEMail = async (
       throw new Error('Credentials to execute sendTelegram Message not provided')
     }
 
-    const credential = await prisma.credential.findUnique({
-      where: {
-        id: credentialId,
-      },
-    })
-    if (!credential || !credential.data) {
-      throw new Error('Credential to execute sendTelegram Message does not exists')
-    }
-    const { data, success } = emailFormSchema.safeParse(credential.data)
+    const plain = await loadCredentialData(credentialId, context.userId)
+    const { data, success } = emailFormSchema.safeParse(plain)
     const { to, subject, body } = config as { to: string; subject: string; body: string }
     if (!success || !to || !subject || !body) {
       throw new Error('Invalid credential data')

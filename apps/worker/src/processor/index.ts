@@ -118,6 +118,7 @@ export const processResponse = async ({
     const triggerPayload = (payload as any)?.data ?? (execution?.logs as any)?.triggerPayload ?? {}
 
     const ctx: ExecContext = {
+      userId: execution.userId,
       $json: { body: triggerPayload, executionId, workflowId },
       $node: {},
     }

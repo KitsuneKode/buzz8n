@@ -1,7 +1,7 @@
+import { loadCredentialData } from '@/nodes/load-credential'
 import { telegramFormSchema } from '@buzz8n/common/types'
 import { renderTemplate } from '@/nodes/helper'
 import type { ExecContext } from '@/nodes'
-import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
 import axios from 'axios'
 
@@ -15,15 +15,8 @@ export const sendTelegramMessage = async (
       throw new Error('Credentials to execute sendTelegram Message not provided')
     }
 
-    const credential = await prisma.credential.findUnique({
-      where: {
-        id: credentialId,
-      },
-    })
-    if (!credential || !credential.data) {
-      throw new Error('Credential to execute sendTelegram Message does not exists')
-    }
-    const { data, success } = telegramFormSchema.safeParse(credential.data)
+    const plain = await loadCredentialData(credentialId, context.userId)
+    const { data, success } = telegramFormSchema.safeParse(plain)
     const { message, chatId } = config
     if (!success || !message || !chatId) {
       throw new Error('Invalid credential data')

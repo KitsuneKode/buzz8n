@@ -10,13 +10,13 @@
  */
 import { aiAgentFormSchema, type AiAgentFormData } from '@buzz8n/common/types'
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
+import { loadCredentialData } from '@/nodes/load-credential'
 import { HumanMessage, createAgent } from 'langchain'
 import { ChatAnthropic } from '@langchain/anthropic'
 import { renderTemplate } from '@/nodes/helper'
 import { ChatOpenAI } from '@langchain/openai'
 import type { ExecContext } from '@/nodes'
 import { availableTools } from './tools'
-import { prisma } from '@buzz8n/store/'
 import { logger } from '@/utils'
 import { z } from 'zod'
 
@@ -53,22 +53,13 @@ export const runAiAgent = async (
   context: ExecContext,
 ) => {
   try {
-    console.log(credentialId, 'credentialId')
     if (!credentialId || typeof config !== 'object') {
       logger.warn('AI Agent: Missing credentials or invalid config', { credentialId, config })
       throw new Error('Credentials to execute AI Agent not provided')
     }
 
-    const credential = await prisma.credential.findUnique({
-      where: {
-        id: credentialId,
-      },
-    })
-    if (!credential || !credential.data) {
-      logger.warn('AI Agent: Credential not found', { credentialId })
-      throw new Error('Credential to execute AI Agent does not exists')
-    }
-    const { data, success } = aiAgentFormSchema.safeParse(credential.data)
+    const plain = await loadCredentialData(credentialId, context.userId)
+    const { data, success } = aiAgentFormSchema.safeParse(plain)
 
     const { prompt, model, allowedTools } = config as {
       prompt: string
