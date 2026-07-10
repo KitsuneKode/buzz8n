@@ -49,13 +49,12 @@ const routers = [
   rateLimitStatusRouter,
 ]
 
-routers.forEach((router) => app.use('/api/v1', router))
-
+routers.forEach((router) => app.use('/api/v1', rateLimitMiddleware.api, router))
 app.use(webhookRouter)
-app.use(rateLimitMiddleware.api)
-app.use('{/*splat}', (req, res) => {
-  logger.info(`[404] ${req.originalUrl} ${req.method}  was called`)
-  res.status(404).send('Page not Found')
+
+app.use((req, res) => {
+  logger.info(`[404] ${req.method} ${req.originalUrl}`)
+  res.status(404).json({ error: 'Not Found' })
 })
 
 app.use(errorHandlerMiddleware)
