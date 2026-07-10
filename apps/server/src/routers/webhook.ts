@@ -71,6 +71,23 @@ router.all('/webhook/:webhookPath', async (req: Request, res: Response, next: Ne
       workflowId: webhook.workflowId,
       data: {
         triggerType: 'webhook',
+        method: req.method,
+        path: webhookPath,
+        headers: Object.fromEntries(
+          Object.entries(req.headers)
+            .filter(([key]) => !['authorization', 'cookie'].includes(key.toLowerCase()))
+            .map(([key, value]) => [
+              key,
+              Array.isArray(value) ? value.join(',') : String(value ?? ''),
+            ]),
+        ),
+        query: Object.fromEntries(
+          Object.entries(req.query).map(([key, value]) => [
+            key,
+            Array.isArray(value) ? value.join(',') : String(value ?? ''),
+          ]),
+        ),
+        body: req.body,
       },
     })
 

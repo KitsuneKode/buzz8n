@@ -1,138 +1,94 @@
-import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
+import type {
+  EnqueueExecutionPayload,
+  ManualTriggerData,
+  WebhookTriggerData,
+} from '@buzz8n/backend-common/types'
 import { describe, test, expect } from 'bun:test'
 
 describe('EnqueueExecutionPayload Type', () => {
-  test('should accept valid payload with all required fields', () => {
+  test('accepts webhook trigger data with request context', () => {
+    const webhookData: WebhookTriggerData = {
+      triggerType: 'webhook',
+      method: 'POST',
+      path: 'customer-created',
+      headers: {
+        'content-type': 'application/json',
+        'x-source': 'crm',
+      },
+      query: {
+        source: 'crm',
+      },
+      body: {
+        customerId: 'cus-123',
+      },
+    }
+
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: { data: 'test' },
+      data: webhookData,
     }
 
     expect(payload.executionId).toBe('exec-123')
     expect(payload.workflowId).toBe('workflow-456')
-    expect(payload.payload).toEqual({ data: 'test' })
+    expect(payload.data).toEqual(webhookData)
   })
 
-  test('should accept payload with null', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: null,
+  test('accepts manual trigger data without a body', () => {
+    const manualData: ManualTriggerData = {
+      triggerType: 'manualTrigger',
     }
 
-    expect(payload.payload).toBeNull()
-  })
-
-  test('should accept payload with undefined', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: undefined,
+      data: manualData,
     }
 
-    expect(payload.payload).toBeUndefined()
+    expect(payload.data).toEqual(manualData)
   })
 
-  test('should accept payload with object', () => {
+  test('accepts manual trigger data with a body', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {
-        user: { id: 1, name: 'John' },
-        action: 'create',
-        timestamp: '2024-01-01',
-      },
-    }
-
-    expect(typeof payload.payload).toBe('object')
-  })
-
-  test('should accept payload with array', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: [1, 2, 3, 4, 5],
-    }
-
-    expect(Array.isArray(payload.payload)).toBe(true)
-  })
-
-  test('should accept payload with string', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: 'simple string payload',
-    }
-
-    expect(typeof payload.payload).toBe('string')
-  })
-
-  test('should accept payload with number', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: 42,
-    }
-
-    expect(typeof payload.payload).toBe('number')
-  })
-
-  test('should accept payload with boolean', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: true,
-    }
-
-    expect(typeof payload.payload).toBe('boolean')
-  })
-
-  test('should accept empty object as payload', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: {},
-    }
-
-    expect(payload.payload).toEqual({})
-  })
-
-  test('should accept deeply nested object as payload', () => {
-    const payload: EnqueueExecutionPayload = {
-      executionId: 'exec-123',
-      workflowId: 'workflow-456',
-      payload: {
-        level1: {
-          level2: {
-            level3: {
-              value: 'deep',
-            },
-          },
+      data: {
+        triggerType: 'manualTrigger',
+        body: {
+          requestedBy: 'user-123',
         },
       },
     }
 
-    expect((payload.payload as any).level1.level2.level3.value).toBe('deep')
+    expect(payload.data).toEqual({
+      triggerType: 'manualTrigger',
+      body: {
+        requestedBy: 'user-123',
+      },
+    })
   })
 
-  test('should validate required fields are present', () => {
+  test('requires execution and workflow IDs alongside trigger data', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123',
       workflowId: 'workflow-456',
-      payload: {},
+      data: {
+        triggerType: 'manualTrigger',
+      },
     }
 
     expect(payload).toHaveProperty('executionId')
     expect(payload).toHaveProperty('workflowId')
-    expect(payload).toHaveProperty('payload')
+    expect(payload).toHaveProperty('data')
   })
 
-  test('should handle special characters in IDs', () => {
+  test('handles special characters in IDs', () => {
     const payload: EnqueueExecutionPayload = {
       executionId: 'exec-123-abc_def',
       workflowId: 'workflow-456-xyz_uvw',
-      payload: {},
+      data: {
+        triggerType: 'manualTrigger',
+      },
     }
 
     expect(payload.executionId).toContain('_')

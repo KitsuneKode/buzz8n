@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * @module processor/index
  * Process a single workflow execution request:
@@ -18,7 +17,11 @@ import {
 } from '@/processor/dag'
 import type { RFNode, RFEdge } from '@/processor/dag'
 
-import type { EnqueueExecutionPayload } from '@buzz8n/backend-common/types'
+import type {
+  EnqueueExecutionPayload,
+  ManualTriggerData,
+  WebhookTriggerData,
+} from '@buzz8n/backend-common/types'
 import { beginExecutionSetStatus, collapsePropertyNodes } from './helper'
 import { edgesSchema, nodesSchema } from '@buzz8n/common/types'
 import { runNode, type ExecContext } from '@/nodes'
@@ -29,6 +32,11 @@ import { redis } from '@/redis'
 interface ProcessExecutionResponseType {
   id: string
   payload: EnqueueExecutionPayload
+}
+
+function parseQueueData<T>(data: unknown): T {
+  if (typeof data === 'string') return JSON.parse(data) as T
+  return data as T
 }
 
 /**
@@ -48,6 +56,8 @@ export const processResponse = async ({
   logger.info(`Starting execution for workspace ${workflowId} with executionID: ${executionId}`)
 
   try {
+    const triggerData = parseQueueData<WebhookTriggerData | ManualTriggerData>(data)
+
     const execution = await prisma.execution.findFirst({
       where: {
         id: executionId,
@@ -72,14 +82,7 @@ export const processResponse = async ({
     const nodes = (nodesAny ?? []) as RFNode[]
     const edges = (edgesAny ?? []) as RFEdge[]
 
-    // Check if payload.triggerType is 'workflow' or 'manualTrigger'; only proceed if so
-
-    const triggerType = ((data: any) =>
-      data?.triggerType === 'webhook' || data.triggerType === 'manualTrigger'
-        ? [data.triggerType]
-        : [])(JSON.parse(data as unknown as string))
-
-    const triggerId = nodes.find((n) => n?.data?.type && triggerType.includes(n.data.type))?.id
+    const triggerId = nodes.find((n) => n?.data?.type === triggerData.triggerType)?.id
 
     if (!execution || !nodesSuccess || !edgesSuccess || !triggerId) {
       if (!nodesSuccess || !edgesSuccess)
@@ -114,12 +117,15 @@ export const processResponse = async ({
     const { nodeMap, children, indegree } = buildGraph(executableNodes, filteredEdges, allowed)
     validateDAG(children, indegree)
 
-    // Prepare execution context; prefer explicit payload, then DB-stored triggerPayload
-    const triggerPayload = (payload as any)?.data ?? (execution?.logs as any)?.triggerPayload ?? {}
-
     const ctx: ExecContext = {
       userId: execution.userId,
-      $json: { body: triggerPayload, executionId, workflowId },
+      $json: {
+        body:
+          triggerData.triggerType === 'manualTrigger' ? (triggerData.body ?? {}) : triggerData.body,
+        trigger: triggerData,
+        executionId,
+        workflowId,
+      },
       $node: {},
     }
 
