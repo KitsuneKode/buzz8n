@@ -94,7 +94,7 @@ router.post('/signin', rateLimitMiddleware.auth, async (req, res, next) => {
         maxAge: 1000 * 60 * 60 * 24 * 7,
         httpOnly: true,
         sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-        domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+        domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunekode.in',
         path: '/',
       })
       .send('Signed in sucessfully')
@@ -136,7 +136,7 @@ router.post('/signout', (req, res) => {
       secure: NODE_ENV !== 'development',
       httpOnly: true,
       sameSite: NODE_ENV === 'development' ? 'lax' : 'none',
-      domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunelabs.xyz',
+      domain: NODE_ENV === 'development' ? 'localhost' : 'buzz8n.kitsunekode.in',
       path: '/',
     })
     .send('Signed out successfully')
